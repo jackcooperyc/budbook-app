@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="slides-format" content="viewport">
+    <title>BudBook — YC Investor Pitch Deck</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="/pitch-deck-shared.css">
+    <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+
+    <style type="text/tailwindcss">
+        @theme {
+            --color-brand-primary: #2F855A;
+            --color-bg: #0f1a0e;
+            --color-bg-deep: #080f07;
+            --color-surface: #1a2e18;
+            --color-text: #f0f7ef;
+            --color-text-secondary: #b8d4b5;
+            --color-text-muted: #7a9e77;
+            --color-accent-1: #6abf5e;
+            --color-accent-2: #c8f0a0;
+            --color-accent-3: #d4a72c;
+            --color-glass-bg: rgba(255,255,255,0.05);
+            --color-glass-border: rgba(106,191,94,0.12);
+            --color-vignette: rgba(0,0,0,0.45);
+            --font-display: 'Archivo Black', sans-serif;
+            --font-body: 'DM Sans', sans-serif;
+        }
+    </style>
+
+    <style>
+        :root {
+            --color-bg: #0f1a0e;
+            --color-text: #f0f7ef;
+            --glow-color-rgb: 106,191,94;
+        }
+        *, *::before, *::after { box-sizing: border-box; }
+        html, body { background: var(--color-bg); margin: 0; }
+        body { font-family: 'DM Sans', sans-serif; color: var(--color-text); overflow: hidden; height: 100vh; width: 100vw; }
+        .deck { width: 100vw; height: 100vh; position: relative; }
+        .slide { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: var(--color-bg); display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: 0; transform: scale(0.95); transition: opacity 0.7s ease, transform 0.7s ease; pointer-events: none; overflow: hidden; }
+        .slide.active { opacity: 1; transform: scale(1); pointer-events: all; }
+        .slide > .content { position: relative; z-index: 2; width: 100%; max-width: 1100px; padding: clamp(1.5rem, 4vw, 4rem); }
+        .nav-controls { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 16px; z-index: 100; background: rgba(255,255,255,0.05); backdrop-filter: blur(10px); padding: 10px 24px; border-radius: 40px; border: 1px solid rgba(106,191,94,0.12); }
+        .nav-btn { width: 40px; height: 40px; border: none; background: rgba(255,255,255,0.05); color: #6abf5e; border-radius: 50%; font-size: 1.2rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.3s; }
+        .nav-btn:hover { background: rgba(106,191,94,0.15); }
+        .slide-dots { display: flex; gap: 8px; }
+        .slide-dots .dot { width: 10px; height: 10px; border-radius: 50%; background: rgba(106,191,94,0.15); cursor: pointer; transition: background 0.3s, transform 0.3s; }
+        .slide-dots .dot.active { background: #6abf5e; transform: scale(1.3); }
+        .slide-counter { font-size: 0.8rem; color: #7a9e77; min-width: 40px; text-align: center; }
+        .reveal { opacity: 0; transform: translateY(20px); }
+        .text-glow { text-shadow: 0 0 20px rgba(106,191,94,0.5), 0 0 40px rgba(106,191,94,0.2); }
+        .stat-glow { text-shadow: 0 0 30px rgba(106,191,94,0.6), 0 0 60px rgba(106,191,94,0.25); }
+        @keyframes glow-pulse {
+            0%, 100% { text-shadow: 0 0 20px rgba(106,191,94,0.5), 0 0 40px rgba(106,191,94,0.2); }
+            50% { text-shadow: 0 0 30px rgba(106,191,94,0.8), 0 0 60px rgba(106,191,94,0.3); }
+        }
+        .glow-pulse { animation: glow-pulse 3s ease-in-out infinite; }
+        @keyframes float-slow {
+            0% { transform: translate(0,0) scale(1); }
+            25% { transform: translate(60px,-50px) scale(1.12); }
+            50% { transform: translate(-40px,40px) scale(0.9); }
+            75% { transform: translate(50px,20px) scale(1.08); }
+            100% { transform: translate(0,0) scale(1); }
+        }
+        @keyframes float-drift {
+            0% { transform: translate(0,0) scale(1) rotate(0deg); }
+            33% { transform: translate(-50px,-60px) scale(1.15) rotate(3deg); }
+            66% { transform: translate(40px,30px) scale(0.88) rotate(-2deg); }
+            100% { transform: translate(0,0) scale(1) rotate(0deg); }
+        }
+        @keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
+        .gradient-mesh { position: absolute; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; }
+        .blob { position: absolute; border-radius: 50%; filter: blur(80px); animation: float-slow 10s ease-in-out infinite; }
+        .blob:nth-child(2) { animation: float-drift 14s ease-in-out infinite; }
+        .blob:nth-child(3) { animation: float-slow 18s ease-in-out infinite reverse; }
+        .slide::before {
+            content:''; position:absolute; inset:0; z-index:1; pointer-events:none;
+            background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+            background-repeat:repeat; background-size:256px; opacity:0.03; mix-blend-mode:overlay;
+        }
+        .slide::after {
+            content:''; position:absolute; inset:0; z-index:1; pointer-events:none;
+            background:radial-gradient(ellipse at center, transparent 50%, var(--color-vignette) 100%);
+        }
+        .bar-fill { border-radius:4px; height:10px; background: linear-gradient(90deg, #6abf5e, #c8f0a0); }
+        .bar-track { background: rgba(255,255,255,0.06); border-radius:4px; height:10px; overflow:hidden; }
+        .badge-pill { display:inline-flex; align-items:center; gap:6px; background:rgba(106,191,94,0.12); border:1px solid rgba(106,191,94,0.25); border-radius:999px; padding:4px 14px; font-size:0.8rem; font-weight:600; letter-spacing:0.04em; text-transform:uppercase; color:#6abf5e; }
+        .timeline-line { position:absolute; left:22px; top:24px; bottom:24px; width:2px; background:linear-gradient(180deg,#6abf5e,rgba(106,191,94,0.1)); }
+        .timeline-dot { width:14px; height:14px; border-radius:50%; background:#6abf5e; box-shadow:0 0 12px rgba(106,191,94,0.6); flex-shrink:0; margin-top:3px; }
+        @media (prefers-reduced-motion:reduce) { *,*::before,*::after { animation-duration:0.01ms !important; transition-duration:0.2s !important; } }
+    </style>
+</head>
+<body>
+
+<div class="mouse-spotlight" style="position:fixed;inset:0;z-index:99;pointer-events:none;"></div>
+
+<div class="deck">
+
+    <!-- SLIDE 1: TITLE -->
+    <div class="slide slide-1 active" data-slide="1">
+        <div class="gradient-mesh">
+            <div class="blob" style="width:500px;height:500px;top:-120px;right:-100px;background:#6abf5e;opacity:0.14;"></div>
+            <div class="blob" style="width:320px;height:320px;bottom:-80px;left:-60px;background:#c8f0a0;opacity:0.10;"></div>
+            <div class="blob" style="width:200px;height:200px;top:42%;left:10%;background:#d4a72c;opacity:0.09;"></div>
+        </div>
+        <canvas class="particle-canvas" style="position:absolute;inset:0;z-index:1;"></canvas>
+        <div class="content text-center">
+            <img src="/BudBookLogoGradientBG.png" class="slide-brand-logo--hero reveal" alt="BudBook" decoding="async">
+            <h1 class="font-display reveal" style="font-size:clamp(3rem,7vw,5.5rem);background:linear-gradient(135deg,#6abf5e,#c8f0a0,#6abf5e);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin:0 0 14px;line-height:1.1;">BudBook</h1>
+            <p class="reveal" style="font-size:clamp(0.9rem,1.6vw,1.3rem);letter-spacing:6px;text-transform:uppercase;color:#7a9e77;margin:0 0 24px;font-weight:500;">The Cannabis Wellness OS</p>
+            <div class="badge-pill reveal">YC Application · 2026 Batch</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 2: THE PROBLEM -->
+    <div class="slide slide-2" data-slide="2">
+        <div class="gradient-mesh">
+            <div class="blob" style="width:400px;height:400px;top:-100px;right:-80px;background:#6abf5e;opacity:0.08;"></div>
+            <div class="blob" style="width:260px;height:260px;bottom:-60px;left:-40px;background:#d4a72c;opacity:0.07;"></div>
+        </div>
+        <div class="content">
+            <div class="badge-pill reveal" style="margin-bottom:16px;">The Problem</div>
+            <h2 class="font-display reveal" style="font-size:clamp(2rem,4.5vw,3.2rem);margin:0 0 10px;line-height:1.15;">44M Americans use cannabis.<br>None of them know why it works.</h2>
+            <p class="reveal" style="color:#b8d4b5;font-size:1.05rem;margin:0 0 28px;max-width:700px;">Cannabis has 700+ active strains, 150+ terpenes, and dozens of consumption methods. Yet consumers choose products blindly — with zero personal data to guide them.</p>
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px;">
+                <div class="reveal" style="background:rgba(255,255,255,0.04);border:1px solid rgba(106,191,94,0.1);border-left:4px solid #6abf5e;border-radius:12px;padding:20px;">
+                    <div style="font-size:2rem;font-family:'Archivo Black',sans-serif;color:#6abf5e;" class="glow-pulse">87%</div>
+                    <div style="color:#b8d4b5;font-size:0.88rem;margin-top:4px;">of users rely solely on budtender recommendations with zero personal history</div>
+                </div>
+                <div class="reveal" style="background:rgba(255,255,255,0.04);border:1px solid rgba(106,191,94,0.1);border-left:4px solid #c8f0a0;border-radius:12px;padding:20px;">
+                    <div style="font-size:2rem;font-family:'Archivo Black',sans-serif;color:#c8f0a0;">0</div>
+                    <div style="color:#b8d4b5;font-size:0.88rem;margin-top:4px;">mainstream apps with both strain science AND personal session tracking in one place</div>
+                </div>
+                <div class="reveal" style="background:rgba(255,255,255,0.04);border:1px solid rgba(106,191,94,0.1);border-left:4px solid #d4a72c;border-radius:12px;padding:20px;">
+                    <div style="font-size:2rem;font-family:'Archivo Black',sans-serif;color:#d4a72c;">$45B</div>
+                    <div style="color:#b8d4b5;font-size:0.88rem;margin-top:4px;">U.S. market in 2025 — with consumer data almost entirely siloed or lost</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 3: THE SOLUTION -->
+    <div class="slide slide-3" data-slide="3">
+        <div class="gradient-mesh">
+            <div class="blob" style="width:450px;height:450px;top:-80px;left:-100px;background:#6abf5e;opacity:0.09;"></div>
+            <div class="blob" style="width:280px;height:280px;bottom:-60px;right:-60px;background:#c8f0a0;opacity:0.07;"></div>
+        </div>
+        <div class="content">
+            <div class="badge-pill reveal" style="margin-bottom:16px;">The Solution</div>
+            <h2 class="font-display reveal" style="font-size:clamp(2rem,4vw,3rem);margin:0 0 8px;">BudBook: Your Personal Cannabis OS</h2>
+            <p class="reveal" style="color:#b8d4b5;font-size:1rem;margin:0 0 26px;max-width:680px;">A QR-scan-to-journal app that turns every product's lab analysis into a personal wellness dataset — powered by Buddy AI, a real-time strain advisor.</p>
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:18px;">
+                <div class="reveal" style="background:rgba(255,255,255,0.05);border:1px solid rgba(106,191,94,0.12);border-radius:14px;padding:20px 18px;transition:transform 0.2s,box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-4px)';this.style.boxShadow='0 8px 32px rgba(106,191,94,0.15)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
+                    <div class="flex justify-center" style="margin-bottom:8px" aria-hidden="true"><i data-lucide="camera" class="deck-icon deck-icon--card text-brand-primary"></i></div>
+                    <div style="font-weight:700;font-size:1rem;margin-bottom:6px;">QR Lab Scan</div>
+                    <div style="color:#b8d4b5;font-size:0.85rem;">Scan any COA QR code to auto-populate terpene profiles, cannabinoid ratios, and batch data instantly.</div>
+                </div>
+                <div class="reveal" style="background:rgba(255,255,255,0.05);border:1px solid rgba(106,191,94,0.12);border-radius:14px;padding:20px 18px;transition:transform 0.2s,box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-4px)';this.style.boxShadow='0 8px 32px rgba(106,191,94,0.15)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
+                    <div class="flex justify-center" style="margin-bottom:8px" aria-hidden="true"><i data-lucide="notebook" class="deck-icon deck-icon--card text-brand-primary"></i></div>
+                    <div style="font-weight:700;font-size:1rem;margin-bottom:6px;">Session Journal</div>
+                    <div style="color:#b8d4b5;font-size:0.85rem;">Log sessions with mood, pain, anxiety, and wellness outcomes. Build a longitudinal personal dataset over time.</div>
+                </div>
+                <div class="reveal" style="background:rgba(255,255,255,0.05);border:1px solid rgba(106,191,94,0.12);border-radius:14px;padding:20px 18px;transition:transform 0.2s,box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-4px)';this.style.boxShadow='0 8px 32px rgba(106,191,94,0.15)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
+                    <div class="flex justify-center" style="margin-bottom:8px" aria-hidden="true"><i data-lucide="bot" class="deck-icon deck-icon--card text-brand-primary"></i></div>
+                    <div style="font-weight:700;font-size:1rem;margin-bottom:6px;">Buddy AI</div>
+                    <div style="color:#b8d4b5;font-size:0.85rem;">AI-powered strain advisor trained on your history. Personalized recommendations based on your terpene & cannabinoid responses.</div>
+                </div>
+                <div class="reveal" style="background:rgba(255,255,255,0.05);border:1px solid rgba(106,191,94,0.12);border-radius:14px;padding:20px 18px;transition:transform 0.2s,box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-4px)';this.style.boxShadow='0 8px 32px rgba(106,191,94,0.15)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
+                    <div class="flex justify-center" style="margin-bottom:8px" aria-hidden="true"><i data-lucide="leaf" class="deck-icon deck-icon--card text-brand-primary"></i></div>
+                    <div style="font-weight:700;font-size:1rem;margin-bottom:6px;">Strain Library</div>
+                    <div style="color:#b8d4b5;font-size:0.85rem;">150+ terpene profiles, 700+ strains, and full cannabinoid breakdowns — the most comprehensive consumer-facing database.</div>
+                </div>
+                <div class="reveal" style="background:rgba(255,255,255,0.05);border:1px solid rgba(106,191,94,0.12);border-radius:14px;padding:20px 18px;transition:transform 0.2s,box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-4px)';this.style.boxShadow='0 8px 32px rgba(106,191,94,0.15)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
+                    <div class="flex justify-center" style="margin-bottom:8px" aria-hidden="true"><i data-lucide="smartphone" class="deck-icon deck-icon--card text-brand-primary"></i></div>
+                    <div style="font-weight:700;font-size:1rem;margin-bottom:6px;">Stash Manager</div>
+                    <div style="color:#b8d4b5;font-size:0.85rem;">Track active products, consumption rates, and batch comparisons. Never forget what's in your collection.</div>
+                </div>
+                <div class="reveal" style="background:rgba(255,255,255,0.05);border:1px solid rgba(106,191,94,0.12);border-radius:14px;padding:20px 18px;transition:transform 0.2s,box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-4px)';this.style.boxShadow='0 8px 32px rgba(106,191,94,0.15)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
+                    <div class="flex justify-center" style="margin-bottom:8px" aria-hidden="true"><i data-lucide="globe" class="deck-icon deck-icon--card text-brand-primary"></i></div>
+                    <div style="font-weight:700;font-size:1rem;margin-bottom:6px;">Social Explore</div>
+                    <div style="color:#b8d4b5;font-size:0.85rem;">Community strain ratings, trending products, and crowd-sourced effect data — the cannabis Strava.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 4: MARKET SIZE -->
+    <div class="slide slide-4" data-slide="4">
+        <div class="gradient-mesh">
+            <div class="blob" style="width:420px;height:420px;top:-100px;right:-80px;background:#6abf5e;opacity:0.09;"></div>
+            <div class="blob" style="width:300px;height:300px;bottom:-60px;left:-60px;background:#c8f0a0;opacity:0.07;"></div>
+        </div>
+        <canvas class="particle-canvas-ambient" style="position:absolute;inset:0;z-index:1;"></canvas>
+        <div class="content">
+            <div class="badge-pill reveal" style="margin-bottom:16px;">Market Opportunity</div>
+            <h2 class="font-display reveal" style="font-size:clamp(2rem,4vw,3rem);margin:0 0 28px;">A Multi-Billion Dollar Data Layer</h2>
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-bottom:22px;">
+                <div class="reveal" style="background:rgba(255,255,255,0.04);border:1px solid rgba(106,191,94,0.12);border-radius:14px;padding:24px;text-align:center;">
+                    <div style="font-size:2.6rem;font-family:'Archivo Black',sans-serif;color:#6abf5e;" class="stat-glow" data-count="45">0</div><div style="font-size:0.7rem;color:#7a9e77;letter-spacing:2px;text-transform:uppercase;margin-top:2px;">B USD</div>
+                    <div style="color:#b8d4b5;font-size:0.82rem;margin-top:8px;">U.S. Legal Cannabis Market (2025)</div>
+                </div>
+                <div class="reveal" style="background:rgba(255,255,255,0.04);border:1px solid rgba(106,191,94,0.12);border-radius:14px;padding:24px;text-align:center;">
+                    <div style="font-size:2.6rem;font-family:'Archivo Black',sans-serif;color:#c8f0a0;" class="stat-glow" data-count="44">0</div><div style="font-size:0.7rem;color:#7a9e77;letter-spacing:2px;text-transform:uppercase;margin-top:2px;">M Users</div>
+                    <div style="color:#b8d4b5;font-size:0.82rem;margin-top:8px;">Active U.S. Cannabis Consumers (2025)</div>
+                </div>
+                <div class="reveal" style="background:rgba(255,255,255,0.04);border:1px solid rgba(106,191,94,0.12);border-radius:14px;padding:24px;text-align:center;">
+                    <div style="font-size:2.6rem;font-family:'Archivo Black',sans-serif;color:#d4a72c;" class="stat-glow" data-count="32">0</div><div style="font-size:0.7rem;color:#7a9e77;letter-spacing:2px;text-transform:uppercase;margin-top:2px;">B USD</div>
+                    <div style="color:#b8d4b5;font-size:0.82rem;margin-top:8px;">Cannabis Tech Market by 2033</div>
+                </div>
+            </div>
+            <div class="reveal" style="background:rgba(255,255,255,0.04);border:1px solid rgba(106,191,94,0.1);border-radius:12px;padding:18px 22px;">
+                <p style="color:#b8d4b5;font-size:0.9rem;margin:0;"><span style="color:#6abf5e;font-weight:700;">SAM:</span> ~8M wellness-focused cannabis users who actively track health data · <span style="color:#6abf5e;font-weight:700;">SOM (Yr 3):</span> 500K MAU at $4.99/mo = $30M ARR · <span style="color:#c8f0a0;font-weight:700;">CAGR:</span> U.S. cannabis market growing at 14.5% through 2035</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 5: PRODUCT DEMO / HOW IT WORKS -->
+    <div class="slide slide-5" data-slide="5">
+        <div class="gradient-mesh">
+            <div class="blob" style="width:380px;height:380px;top:-80px;left:-80px;background:#6abf5e;opacity:0.08;"></div>
+            <div class="blob" style="width:280px;height:280px;bottom:-50px;right:-50px;background:#d4a72c;opacity:0.07;"></div>
+        </div>
+        <div class="content">
+            <div class="badge-pill reveal" style="margin-bottom:16px;">How It Works</div>
+            <h2 class="font-display reveal" style="font-size:clamp(1.8rem,3.5vw,2.8rem);margin:0 0 26px;">Scan. Log. Learn. Optimize.</h2>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:28px;align-items:start;">
+                <div style="display:flex;flex-direction:column;gap:16px;position:relative;">
+                    <div class="timeline-line"></div>
+                    <div class="reveal" style="display:flex;gap:16px;align-items:flex-start;padding-left:42px;">
+                        <div>
+                            <div style="font-weight:700;font-size:0.95rem;color:#c8f0a0;">01 · Scan Product</div>
+                            <div style="color:#b8d4b5;font-size:0.83rem;margin-top:3px;">Point camera at any dispensary product's QR code. COA data auto-fills: THC%, CBD%, terpene ratios, batch ID.</div>
+                        </div>
+                    </div>
+                    <div class="reveal" style="display:flex;gap:16px;align-items:flex-start;padding-left:42px;">
+                        <div>
+                            <div style="font-weight:700;font-size:0.95rem;color:#c8f0a0;">02 · Log Session</div>
+                            <div style="color:#b8d4b5;font-size:0.83rem;margin-top:3px;">Record method, dose, time, mood, pain level (1-10), anxiety, and any wellness notes post-session.</div>
+                        </div>
+                    </div>
+                    <div class="reveal" style="display:flex;gap:16px;align-items:flex-start;padding-left:42px;">
+                        <div>
+                            <div style="font-weight:700;font-size:0.95rem;color:#c8f0a0;">03 · Buddy AI Learns</div>
+                            <div style="color:#b8d4b5;font-size:0.83rem;margin-top:3px;">AI correlates your terpene and cannabinoid data against your logged outcomes. Identifies your personal "wellness fingerprint."</div>
+                        </div>
+                    </div>
+                    <div class="reveal" style="display:flex;gap:16px;align-items:flex-start;padding-left:42px;">
+                        <div>
+                            <div style="font-weight:700;font-size:0.95rem;color:#c8f0a0;">04 · Get Personalized Recs</div>
+                            <div style="color:#b8d4b5;font-size:0.83rem;margin-top:3px;">Buddy surfaces new products, terpene combos, and dosing schedules proven to work for your body — not generic averages.</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="reveal" style="background:rgba(255,255,255,0.04);border:1px solid rgba(106,191,94,0.12);border-radius:16px;padding:22px;">
+                    <div style="font-weight:700;font-size:0.85rem;color:#7a9e77;letter-spacing:2px;text-transform:uppercase;margin-bottom:14px;">Sample User Journey (90 Days)</div>
+                    <div style="display:flex;flex-direction:column;gap:10px;">
+                        <div>
+                            <div style="display:flex;justify-content:space-between;font-size:0.82rem;margin-bottom:4px;"><span style="color:#b8d4b5;">Sessions logged</span><span style="color:#6abf5e;font-weight:700;">47</span></div>
+                            <div class="bar-track"><div class="bar-fill" data-width="78" style="width:0%"></div></div>
+                        </div>
+                        <div>
+                            <div style="display:flex;justify-content:space-between;font-size:0.82rem;margin-bottom:4px;"><span style="color:#b8d4b5;">Strains tested</span><span style="color:#6abf5e;font-weight:700;">12</span></div>
+                            <div class="bar-track"><div class="bar-fill" data-width="55" style="width:0%"></div></div>
+                        </div>
+                        <div>
+                            <div style="display:flex;justify-content:space-between;font-size:0.82rem;margin-bottom:4px;"><span style="color:#b8d4b5;">Anxiety reduction (avg)</span><span style="color:#c8f0a0;font-weight:700;">-34%</span></div>
+                            <div class="bar-track"><div class="bar-fill" data-width="34" style="width:0%"></div></div>
+                        </div>
+                        <div>
+                            <div style="display:flex;justify-content:space-between;font-size:0.82rem;margin-bottom:4px;"><span style="color:#b8d4b5;">Buddy AI recommendations used</span><span style="color:#d4a72c;font-weight:700;">8 of 9</span></div>
+                            <div class="bar-track"><div class="bar-fill" data-width="89" style="width:0%"></div></div>
+                        </div>
+                        <div>
+                            <div style="display:flex;justify-content:space-between;font-size:0.82rem;margin-bottom:4px;"><span style="color:#b8d4b5;">Average session rating</span><span style="color:#6abf5e;font-weight:700;">4.3 / 5.0</span></div>
+                            <div class="bar-track"><div class="bar-fill" data-width="86" style="width:0%"></div></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 6: TRACTION / METRICS -->
+    <div class="slide slide-6" data-slide="6">
+        <div class="gradient-mesh">
+            <div class="blob" style="width:450px;height:450px;top:-100px;right:-80px;background:#6abf5e;opacity:0.10;"></div>
+            <div class="blob" style="width:280px;height:280px;bottom:-60px;left:-50px;background:#c8f0a0;opacity:0.08;"></div>
+        </div>
+        <div class="content">
+            <div class="badge-pill reveal" style="margin-bottom:16px;">Traction</div>
+            <h2 class="font-display reveal" style="font-size:clamp(2rem,4vw,3rem);margin:0 0 26px;">Built, Live, and Growing</h2>
+            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:22px;">
+                <div class="reveal" style="background:rgba(255,255,255,0.05);border:1px solid rgba(106,191,94,0.12);border-radius:12px;padding:18px;text-align:center;">
+                    <div style="font-size:2rem;font-family:'Archivo Black',sans-serif;color:#6abf5e;" class="glow-pulse">Live</div>
+                    <div style="color:#b8d4b5;font-size:0.8rem;margin-top:6px;">Deployed web app at budbook.base44.app</div>
+                </div>
+                <div class="reveal" style="background:rgba(255,255,255,0.05);border:1px solid rgba(106,191,94,0.12);border-radius:12px;padding:18px;text-align:center;">
+                    <div style="font-size:2rem;font-family:'Archivo Black',sans-serif;color:#c8f0a0;">6</div>
+                    <div style="color:#b8d4b5;font-size:0.8rem;margin-top:6px;">Core features shipped: Scan, Journal, Stash, Buddy AI, Explore, Profile</div>
+                </div>
+                <div class="reveal" style="background:rgba(255,255,255,0.05);border:1px solid rgba(106,191,94,0.12);border-radius:12px;padding:18px;text-align:center;">
+                    <div style="font-size:2rem;font-family:'Archivo Black',sans-serif;color:#d4a72c;">0</div>
+                    <div style="color:#b8d4b5;font-size:0.8rem;margin-top:6px;">Outside funding — built solo, capital efficient from day one</div>
+                </div>
+                <div class="reveal" style="background:rgba(255,255,255,0.05);border:1px solid rgba(106,191,94,0.12);border-radius:12px;padding:18px;text-align:center;">
+                    <div style="font-size:2rem;font-family:'Archivo Black',sans-serif;color:#6abf5e;">CŪPR</div>
+                    <div style="color:#b8d4b5;font-size:0.8rem;margin-top:6px;">Part of a broader cannabis SaaS ecosystem (BudBeat, CMS/Ads)</div>
+                </div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+                <div class="reveal" style="background:rgba(255,255,255,0.04);border:1px solid rgba(106,191,94,0.1);border-left:4px solid #6abf5e;border-radius:12px;padding:16px 20px;">
+                    <div style="font-weight:700;font-size:0.9rem;margin-bottom:5px;color:#c8f0a0;">What's Shipped</div>
+                    <div style="color:#b8d4b5;font-size:0.83rem;">Dashboard · My Stash · Session Journal · QR Scanner · Buddy AI Chat · Strain Library · Social Explore · Profile · Wellness Tracking (pain, mood, anxiety)</div>
+                </div>
+                <div class="reveal" style="background:rgba(255,255,255,0.04);border:1px solid rgba(106,191,94,0.1);border-left:4px solid #d4a72c;border-radius:12px;padding:16px 20px;">
+                    <div style="font-weight:700;font-size:0.9rem;margin-bottom:5px;color:#c8f0a0;">Next Milestones</div>
+                    <div style="color:#b8d4b5;font-size:0.83rem;">iOS/Android native apps · Dispensary B2B API · Personalized AI insights v2 · Social feed with strain reviews · Subscription monetization launch</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 7: BUSINESS MODEL -->
+    <div class="slide slide-7" data-slide="7">
+        <div class="gradient-mesh">
+            <div class="blob" style="width:400px;height:400px;top:-90px;left:-90px;background:#6abf5e;opacity:0.09;"></div>
+            <div class="blob" style="width:260px;height:260px;bottom:-60px;right:-40px;background:#c8f0a0;opacity:0.07;"></div>
+        </div>
+        <div class="content">
+            <div class="badge-pill reveal" style="margin-bottom:16px;">Business Model</div>
+            <h2 class="font-display reveal" style="font-size:clamp(2rem,4vw,3rem);margin:0 0 26px;">Three Compounding Revenue Streams</h2>
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px;">
+                <div class="reveal" style="background:rgba(255,255,255,0.05);border:1px solid rgba(106,191,94,0.14);border-radius:16px;padding:24px;transition:transform 0.2s;" onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform=''">
+                    <div class="flex justify-center" style="margin-bottom:12px" aria-hidden="true"><i data-lucide="gem" class="deck-icon deck-icon--card text-brand-primary"></i></div>
+                    <div style="font-weight:700;font-size:1rem;margin-bottom:8px;">BudBook Premium</div>
+                    <div style="font-size:1.6rem;font-family:'Archivo Black',sans-serif;color:#6abf5e;margin-bottom:6px;">$4.99/mo</div>
+                    <div style="color:#b8d4b5;font-size:0.83rem;">Unlimited session logging · Advanced AI insights · Terpene trend analysis · Priority Buddy AI responses · Export data reports</div>
+                </div>
+                <div class="reveal" style="background:rgba(255,255,255,0.05);border:1px solid rgba(106,191,94,0.14);border-radius:16px;padding:24px;transition:transform 0.2s;" onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform=''">
+                    <div class="flex justify-center" style="margin-bottom:12px" aria-hidden="true"><i data-lucide="store" class="deck-icon deck-icon--card text-brand-primary"></i></div>
+                    <div style="font-weight:700;font-size:1rem;margin-bottom:8px;">Dispensary B2B API</div>
+                    <div style="font-size:1.6rem;font-family:'Archivo Black',sans-serif;color:#c8f0a0;margin-bottom:6px;">$299/mo</div>
+                    <div style="color:#b8d4b5;font-size:0.83rem;">Anonymized consumer preference data · Strain performance analytics · Inventory insight dashboards · Integrates with Leafly, Jane, METRC</div>
+                </div>
+                <div class="reveal" style="background:rgba(255,255,255,0.05);border:1px solid rgba(106,191,94,0.14);border-radius:16px;padding:24px;transition:transform 0.2s;" onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform=''">
+                    <div class="flex justify-center" style="margin-bottom:12px" aria-hidden="true"><i data-lucide="bar-chart-3" class="deck-icon deck-icon--card text-brand-primary"></i></div>
+                    <div style="font-weight:700;font-size:1rem;margin-bottom:8px;">Brand Data Insights</div>
+                    <div style="font-size:1.6rem;font-family:'Archivo Black',sans-serif;color:#d4a72c;margin-bottom:6px;">$999/mo</div>
+                    <div style="color:#b8d4b5;font-size:0.83rem;">Growers & brands license aggregated terpene effect data · Strain development feedback loops · Consumer resonance scores by region</div>
+                </div>
+            </div>
+            <div class="reveal" style="margin-top:20px;background:rgba(106,191,94,0.06);border:1px solid rgba(106,191,94,0.12);border-radius:10px;padding:14px 20px;">
+                <p style="color:#b8d4b5;font-size:0.88rem;margin:0;text-align:center;"><span style="color:#6abf5e;font-weight:700;">Year 3 Target:</span> 500K MAU × 15% conversion = 75K Premium users = <span style="color:#c8f0a0;font-weight:700;">$4.5M ARR</span> (consumer) + 200 dispensaries × $299 = <span style="color:#c8f0a0;font-weight:700;">$718K ARR</span> (B2B)</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 8: COMPETITIVE LANDSCAPE -->
+    <div class="slide slide-8" data-slide="8">
+        <div class="gradient-mesh">
+            <div class="blob" style="width:420px;height:420px;top:-100px;right:-80px;background:#6abf5e;opacity:0.08;"></div>
+            <div class="blob" style="width:260px;height:260px;bottom:-60px;left:-50px;background:#d4a72c;opacity:0.07;"></div>
+        </div>
+        <div class="content">
+            <div class="badge-pill reveal" style="margin-bottom:16px;">Competitive Landscape</div>
+            <h2 class="font-display reveal" style="font-size:clamp(1.8rem,3.5vw,2.8rem);margin:0 0 22px;">No One Owns the Consumer Data Layer</h2>
+            <div class="reveal" style="overflow-x:auto;">
+                <table style="width:100%;border-collapse:separate;border-spacing:0 8px;font-size:0.83rem;">
+                    <thead>
+                        <tr>
+                            <th style="text-align:left;padding:8px 14px;color:#7a9e77;font-weight:600;letter-spacing:1px;font-size:0.75rem;text-transform:uppercase;"></th>
+                            <th style="text-align:center;padding:8px 10px;color:#7a9e77;font-weight:600;letter-spacing:1px;font-size:0.75rem;text-transform:uppercase;">QR Lab Scan</th>
+                            <th style="text-align:center;padding:8px 10px;color:#7a9e77;font-weight:600;letter-spacing:1px;font-size:0.75rem;text-transform:uppercase;">AI Advisor</th>
+                            <th style="text-align:center;padding:8px 10px;color:#7a9e77;font-weight:600;letter-spacing:1px;font-size:0.75rem;text-transform:uppercase;">Wellness Tracking</th>
+                            <th style="text-align:center;padding:8px 10px;color:#7a9e77;font-weight:600;letter-spacing:1px;font-size:0.75rem;text-transform:uppercase;">Strain Library</th>
+                            <th style="text-align:center;padding:8px 10px;color:#7a9e77;font-weight:600;letter-spacing:1px;font-size:0.75rem;text-transform:uppercase;">B2B Data API</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="background:rgba(106,191,94,0.10);border-radius:10px;">
+                            <td style="padding:10px 14px;font-weight:700;color:#c8f0a0;border-radius:10px 0 0 10px;">BudBook</td>
+                            <td style="padding:10px;text-align:center;"><i data-lucide="check" class="deck-icon deck-icon--table text-brand-primary" aria-hidden="true"></i></td>
+                            <td style="padding:10px;text-align:center;"><i data-lucide="check" class="deck-icon deck-icon--table text-brand-primary" aria-hidden="true"></i></td>
+                            <td style="padding:10px;text-align:center;"><i data-lucide="check" class="deck-icon deck-icon--table text-brand-primary" aria-hidden="true"></i></td>
+                            <td style="padding:10px;text-align:center;"><i data-lucide="check" class="deck-icon deck-icon--table text-brand-primary" aria-hidden="true"></i></td>
+                            <td style="padding:10px;text-align:center;border-radius:0 10px 10px 0;"><span style="display:inline-flex;align-items:center;gap:6px"><i data-lucide="refresh-cw" class="deck-icon deck-icon--table text-brand-primary" aria-hidden="true"></i> Roadmap</span></td>
+                        </tr>
+                        <tr style="background:rgba(255,255,255,0.03);">
+                            <td style="padding:10px 14px;color:#b8d4b5;border-radius:10px 0 0 10px;">Leafly</td>
+                            <td style="padding:10px;text-align:center;color:#7a9e77;"><i data-lucide="x" class="deck-icon deck-icon--table text-brand-primary" aria-hidden="true"></i></td>
+                            <td style="padding:10px;text-align:center;color:#7a9e77;"><i data-lucide="x" class="deck-icon deck-icon--table text-brand-primary" aria-hidden="true"></i></td>
+                            <td style="padding:10px;text-align:center;color:#7a9e77;"><i data-lucide="x" class="deck-icon deck-icon--table text-brand-primary" aria-hidden="true"></i></td>
+                            <td style="padding:10px;text-align:center;"><i data-lucide="check" class="deck-icon deck-icon--table text-brand-primary" aria-hidden="true"></i></td>
+                            <td style="padding:10px;text-align:center;border-radius:0 10px 10px 0;color:#7a9e77;">Limited</td>
+                        </tr>
+                        <tr style="background:rgba(255,255,255,0.03);">
+                            <td style="padding:10px 14px;color:#b8d4b5;border-radius:10px 0 0 10px;">Weedmaps</td>
+                            <td style="padding:10px;text-align:center;color:#7a9e77;"><i data-lucide="x" class="deck-icon deck-icon--table text-brand-primary" aria-hidden="true"></i></td>
+                            <td style="padding:10px;text-align:center;color:#7a9e77;"><i data-lucide="x" class="deck-icon deck-icon--table text-brand-primary" aria-hidden="true"></i></td>
+                            <td style="padding:10px;text-align:center;color:#7a9e77;"><i data-lucide="x" class="deck-icon deck-icon--table text-brand-primary" aria-hidden="true"></i></td>
+                            <td style="padding:10px;text-align:center;"><i data-lucide="check" class="deck-icon deck-icon--table text-brand-primary" aria-hidden="true"></i></td>
+                            <td style="padding:10px;text-align:center;border-radius:0 10px 10px 0;color:#7a9e77;"><i data-lucide="x" class="deck-icon deck-icon--table text-brand-primary" aria-hidden="true"></i></td>
+                        </tr>
+                        <tr style="background:rgba(255,255,255,0.03);">
+                            <td style="padding:10px 14px;color:#b8d4b5;border-radius:10px 0 0 10px;">JointSesh</td>
+                            <td style="padding:10px;text-align:center;color:#7a9e77;"><i data-lucide="x" class="deck-icon deck-icon--table text-brand-primary" aria-hidden="true"></i></td>
+                            <td style="padding:10px;text-align:center;color:#7a9e77;"><i data-lucide="x" class="deck-icon deck-icon--table text-brand-primary" aria-hidden="true"></i></td>
+                            <td style="padding:10px;text-align:center;"><i data-lucide="check" class="deck-icon deck-icon--table text-brand-primary" aria-hidden="true"></i></td>
+                            <td style="padding:10px;text-align:center;color:#7a9e77;"><i data-lucide="x" class="deck-icon deck-icon--table text-brand-primary" aria-hidden="true"></i></td>
+                            <td style="padding:10px;text-align:center;border-radius:0 10px 10px 0;color:#7a9e77;"><i data-lucide="x" class="deck-icon deck-icon--table text-brand-primary" aria-hidden="true"></i></td>
+                        </tr>
+                        <tr style="background:rgba(255,255,255,0.03);">
+                            <td style="padding:10px 14px;color:#b8d4b5;border-radius:10px 0 0 10px;">Tetragram</td>
+                            <td style="padding:10px;text-align:center;color:#7a9e77;"><i data-lucide="x" class="deck-icon deck-icon--table text-brand-primary" aria-hidden="true"></i></td>
+                            <td style="padding:10px;text-align:center;color:#7a9e77;"><i data-lucide="x" class="deck-icon deck-icon--table text-brand-primary" aria-hidden="true"></i></td>
+                            <td style="padding:10px;text-align:center;"><i data-lucide="check" class="deck-icon deck-icon--table text-brand-primary" aria-hidden="true"></i></td>
+                            <td style="padding:10px;text-align:center;"><i data-lucide="check" class="deck-icon deck-icon--table text-brand-primary" aria-hidden="true"></i></td>
+                            <td style="padding:10px;text-align:center;border-radius:0 10px 10px 0;color:#7a9e77;"><i data-lucide="x" class="deck-icon deck-icon--table text-brand-primary" aria-hidden="true"></i></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="reveal" style="margin-top:18px;background:rgba(106,191,94,0.05);border:1px solid rgba(106,191,94,0.12);border-radius:10px;padding:12px 18px;">
+                <p style="color:#b8d4b5;font-size:0.85rem;margin:0;"><span style="color:#6abf5e;font-weight:700;">Our moat:</span> Every scan + session creates a proprietary personal dataset. After 30 sessions, switching costs become prohibitive — your entire wellness history lives in BudBook.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 9: GO-TO-MARKET -->
+    <div class="slide slide-9" data-slide="9">
+        <div class="gradient-mesh">
+            <div class="blob" style="width:400px;height:400px;top:-90px;right:-80px;background:#6abf5e;opacity:0.09;"></div>
+            <div class="blob" style="width:260px;height:260px;bottom:-60px;left:-50px;background:#c8f0a0;opacity:0.07;"></div>
+        </div>
+        <div class="content">
+            <div class="badge-pill reveal" style="margin-bottom:16px;">Go-To-Market</div>
+            <h2 class="font-display reveal" style="font-size:clamp(2rem,4vw,3rem);margin:0 0 26px;">Budtender → Consumer → Dispensary</h2>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:22px;">
+                <div style="display:flex;flex-direction:column;gap:14px;">
+                    <div class="reveal" style="background:rgba(255,255,255,0.04);border:1px solid rgba(106,191,94,0.1);border-radius:12px;padding:16px 18px;">
+                        <div style="display:flex;gap:12px;align-items:flex-start;">
+                            <span class="inline-flex shrink-0 items-center" aria-hidden="true"><i data-lucide="sprout" class="deck-icon deck-icon--card text-brand-primary"></i></span>
+                            <div>
+                                <div style="font-weight:700;font-size:0.92rem;color:#c8f0a0;margin-bottom:4px;">Phase 1: Organic (Now)</div>
+                                <div style="color:#b8d4b5;font-size:0.82rem;">Reddit (r/trees, r/microdosing), cannabis wellness influencers, dispensary QR code pilots in legal states. Target: 10K active users in 6 months.</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="reveal" style="background:rgba(255,255,255,0.04);border:1px solid rgba(106,191,94,0.1);border-radius:12px;padding:16px 18px;">
+                        <div style="display:flex;gap:12px;align-items:flex-start;">
+                            <span class="inline-flex shrink-0 items-center" aria-hidden="true"><i data-lucide="rocket" class="deck-icon deck-icon--card text-brand-primary"></i></span>
+                            <div>
+                                <div style="font-weight:700;font-size:0.92rem;color:#c8f0a0;margin-bottom:4px;">Phase 2: Dispensary Channel (6-18 mo)</div>
+                                <div style="color:#b8d4b5;font-size:0.82rem;">White-label QR stickers for 500+ dispensaries. Budtender training program. Each dispensary becomes a user acquisition node → 50+ new users per dispensary.</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="reveal" style="background:rgba(255,255,255,0.04);border:1px solid rgba(106,191,94,0.1);border-radius:12px;padding:16px 18px;">
+                        <div style="display:flex;gap:12px;align-items:flex-start;">
+                            <span class="inline-flex shrink-0 items-center" aria-hidden="true"><i data-lucide="trending-up" class="deck-icon deck-icon--card text-brand-primary"></i></span>
+                            <div>
+                                <div style="font-weight:700;font-size:0.92rem;color:#c8f0a0;margin-bottom:4px;">Phase 3: Data Network Effects (18+ mo)</div>
+                                <div style="color:#b8d4b5;font-size:0.82rem;">As user base hits 100K+, anonymized terpene effect data becomes a licensed dataset for growers, brands, and researchers. Sell insights to the $32B cannabis tech industry.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="reveal" style="background:rgba(255,255,255,0.04);border:1px solid rgba(106,191,94,0.12);border-radius:14px;padding:22px;">
+                    <div style="font-weight:700;font-size:0.85rem;color:#7a9e77;letter-spacing:2px;text-transform:uppercase;margin-bottom:14px;">Key Distribution Metrics</div>
+                    <div style="display:flex;flex-direction:column;gap:12px;">
+                        <div>
+                            <div style="display:flex;justify-content:space-between;font-size:0.83rem;margin-bottom:4px;"><span style="color:#b8d4b5;">U.S. licensed dispensaries</span><span style="color:#6abf5e;font-weight:700;">15,000+</span></div>
+                            <div class="bar-track"><div class="bar-fill" data-width="100" style="width:0%"></div></div>
+                        </div>
+                        <div>
+                            <div style="display:flex;justify-content:space-between;font-size:0.83rem;margin-bottom:4px;"><span style="color:#b8d4b5;">Target dispensary partners (Yr 1)</span><span style="color:#6abf5e;font-weight:700;">500</span></div>
+                            <div class="bar-track"><div class="bar-fill" data-width="3" style="width:0%"></div></div>
+                        </div>
+                        <div>
+                            <div style="display:flex;justify-content:space-between;font-size:0.83rem;margin-bottom:4px;"><span style="color:#b8d4b5;">New users per dispensary (est)</span><span style="color:#c8f0a0;font-weight:700;">50/mo</span></div>
+                            <div class="bar-track"><div class="bar-fill" data-width="60" style="width:0%"></div></div>
+                        </div>
+                        <div>
+                            <div style="display:flex;justify-content:space-between;font-size:0.83rem;margin-bottom:4px;"><span style="color:#b8d4b5;">Wellness app retention at 90 days</span><span style="color:#d4a72c;font-weight:700;">~40%</span></div>
+                            <div class="bar-track"><div class="bar-fill" data-width="40" style="width:0%"></div></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 10: THE VISION / CUPR ECOSYSTEM -->
+    <div class="slide slide-10" data-slide="10">
+        <div class="gradient-mesh">
+            <div class="blob" style="width:500px;height:500px;top:-120px;right:-100px;background:#6abf5e;opacity:0.11;"></div>
+            <div class="blob" style="width:320px;height:320px;bottom:-80px;left:-60px;background:#c8f0a0;opacity:0.09;"></div>
+            <div class="blob" style="width:200px;height:200px;top:30%;left:5%;background:#d4a72c;opacity:0.08;"></div>
+        </div>
+        <canvas class="particle-canvas-ambient" style="position:absolute;inset:0;z-index:1;"></canvas>
+        <div class="content">
+            <div class="badge-pill reveal" style="margin-bottom:16px;">The Bigger Vision</div>
+            <h2 class="font-display reveal" style="font-size:clamp(2rem,4vw,3rem);margin:0 0 8px;">BudBook is the entry point into CŪPR</h2>
+            <p class="reveal" style="color:#b8d4b5;font-size:0.98rem;margin:0 0 24px;max-width:680px;">CŪPR (Cannabis Ūtility Performance Research) is a full-stack cannabis SaaS ecosystem. BudBook owns the consumer data layer — the most valuable asset in the entire stack.</p>
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:18px;">
+                <div class="reveal" style="background:rgba(106,191,94,0.12);border:2px solid rgba(106,191,94,0.3);border-radius:14px;padding:20px;text-align:center;">
+                    <div class="flex justify-center" style="margin-bottom:8px" aria-hidden="true"><i data-lucide="book-open" class="deck-icon deck-icon--card text-brand-primary"></i></div>
+                    <div style="font-weight:700;font-size:1rem;color:#c8f0a0;">BudBook</div>
+                    <div style="color:#b8d4b5;font-size:0.8rem;margin-top:4px;">Consumer wellness OS. Owns personal session + terpene data.</div>
+                    <div class="badge-pill" style="margin-top:10px;font-size:0.7rem;">You Are Here</div>
+                </div>
+                <div class="reveal" style="background:rgba(255,255,255,0.04);border:1px solid rgba(106,191,94,0.1);border-radius:14px;padding:20px;text-align:center;">
+                    <div class="flex justify-center" style="margin-bottom:8px" aria-hidden="true"><i data-lucide="music" class="deck-icon deck-icon--card text-brand-primary"></i></div>
+                    <div style="font-weight:700;font-size:1rem;color:#c8f0a0;">BudBeat</div>
+                    <div style="color:#b8d4b5;font-size:0.8rem;margin-top:4px;">Cannabis music & mood correlation platform. Pairs strains to listening sessions.</div>
+                    <div style="margin-top:10px;font-size:0.72rem;color:#7a9e77;">In Development</div>
+                </div>
+                <div class="reveal" style="background:rgba(255,255,255,0.04);border:1px solid rgba(106,191,94,0.1);border-radius:14px;padding:20px;text-align:center;">
+                    <div class="flex justify-center" style="margin-bottom:8px" aria-hidden="true"><i data-lucide="megaphone" class="deck-icon deck-icon--card text-brand-primary"></i></div>
+                    <div style="font-weight:700;font-size:1rem;color:#c8f0a0;">CŪPR CMS/Ads</div>
+                    <div style="color:#b8d4b5;font-size:0.8rem;margin-top:4px;">Cannabis-compliant ad & content platform targeting the 44M users no other ad network can reach.</div>
+                    <div style="margin-top:10px;font-size:0.72rem;color:#7a9e77;">In Development</div>
+                </div>
+            </div>
+            <div class="reveal" style="margin-top:18px;background:rgba(106,191,94,0.05);border:1px solid rgba(106,191,94,0.12);border-radius:10px;padding:12px 18px;text-align:center;">
+                <p style="color:#b8d4b5;font-size:0.88rem;margin:0;"><span style="color:#6abf5e;font-weight:700;">End-state:</span> The Bloomberg Terminal of cannabis — a data-driven intelligence layer serving consumers, dispensaries, brands, and researchers.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 11: TEAM & ASK -->
+    <div class="slide slide-11" data-slide="11">
+        <div class="gradient-mesh">
+            <div class="blob" style="width:480px;height:480px;top:-100px;right:-90px;background:#6abf5e;opacity:0.13;"></div>
+            <div class="blob" style="width:300px;height:300px;bottom:-70px;left:-60px;background:#c8f0a0;opacity:0.09;"></div>
+            <div class="blob" style="width:220px;height:220px;top:35%;left:8%;background:#d4a72c;opacity:0.08;"></div>
+        </div>
+        <canvas class="particle-canvas" style="position:absolute;inset:0;z-index:1;"></canvas>
+        <div class="content">
+            <div class="badge-pill reveal" style="margin-bottom:16px;">Team & The Ask</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:32px;align-items:start;">
+                <div>
+                    <h2 class="font-display reveal" style="font-size:clamp(1.8rem,3.5vw,2.6rem);margin:0 0 18px;">Founder</h2>
+                    <div class="reveal" style="background:rgba(255,255,255,0.05);border:1px solid rgba(106,191,94,0.14);border-radius:16px;padding:22px;">
+                        <div class="flex justify-center" style="margin-bottom:10px" aria-hidden="true"><i data-lucide="user" class="deck-icon deck-icon--card text-brand-primary"></i></div>
+                        <div style="font-weight:700;font-size:1.1rem;color:#c8f0a0;margin-bottom:4px;">Jack Cooper</div>
+                        <div style="color:#7a9e77;font-size:0.82rem;letter-spacing:1px;text-transform:uppercase;margin-bottom:12px;">Founder & Full-Stack Developer · Lakeside, MT</div>
+                        <div style="display:flex;flex-direction:column;gap:7px;">
+                            <div style="display:flex;gap:8px;align-items:flex-start;"><span style="color:#6abf5e;margin-top:1px;">▸</span><span style="color:#b8d4b5;font-size:0.85rem;">Built CŪPR ecosystem solo — BudBook shipped to production with 6 core features</span></div>
+                            <div style="display:flex;gap:8px;align-items:flex-start;"><span style="color:#6abf5e;margin-top:1px;">▸</span><span style="color:#b8d4b5;font-size:0.85rem;">Full-stack Next.js · Google Cloud · AI/LLM integration · Payment systems</span></div>
+                            <div style="display:flex;gap:8px;align-items:flex-start;"><span style="color:#6abf5e;margin-top:1px;">▸</span><span style="color:#b8d4b5;font-size:0.85rem;">Deep domain expertise in cannabis compliance, terpene science, and regulated markets</span></div>
+                            <div style="display:flex;gap:8px;align-items:flex-start;"><span style="color:#6abf5e;margin-top:1px;">▸</span><span style="color:#b8d4b5;font-size:0.85rem;">Capital-efficient: zero outside funding, product live and functional today</span></div>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <h2 class="font-display reveal" style="font-size:clamp(1.8rem,3.5vw,2.6rem);margin:0 0 18px;">The Ask</h2>
+                    <div class="reveal" style="background:rgba(106,191,94,0.08);border:2px solid rgba(106,191,94,0.25);border-radius:16px;padding:22px;margin-bottom:16px;">
+                        <div style="font-size:3rem;font-family:'Archivo Black',sans-serif;background:linear-gradient(135deg,#6abf5e,#c8f0a0);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;" class="glow-pulse">$500K</div>
+                        <div style="color:#b8d4b5;font-size:0.82rem;margin-top:4px;">Seed · SAFE · 7% equity</div>
+                        <div style="margin-top:14px;display:flex;flex-direction:column;gap:7px;">
+                            <div style="display:flex;justify-content:space-between;font-size:0.83rem;"><span style="color:#b8d4b5;">iOS/Android native app</span><span style="color:#6abf5e;font-weight:600;">$120K</span></div>
+                            <div style="display:flex;justify-content:space-between;font-size:0.83rem;"><span style="color:#b8d4b5;">AI/ML infrastructure (Buddy v2)</span><span style="color:#6abf5e;font-weight:600;">$150K</span></div>
+                            <div style="display:flex;justify-content:space-between;font-size:0.83rem;"><span style="color:#b8d4b5;">Dispensary B2B sales + partnerships</span><span style="color:#6abf5e;font-weight:600;">$130K</span></div>
+                            <div style="display:flex;justify-content:space-between;font-size:0.83rem;"><span style="color:#b8d4b5;">Growth & user acquisition</span><span style="color:#6abf5e;font-weight:600;">$100K</span></div>
+                        </div>
+                    </div>
+                    <div class="reveal" style="background:rgba(255,255,255,0.04);border:1px solid rgba(106,191,94,0.1);border-radius:10px;padding:12px 16px;font-size:0.83rem;color:#b8d4b5;">
+                        YC is the right partner because cannabis is still a compliance minefield. We need your network of legal-state operators, regulatory advisors, and growth-stage investors who understand the pace of rescheduling.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 12: CLOSING -->
+    <div class="slide slide-12" data-slide="12">
+        <div class="gradient-mesh">
+            <div class="blob" style="width:550px;height:550px;top:-120px;right:-110px;background:#6abf5e;opacity:0.15;"></div>
+            <div class="blob" style="width:350px;height:350px;bottom:-80px;left:-70px;background:#c8f0a0;opacity:0.11;"></div>
+            <div class="blob" style="width:220px;height:220px;top:35%;left:12%;background:#d4a72c;opacity:0.09;"></div>
+        </div>
+        <canvas class="particle-canvas" style="position:absolute;inset:0;z-index:1;"></canvas>
+        <div class="content text-center">
+            <img src="/BudBookLogoGradientBG.png" class="slide-brand-logo--hero reveal" alt="BudBook" decoding="async" style="margin-bottom:16px">
+            <h1 class="font-display reveal" style="font-size:clamp(2.5rem,5.5vw,4.5rem);background:linear-gradient(135deg,#6abf5e,#c8f0a0,#6abf5e);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin:0 0 14px;line-height:1.1;">44 Million Users.<br>Zero Personal Data.</h1>
+            <p class="reveal" style="color:#b8d4b5;font-size:1.05rem;margin:0 0 28px;max-width:600px;margin-left:auto;margin-right:auto;">BudBook closes that gap. We turn every cannabis session into a wellness data point — and build the intelligence layer that powers the next generation of the industry.</p>
+            <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap;" class="reveal">
+                <div style="background:rgba(106,191,94,0.12);border:1px solid rgba(106,191,94,0.25);border-radius:10px;padding:10px 22px;font-size:0.85rem;">
+                    <span style="color:#7a9e77;font-size:0.7rem;letter-spacing:2px;text-transform:uppercase;display:block;">Live App</span>
+                    <span style="color:#c8f0a0;font-weight:600;">budbook.base44.app</span>
+                </div>
+                <div style="background:rgba(106,191,94,0.12);border:1px solid rgba(106,191,94,0.25);border-radius:10px;padding:10px 22px;font-size:0.85rem;">
+                    <span style="color:#7a9e77;font-size:0.7rem;letter-spacing:2px;text-transform:uppercase;display:block;">Founder</span>
+                    <span style="color:#c8f0a0;font-weight:600;">Jack Cooper — CŪPR</span>
+                </div>
+            </div>
+            <div class="reveal" style="margin-top:30px;">
+                <div class="badge-pill" style="font-size:0.85rem;padding:8px 20px;">Let's build the Bloomberg Terminal of cannabis. <i data-lucide="leaf" class="deck-icon deck-icon--inline text-brand-primary" aria-hidden="true"></i></div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- NAVIGATION -->
+<div class="nav-controls">
+    <button class="nav-btn" onclick="changeSlide(-1)">&#8249;</button>
+    <div class="slide-dots" id="dots"></div>
+    <button class="nav-btn" onclick="changeSlide(1)">&#8250;</button>
+    <span class="slide-counter" id="counter">1 / 12</span>
+</div>
+
+<script>
+    let current = 1;
+    const total = document.querySelectorAll('.slide').length;
+    const dotsContainer = document.getElementById('dots');
+    const counter = document.getElementById('counter');
+    for (let i = 1; i <= total; i++) { const dot = document.createElement('div'); dot.className = 'dot' + (i === 1 ? ' active' : ''); dot.onclick = () => goToSlide(i); dotsContainer.appendChild(dot); }
+    function goToSlide(n) {
+        const prev = document.querySelector('.slide.active');
+        const next = document.querySelector(`.slide[data-slide="${n}"]`);
+        if (prev) prev.classList.remove('active');
+        if (next) { next.classList.add('active'); animateSlide(next); if (window.initPitchDeckIcons) window.initPitchDeckIcons(); }
+        current = n; updateNav();
+    }
+    function changeSlide(dir) { let next = current + dir; if (next < 1) next = total; if (next > total) next = 1; goToSlide(next); }
+    function updateNav() { document.querySelectorAll('.dot').forEach((d, i) => { d.classList.toggle('active', i + 1 === current); }); counter.textContent = current + ' / ' + total; }
+    document.addEventListener('keydown', (e) => { if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); changeSlide(1); } if (e.key === 'ArrowLeft') { e.preventDefault(); changeSlide(-1); } });
+    let touchStartX = 0;
+    document.addEventListener('touchstart', (e) => { touchStartX = e.touches[0].clientX; });
+    document.addEventListener('touchend', (e) => { const diff = touchStartX - e.changedTouches[0].clientX; if (Math.abs(diff) > 50) changeSlide(diff > 0 ? 1 : -1); });
+
+    function animateSlide(slide) {
+        slide.querySelectorAll('.reveal').forEach((el, i) => {
+            el.style.transition = 'none';
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(20px)';
+            el.offsetHeight;
+            const delay = i * 0.08;
+            el.style.transition = `opacity 0.35s ease ${delay}s, transform 0.35s ease ${delay}s`;
+            el.style.opacity = '1';
+            el.style.transform = 'translateY(0px)';
+        });
+        animateSlideEffects(slide);
+    }
+
+    function animateSlideEffects(slide) {
+        slide.querySelectorAll('[data-count]:not(.counted)').forEach(el => {
+            el.classList.add('counted');
+            const target = parseInt(el.dataset.count);
+            let cur = 0; const step = target / 40;
+            const timer = setInterval(() => { cur += step; if (cur >= target) { cur = target; clearInterval(timer); } el.textContent = Math.round(cur); }, 30);
+        });
+        slide.querySelectorAll('.bar-fill:not(.fill-init)').forEach((bar, i) => {
+            bar.classList.add('fill-init');
+            bar.style.width = '0%'; bar.style.transition = `width 0.6s ease ${i * 0.1}s`; bar.offsetHeight; bar.style.width = bar.dataset.width + '%';
+        });
+    }
+
+    document.addEventListener('mousemove', (e) => {
+        const spotlight = document.querySelector('.mouse-spotlight');
+        if (spotlight) spotlight.style.background = `radial-gradient(600px circle at ${e.clientX}px ${e.clientY}px, rgba(106,191,94,0.06), transparent 40%)`;
+    });
+
+    (function() {
+        let mouseX = window.innerWidth/2, mouseY = window.innerHeight/2;
+        document.addEventListener('mousemove', (e) => { mouseX = e.clientX; mouseY = e.clientY; });
+        (function tick() {
+            const ox = (mouseX - window.innerWidth/2) / (window.innerWidth/2);
+            const oy = (mouseY - window.innerHeight/2) / (window.innerHeight/2);
+            document.querySelectorAll('.deco-shape').forEach(s => {
+                const sp = parseFloat(s.dataset.speed) || 0.03;
+                s.style.transform = `translate(${ox*sp*100}px,${oy*sp*100}px)`;
+            });
+            requestAnimationFrame(tick);
+        })();
+    })();
+
+    window.initParticles = function(canvas, options) {
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        canvas.width = canvas.offsetWidth || window.innerWidth;
+        canvas.height = canvas.offsetHeight || window.innerHeight;
+        const interactive = options.interactive !== false;
+        const count = options.count || (interactive ? 55 : 18);
+        let mx = -1000, my = -1000;
+        const particles = Array.from({length: count}, () => ({
+            x: Math.random() * canvas.width, y: Math.random() * canvas.height,
+            vx: (Math.random()-0.5)*0.3, vy: (Math.random()-0.5)*0.3,
+            size: Math.random()*2.5+0.8, alpha: Math.random()*0.3+0.08
+        }));
+        if (interactive) {
+            canvas.addEventListener('mousemove', (e) => { const r = canvas.getBoundingClientRect(); mx = e.clientX-r.left; my = e.clientY-r.top; });
+            canvas.addEventListener('mouseleave', () => { mx=-1000; my=-1000; });
+        }
+        (function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => {
+                if (interactive) { const dx=p.x-mx, dy=p.y-my, d=Math.sqrt(dx*dx+dy*dy); if(d<120){ const f=(120-d)/120*2; p.vx+=(dx/d)*f*0.1; p.vy+=(dy/d)*f*0.1; } }
+                p.vx*=0.98; p.vy*=0.98; p.x+=p.vx; p.y+=p.vy;
+                if(p.x<0)p.x=canvas.width; if(p.x>canvas.width)p.x=0;
+                if(p.y<0)p.y=canvas.height; if(p.y>canvas.height)p.y=0;
+                ctx.beginPath(); ctx.arc(p.x,p.y,p.size,0,Math.PI*2);
+                ctx.fillStyle=`rgba(106,191,94,${p.alpha})`; ctx.fill();
+            });
+            requestAnimationFrame(animate);
+        })();
+    };
+    document.querySelectorAll('.particle-canvas').forEach(c => window.initParticles(c, {interactive:true, count:55}));
+    document.querySelectorAll('.particle-canvas-ambient').forEach(c => window.initParticles(c, {interactive:false, count:18}));
+
+    try { animateSlide(document.querySelector('.slide.active')); } catch(e) {}
+</script>
+<script src="https://unpkg.com/lucide@0.487.0/dist/umd/lucide.min.js"></script>
+<script src="/pitch-deck-shared.js"></script>
+
+</body>
+</html>

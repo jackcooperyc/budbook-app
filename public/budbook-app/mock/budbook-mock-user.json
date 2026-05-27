@@ -1,0 +1,223 @@
+{
+  "overview": {
+    "activity_summary": {
+      "total_sessions_logged": 47,
+      "average_weekly_frequency": 3.4,
+      "macroscopic_trend": "Consumption up 12% vs last week — mostly evening sessions after 8 PM."
+    },
+    "inventory_telemetry": {
+      "low_product_alerts": [
+        "Running low on Blue Dream flower (~1.2g remaining).",
+        "Charlotte's Web tincture under 40mg equivalent — reorder soon."
+      ],
+      "hardware_alerts": [
+        "CŪPR E-Series vaporizer: chamber residue elevated — deep clean recommended within 7 days.",
+        "PAX Mini battery cycles high — consider replacing mouthpiece gasket."
+      ]
+    },
+    "data_insights": [
+      "You report 18–22% better sleep quality when logging high-myrcene indicas after 8 PM vs daytime hybrids.",
+      "Pain scores drop fastest with 0.18–0.22g dry-herb vape sessions of GMO Cookies vs comparable THC flower.",
+      "Anxiety rebounds higher when pairing espresso within 90 minutes of Jack Herer — try separating caffeine by 2+ hours."
+    ]
+  },
+  "stash": {
+    "products": [
+      {
+        "id": "prod-bd-a9f2",
+        "strain_name": "Blue Dream",
+        "brand": "Pacific Crest Cannabis",
+        "classification": "Hybrid",
+        "category": "flower",
+        "thc_percentage": 22.4,
+        "cbd_percentage": 0.16,
+        "top_terpenes": [
+          { "name": "Myrcene", "percentage": 0.62 },
+          { "name": "Pinene", "percentage": 0.41 },
+          { "name": "Caryophyllene", "percentage": 0.38 }
+        ],
+        "remaining_quantity": { "value": 1.2, "unit": "g" },
+        "lab_report_id": "COA-2026-OR-88421-BD",
+        "preferred_dispensary_id": "disp-elm-01",
+        "purchase_date": "2026-04-18"
+      },
+      {
+        "id": "prod-gmo-c31e",
+        "strain_name": "GMO Cookies",
+        "brand": "Archive Portland",
+        "classification": "Indica",
+        "category": "flower",
+        "thc_percentage": 29.8,
+        "cbd_percentage": 0.08,
+        "top_terpenes": [
+          { "name": "Limonene", "percentage": 0.55 },
+          { "name": "Caryophyllene", "percentage": 0.71 },
+          { "name": "Myrcene", "percentage": 0.33 }
+        ],
+        "remaining_quantity": { "value": 3.6, "unit": "g" },
+        "lab_report_id": "COA-2026-OR-99102-GMO",
+        "preferred_dispensary_id": "disp-elm-01",
+        "purchase_date": "2026-04-22"
+      },
+      {
+        "id": "prod-cw-tinct-77",
+        "strain_name": "Charlotte's Web — Everyday Plus",
+        "brand": "Charlotte's Web",
+        "classification": "Hybrid",
+        "category": "tincture",
+        "thc_percentage": 0.35,
+        "cbd_percentage": 16.2,
+        "top_terpenes": [
+          { "name": "Bisabolol", "percentage": 0.12 },
+          { "name": "Humulene", "percentage": 0.09 },
+          { "name": "Linalool", "percentage": 0.08 }
+        ],
+        "remaining_quantity": { "value": 35, "unit": "mg" },
+        "lab_report_id": "COA-2026-CO-TIN-44219",
+        "preferred_dispensary_id": "disp-bridge-02",
+        "purchase_date": "2026-03-30"
+      },
+      {
+        "id": "prod-jh-b412",
+        "strain_name": "Jack Herer",
+        "brand": "Santa Cruz Roots",
+        "classification": "Sativa",
+        "category": "flower",
+        "thc_percentage": 24.1,
+        "cbd_percentage": 0.05,
+        "top_terpenes": [
+          { "name": "Terpinolene", "percentage": 0.48 },
+          { "name": "Pinene", "percentage": 0.52 },
+          { "name": "Caryophyllene", "percentage": 0.29 }
+        ],
+        "remaining_quantity": { "value": 2.0, "unit": "g" },
+        "lab_report_id": "COA-2026-CA-JH-77103",
+        "preferred_dispensary_id": "disp-bridge-02",
+        "purchase_date": "2026-04-26"
+      }
+    ],
+    "hardware": [
+      {
+        "id": "hw-cupr-e42",
+        "model_name": "CŪPR E-Series Dry Herb Vaporizer",
+        "brand": "CŪPR",
+        "ecosystem": "CŪPR",
+        "usage_count": 268,
+        "condition": "Needs Maintenance",
+        "next_scheduled_maintenance": "2026-05-12"
+      },
+      {
+        "id": "hw-pax-mini",
+        "model_name": "PAX Mini",
+        "brand": "PAX Labs",
+        "ecosystem": "Third-party",
+        "usage_count": 142,
+        "condition": "Optimal",
+        "next_scheduled_maintenance": "2026-07-01"
+      },
+      {
+        "id": "hw-grinder-santa",
+        "model_name": "Santa Cruz Shredder 4-Piece (Medium)",
+        "brand": "Santa Cruz Shredder",
+        "ecosystem": "Third-party",
+        "usage_count": 890,
+        "condition": "Optimal",
+        "next_scheduled_maintenance": "2026-08-15"
+      }
+    ],
+    "retail_directory": [
+      {
+        "id": "disp-elm-01",
+        "dispensary_name": "Elm & Ember Cannabis Co.",
+        "location": {
+          "address_line": "1845 NW Everett St",
+          "city": "Portland",
+          "state": "OR",
+          "zip": "97209"
+        },
+        "preferred_budtender": {
+          "name": "Jordan Reyes",
+          "contact": "jordan.r@elmander.com • SMS (503) 555-0142"
+        },
+        "last_transaction_date": "2026-04-26"
+      },
+      {
+        "id": "disp-bridge-02",
+        "dispensary_name": "Bridge City Botanicals",
+        "location": {
+          "address_line": "220 SE Madison St",
+          "city": "Portland",
+          "state": "OR",
+          "zip": "97214"
+        },
+        "preferred_budtender": {
+          "name": "Sam Okonkwo",
+          "contact": "sam.o@bridgecitybot.com • IG @sam_bt_bridgecity"
+        },
+        "last_transaction_date": "2026-04-27"
+      }
+    ]
+  },
+  "recent_sessions": [
+    {
+      "id": "sess-202604281945",
+      "timestamp": "2026-04-28T19:45:00-07:00",
+      "variables": {
+        "product_id": "prod-gmo-c31e",
+        "dosage": "0.19g",
+        "consumption_method": "Dry Herb Vape",
+        "pairing": "Herbal tea (chamomile) — no alcohol"
+      },
+      "efficacy_mapping": {
+        "pre": { "mood": 4, "pain": 7, "anxiety": 6 },
+        "post": { "mood": 8, "pain": 3, "anxiety": 4 }
+      },
+      "pattern_recognition": "Strong therapeutic delta vs your baseline — aligns with past GMO Cookies evening sessions (-4 pain median)."
+    },
+    {
+      "id": "sess-202604271815",
+      "timestamp": "2026-04-27T18:15:00-07:00",
+      "variables": {
+        "product_id": "prod-bd-a9f2",
+        "dosage": "0.12g",
+        "consumption_method": "Dry Herb Vape",
+        "pairing": null
+      },
+      "efficacy_mapping": {
+        "pre": { "mood": 6, "pain": 5, "anxiety": 5 },
+        "post": { "mood": 8, "pain": 4, "anxiety": 3 }
+      },
+      "pattern_recognition": "Mood uplift consistent with Blue Dream micro-doses; slightly lower pain relief than your GMO baseline."
+    },
+    {
+      "id": "sess-202604261930",
+      "timestamp": "2026-04-26T19:30:00-07:00",
+      "variables": {
+        "product_id": "prod-jh-b412",
+        "dosage": "0.08g",
+        "consumption_method": "Dry Herb Vape",
+        "pairing": "Single espresso at 5:15 PM"
+      },
+      "efficacy_mapping": {
+        "pre": { "mood": 5, "pain": 4, "anxiety": 4 },
+        "post": { "mood": 7, "pain": 4, "anxiety": 7 }
+      },
+      "pattern_recognition": "Deviate: anxiety_after exceeds your rolling average — matches historical caffeine proximity pattern."
+    },
+    {
+      "id": "sess-202604251220",
+      "timestamp": "2026-04-25T12:20:00-07:00",
+      "variables": {
+        "product_id": "prod-cw-tinct-77",
+        "dosage": "15mg",
+        "consumption_method": "Tincture",
+        "pairing": "Post-lunch — low-fat salad"
+      },
+      "efficacy_mapping": {
+        "pre": { "mood": 6, "pain": 6, "anxiety": 5 },
+        "post": { "mood": 7, "pain": 4, "anxiety": 4 }
+      },
+      "pattern_recognition": "Mid-day CBD-forward session tracks your usual CBD curve — gentle anxiolytic without sedation vs flower evenings."
+    }
+  ]
+}

@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="https://base44.com/logo_v2.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="manifest" href="/manifest.json" />
+    <title>Base44 APP</title>
+    <link rel="stylesheet" crossorigin href="/budbook-app/assets/index-Cz7Y4u3r.css">
+  </head>
+  <body>
+    <div id="root"></div>
+    <script>
+      (function () {
+        var BOOTSTRAP_SRC = '/budbook-app/mock/bootstrap-mock.js';
+        var MAIN_SRC = '/budbook-app/assets/index-DuvVhIRa.js';
+
+        function injectMain() {
+          if (document.querySelector('script[data-budbook-main]')) return;
+          var s = document.createElement('script');
+          s.type = 'module';
+          s.crossOrigin = '';
+          s.src = MAIN_SRC;
+          s.setAttribute('data-budbook-main', '1');
+          document.head.appendChild(s);
+        }
+
+        function showBootstrapFailureBanner(message) {
+          var root = document.getElementById('root');
+          if (!root || root.getAttribute('data-budbook-banner') === '1') return;
+          root.setAttribute('data-budbook-banner', '1');
+          root.innerHTML =
+            '<div role="alert" style="box-sizing:border-box;margin:0;padding:16px;font:14px/1.45 system-ui,-apple-system,sans-serif;color:#fecaca;background:#450a0a;border-bottom:1px solid #7f1d1d">' +
+            message +
+            '</div>';
+        }
+
+        function onBootstrapScriptFailed() {
+          console.error('[BudBook] bootstrap-mock.js failed to load; loading app bundle directly.');
+          showBootstrapFailureBanner(
+            'Could not load the BudBook setup script (network or server error). Loading the app directly—mock or demo mode may not work until this is fixed.',
+          );
+          injectMain();
+        }
+
+        var bs = document.createElement('script');
+        bs.src = BOOTSTRAP_SRC;
+        bs.onerror = onBootstrapScriptFailed;
+        document.body.appendChild(bs);
+      })();
+    </script>
+  </body>
+</html>

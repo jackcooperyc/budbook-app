@@ -1,0 +1,15 @@
+{
+  "name": "BudBook",
+  "short_name": "BudBook",
+  "start_url": "/budbook-app/",
+  "display": "standalone",
+  "background_color": "#0a0f0a",
+  "theme_color": "#6abf5e",
+  "icons": [
+    {
+      "src": "/budbooklogo.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
