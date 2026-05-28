@@ -1,0 +1,89 @@
+.buddy-chat {
+  display: flex;
+  flex-direction: column;
+  height: min(72vh, 640px);
+  max-width: 720px;
+  margin: 0 auto;
+  overflow: hidden;
+}
+
+.buddy-chat-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-4) var(--space-5);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  color: var(--accent-light);
+  border-bottom: 1px solid var(--surface-border);
+}
+
+.buddy-chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.buddy-chat-bubble {
+  max-width: 88%;
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-lg);
+  font-size: var(--text-sm);
+  line-height: var(--leading-normal);
+}
+
+.buddy-chat-bubble-assistant {
+  align-self: flex-start;
+  background: hsla(122, 42%, 52%, 0.12);
+  border: 1px solid hsla(122, 42%, 52%, 0.22);
+  color: var(--text-secondary);
+}
+
+.buddy-chat-bubble-user {
+  align-self: flex-end;
+  background: var(--surface-solid);
+  border: 1px solid var(--surface-border);
+  color: var(--text-primary);
+}
+
+.buddy-chat-prompts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  padding: 0 var(--space-5) var(--space-3);
+}
+
+.buddy-chat-prompt {
+  font-size: var(--text-xs);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-full);
+  border: 1px solid var(--surface-border);
+  background: transparent;
+  color: var(--text-tertiary);
+  cursor: pointer;
+}
+
+.buddy-chat-prompt:hover {
+  border-color: var(--accent);
+  color: var(--accent-light);
+}
+
+.buddy-chat-input-row {
+  display: flex;
+  gap: var(--space-2);
+  padding: var(--space-4) var(--space-5);
+  border-top: 1px solid var(--surface-border);
+}
+
+.buddy-chat-input-row input {
+  flex: 1;
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--surface-border);
+  background: hsla(120, 14%, 10%, 0.8);
+  color: var(--text-primary);
+  font: inherit;
+}

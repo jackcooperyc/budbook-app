@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { mockApiDisabledResponse } from '@/lib/budbook-mock/guard';
+import { mockApiDisabledResponse } from '@/lib/mockApi';
 
 /**
  * BudBook / Base44 bootstrap calls:

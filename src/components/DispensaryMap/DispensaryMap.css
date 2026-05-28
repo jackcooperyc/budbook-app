@@ -1,0 +1,51 @@
+.dispensary-map {
+  overflow: hidden;
+  padding: 0;
+}
+
+.dispensary-map-pins {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--surface-border);
+}
+
+.dispensary-map-pin-btn {
+  font-size: var(--text-xs);
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-full);
+  border: 1px solid var(--surface-border);
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.dispensary-map-pin-btn-active {
+  background: var(--accent-muted);
+  color: var(--accent-light);
+  border-color: hsla(122, 42%, 52%, 0.35);
+}
+
+.dispensary-map-focus-label {
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--text-sm);
+  color: var(--text-tertiary);
+  border-top: 1px solid var(--surface-border);
+}
+
+.dispensary-map-focus-label strong {
+  color: var(--text-secondary);
+}
+
+.dispensary-map iframe {
+  width: 100%;
+  height: 280px;
+  border: none;
+  display: block;
+  filter: saturate(0.85) contrast(1.05);
+}
+
+.dispensary-map-legend {
+  display: none;
+}

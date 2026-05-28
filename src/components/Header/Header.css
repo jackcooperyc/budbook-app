@@ -1,0 +1,78 @@
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  height: var(--header-height);
+  padding: 0 var(--space-6);
+  border-bottom: 1px solid var(--surface-border);
+  background: hsla(120, 16%, 8%, 0.85);
+  backdrop-filter: blur(16px);
+  position: sticky;
+  top: 0;
+  z-index: 40;
+}
+
+.header-left,
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.header-title {
+  font-family: var(--font-display), "Archivo Black", sans-serif;
+  font-size: var(--text-lg);
+  font-weight: 400;
+}
+
+.header-menu-btn {
+  display: none;
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-sm);
+  background: var(--surface-glass);
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.header-search {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-full);
+  background: var(--surface-glass);
+  color: var(--text-tertiary);
+  min-width: 220px;
+}
+
+.header-search input {
+  border: none;
+  background: transparent;
+  color: var(--text-primary);
+  font-size: var(--text-sm);
+  width: 100%;
+  outline: none;
+}
+
+.header-avatar-btn {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  padding: 0;
+}
+
+@media (max-width: 900px) {
+  .header-menu-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .header-search {
+    display: none;
+  }
+}

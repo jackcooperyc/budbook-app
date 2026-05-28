@@ -1,0 +1,60 @@
+.cannadex-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-5);
+}
+
+.cannadex-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.cannadex-card-header h3 {
+  font-size: var(--text-md);
+  font-weight: var(--weight-semibold);
+}
+
+.cannadex-card-lineage {
+  font-size: var(--text-xs);
+  color: var(--text-tertiary);
+}
+
+.cannadex-card-best {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  line-height: var(--leading-normal);
+}
+
+.cannadex-card-stats {
+  display: flex;
+  gap: var(--space-4);
+  font-size: var(--text-xs);
+  color: var(--accent-light);
+  margin-top: var(--space-2);
+}
+
+.cannadex-card-effects {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+}
+
+.cannadex-effect-tag {
+  font-size: 0.6875rem;
+  padding: 2px var(--space-2);
+  border-radius: var(--radius-full);
+  background: var(--accent-muted);
+  color: var(--accent-light);
+}
+
+.cannadex-card-terps {
+  font-size: var(--text-xs);
+  color: var(--text-tertiary);
+  margin-top: var(--space-2);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--surface-border);
+}

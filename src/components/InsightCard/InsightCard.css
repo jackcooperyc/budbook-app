@@ -1,0 +1,24 @@
+.insight-card {
+  display: flex;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  align-items: flex-start;
+}
+
+.insight-card-icon {
+  color: var(--accent-gold);
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.insight-card-text {
+  flex: 1;
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  line-height: var(--leading-normal);
+}
+
+.insight-card-index {
+  font-size: var(--text-xs);
+  color: var(--text-tertiary);
+}

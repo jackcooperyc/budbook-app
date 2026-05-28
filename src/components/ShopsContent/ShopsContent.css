@@ -1,0 +1,36 @@
+.shops-search {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-md);
+  background: var(--surface-glass);
+  color: var(--text-tertiary);
+  max-width: 420px;
+}
+
+.shops-search input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  color: var(--text-primary);
+  font: inherit;
+  outline: none;
+}
+
+.shops-card-wrap {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+  border-radius: var(--radius-lg);
+}
+
+.shops-card-wrap-active .glass-panel {
+  border-color: hsla(122, 42%, 52%, 0.45);
+  box-shadow: var(--glow-green);
+}

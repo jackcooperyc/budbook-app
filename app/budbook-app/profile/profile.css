@@ -1,0 +1,56 @@
+.profile-page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  max-width: 560px;
+}
+
+.profile-hero {
+  display: flex;
+  align-items: center;
+  gap: var(--space-5);
+  padding: var(--space-6);
+}
+
+.profile-name {
+  font-size: var(--text-xl);
+  font-weight: var(--weight-semibold);
+}
+
+.profile-username {
+  font-size: var(--text-sm);
+  color: var(--text-tertiary);
+  margin-top: var(--space-1);
+}
+
+.profile-email {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  margin-top: var(--space-2);
+}
+
+.profile-stats {
+  display: flex;
+  justify-content: space-around;
+  padding: var(--space-5);
+  text-align: center;
+}
+
+.profile-stat-value {
+  display: block;
+  font-size: var(--text-2xl);
+  font-weight: var(--weight-bold);
+  color: var(--accent-light);
+}
+
+.profile-stat-label {
+  font-size: var(--text-xs);
+  color: var(--text-tertiary);
+}
+
+.profile-trend {
+  padding: var(--space-4);
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  line-height: var(--leading-normal);
+}

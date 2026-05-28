@@ -1,0 +1,62 @@
+.stash-page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.stash-alerts {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.stash-alert {
+  font-size: var(--text-sm);
+  padding: var(--space-3) var(--space-4);
+  color: var(--status-low);
+  background: hsla(38, 72%, 54%, 0.1);
+  border-radius: var(--radius-md);
+}
+
+.stash-alert-hardware {
+  color: var(--text-secondary);
+  background: hsla(120, 14%, 14%, 0.5);
+  border: 1px solid var(--surface-border);
+}
+
+.stash-toast-inline {
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--text-sm);
+  color: var(--accent-light);
+  background: var(--accent-muted);
+  border: 1px solid hsla(122, 42%, 52%, 0.28);
+  border-radius: var(--radius-md);
+}
+
+.stash-sync-note {
+  color: var(--text-tertiary);
+}
+
+.stash-hardware {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  margin-top: var(--space-4);
+}
+
+.stash-section-title {
+  font-size: var(--text-lg);
+  font-weight: var(--weight-semibold);
+}
+
+.stash-hardware-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: var(--space-4);
+}
+
+.stash-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: var(--space-5);
+}

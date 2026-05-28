@@ -7,9 +7,9 @@
   "theme_color": "#6abf5e",
   "icons": [
     {
-      "src": "/budbooklogo.png",
-      "sizes": "512x512",
-      "type": "image/png"
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
     }
   ]
 }

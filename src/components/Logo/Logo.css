@@ -1,0 +1,28 @@
+.logo {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.logo-mark-bg {
+  fill: hsla(122, 42%, 52%, 0.18);
+}
+
+.logo-mark-book {
+  fill: var(--accent-light);
+}
+
+.logo-mark-leaf {
+  fill: var(--accent);
+}
+
+.logo-mark-spine {
+  stroke: hsla(120, 20%, 8%, 0.35);
+}
+
+.logo-wordmark {
+  font-family: var(--font-display), "Archivo Black", sans-serif;
+  font-size: 1.125rem;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+}

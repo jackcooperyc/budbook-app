@@ -1,7 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getBudbookMockPayloads } from '@/lib/budbook-mock/buildPayloads';
-import { resolveMockEntityGet } from '@/lib/budbook-mock/resolveMockEntityGet';
-import { mockApiDisabledResponse } from '@/lib/budbook-mock/guard';
+import { getBudbookMockPayloads, resolveMockEntityGet, mockApiDisabledResponse } from '@/lib/mockApi';
 
 /**
  * Local BudBook (Base44 build with appId undefined) calls relative URLs like

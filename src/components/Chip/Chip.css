@@ -1,0 +1,37 @@
+.chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px var(--space-2);
+  font-size: 0.6875rem;
+  font-weight: var(--weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--surface-border);
+  color: var(--text-secondary);
+  background: hsla(120, 14%, 16%, 0.6);
+}
+
+.chip-indica {
+  color: var(--status-indica);
+  border-color: hsla(262, 45%, 62%, 0.35);
+  background: hsla(262, 45%, 62%, 0.12);
+}
+
+.chip-sativa {
+  color: var(--status-sativa);
+  border-color: hsla(38, 72%, 54%, 0.35);
+  background: hsla(38, 72%, 54%, 0.12);
+}
+
+.chip-hybrid {
+  color: var(--status-hybrid);
+  border-color: hsla(122, 42%, 52%, 0.35);
+  background: var(--accent-muted);
+}
+
+.chip-low {
+  color: var(--status-low);
+  border-color: hsla(38, 72%, 54%, 0.4);
+  background: hsla(38, 72%, 54%, 0.12);
+}

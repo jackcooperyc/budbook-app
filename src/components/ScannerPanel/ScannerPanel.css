@@ -1,0 +1,113 @@
+.scanner-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  max-width: 560px;
+}
+
+.scanner-hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--space-3);
+  padding: var(--space-8) var(--space-5);
+}
+
+.scanner-icon {
+  color: var(--accent);
+}
+
+.scanner-hero h2 {
+  font-size: var(--text-xl);
+}
+
+.scanner-hero p {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+}
+
+.scanner-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+}
+
+.scanner-field input {
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--surface-border);
+  background: hsla(120, 14%, 10%, 0.8);
+  color: var(--text-primary);
+  font: inherit;
+}
+
+.scanner-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.scanner-result {
+  padding: var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.scanner-result-strain {
+  font-size: var(--text-lg);
+  font-weight: var(--weight-semibold);
+}
+
+.scanner-result-meta {
+  font-size: var(--text-sm);
+  color: var(--accent-light);
+}
+
+.scanner-result-terps {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  margin-bottom: var(--space-3);
+}
+
+.scanner-error {
+  font-size: var(--text-sm);
+  color: hsl(0, 80%, 65%);
+  padding: var(--space-3) var(--space-4);
+  background: hsla(0, 70%, 50%, 0.12);
+  border-radius: var(--radius-md);
+}
+
+.scanner-result-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.scanner-confidence {
+  font-size: 0.625rem;
+  font-weight: var(--weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 2px var(--space-2);
+  border-radius: var(--radius-full);
+}
+
+.scanner-confidence-high {
+  color: var(--accent-light);
+  background: var(--accent-muted);
+}
+
+.scanner-confidence-demo {
+  color: var(--text-tertiary);
+  background: hsla(120, 14%, 20%, 0.6);
+}
+
+.scanner-result-brand {
+  font-size: var(--text-sm);
+  color: var(--text-tertiary);
+}

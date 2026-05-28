@@ -1,0 +1,16 @@
+.journal-page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.journal-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.journal-panel-hint {
+  font-size: var(--text-sm);
+  color: var(--text-tertiary);
+}
