@@ -5,7 +5,7 @@
 }
 
 .logo-mark-bg {
-  fill: hsla(122, 42%, 52%, 0.18);
+  fill: var(--logo-fill);
 }
 
 .logo-mark-book {
@@ -17,7 +17,7 @@
 }
 
 .logo-mark-spine {
-  stroke: hsla(120, 20%, 8%, 0.35);
+  stroke: var(--logo-stroke);
 }
 
 .logo-wordmark {

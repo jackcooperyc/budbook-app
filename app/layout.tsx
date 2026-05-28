@@ -1,5 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import { Archivo_Black, DM_Sans, JetBrains_Mono } from 'next/font/google';
+import ThemeScript from '@/components/ThemeScript/ThemeScript';
+import { ThemeProvider } from '@/context/ThemeContext';
 import './globals.css';
 
 const display = Archivo_Black({
@@ -24,7 +26,10 @@ const mono = JetBrains_Mono({
 });
 
 export const viewport: Viewport = {
-  themeColor: '#0f1a0e',
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: '#f4f7f2' },
+    { media: '(prefers-color-scheme: dark)', color: '#0f1a0e' },
+  ],
 };
 
 export const metadata: Metadata = {
@@ -35,8 +40,13 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${display.variable} ${sans.variable} ${mono.variable}`}>
-      <body>{children}</body>
+    <html lang="en" className={`${display.variable} ${sans.variable} ${mono.variable}`} suppressHydrationWarning>
+      <head>
+        <ThemeScript />
+      </head>
+      <body>
+        <ThemeProvider>{children}</ThemeProvider>
+      </body>
     </html>
   );
 }

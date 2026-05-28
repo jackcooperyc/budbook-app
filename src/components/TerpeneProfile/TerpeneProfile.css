@@ -22,7 +22,7 @@
 
 .terpene-track {
   height: 6px;
-  background: hsla(120, 14%, 20%, 0.8);
+  background: var(--terpene-track);
   border-radius: var(--radius-full);
   overflow: hidden;
 }

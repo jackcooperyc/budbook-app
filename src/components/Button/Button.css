@@ -51,14 +51,14 @@
 }
 
 .btn-ghost:hover:not(:disabled) {
-  background: hsla(120, 14%, 18%, 0.5);
+  background: var(--ghost-hover-bg);
   color: var(--text-primary);
 }
 
 .btn-danger {
-  background: hsla(0, 70%, 50%, 0.15);
-  color: hsl(0, 80%, 65%);
-  border: 1px solid hsla(0, 70%, 50%, 0.25);
+  background: var(--error-bg);
+  color: var(--error-text);
+  border: 1px solid var(--error-border);
 }
 
 .btn-sm {

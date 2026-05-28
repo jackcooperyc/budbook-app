@@ -15,7 +15,7 @@
   padding: var(--space-3);
   border-radius: var(--radius-md);
   border: 1px solid var(--surface-border);
-  background: hsla(120, 14%, 10%, 0.8);
+  background: var(--input-bg);
   color: var(--text-primary);
   font: inherit;
 }

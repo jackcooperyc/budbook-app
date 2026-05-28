@@ -5,7 +5,7 @@
   flex-direction: column;
   padding: var(--space-5) var(--space-4);
   border-right: 1px solid var(--surface-border);
-  background: hsla(120, 16%, 7%, 0.92);
+  background: var(--shell-sidebar-bg);
   position: sticky;
   top: 0;
   flex-shrink: 0;
@@ -51,7 +51,7 @@
 .sidebar-nav-item-active {
   background: var(--accent-muted);
   color: var(--accent-light);
-  border: 1px solid hsla(122, 42%, 52%, 0.25);
+  border: 1px solid var(--accent-border);
 }
 
 .sidebar-footer {
@@ -91,7 +91,7 @@
     inset: 0;
     z-index: 45;
     border: none;
-    background: hsla(120, 20%, 4%, 0.65);
+    background: var(--shell-backdrop);
     cursor: pointer;
   }
 }

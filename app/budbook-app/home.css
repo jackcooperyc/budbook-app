@@ -64,8 +64,8 @@
   padding: var(--space-3) var(--space-4);
   font-size: var(--text-sm);
   color: var(--status-low);
-  background: hsla(38, 72%, 54%, 0.1);
-  border: 1px solid hsla(38, 72%, 54%, 0.28);
+  background: var(--alert-warn-bg);
+  border: 1px solid var(--alert-warn-border);
   border-radius: var(--radius-md);
 }
 

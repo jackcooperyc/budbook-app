@@ -6,7 +6,7 @@
 }
 
 .product-card:hover {
-  border-color: hsla(122, 42%, 52%, 0.35);
+  border-color: var(--accent-border);
   box-shadow: var(--glow-green);
 }
 

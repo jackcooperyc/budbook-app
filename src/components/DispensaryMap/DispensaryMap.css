@@ -24,7 +24,7 @@
 .dispensary-map-pin-btn-active {
   background: var(--accent-muted);
   color: var(--accent-light);
-  border-color: hsla(122, 42%, 52%, 0.35);
+  border-color: var(--accent-border);
 }
 
 .dispensary-map-focus-label {

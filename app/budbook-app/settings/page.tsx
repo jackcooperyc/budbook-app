@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Button from '@/components/Button/Button';
+import ThemePreference from '@/components/ThemePreference/ThemePreference';
 import './settings.css';
 
 export default function SettingsPage() {
@@ -21,6 +22,7 @@ export default function SettingsPage() {
       </section>
       <section className="settings-section glass-panel">
         <h3>Preferences</h3>
+        <ThemePreference />
         <p className="settings-hint">Unit system, reminders, and privacy controls ship in a later pass.</p>
         <Button variant="secondary" size="sm" onClick={() => alert('Demo only')}>
           Export journal data
@@ -28,7 +30,7 @@ export default function SettingsPage() {
       </section>
       <p className="settings-legacy">
         Need the full Base44 experience?{' '}
-      <a href="/budbook-app/index.html?mock=1">Open legacy app</a>
+        <a href="/budbook-app/index.html?mock=1">Open legacy app</a>
       </p>
     </div>
   );

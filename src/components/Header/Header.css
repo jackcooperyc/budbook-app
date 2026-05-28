@@ -6,7 +6,7 @@
   height: var(--header-height);
   padding: 0 var(--space-6);
   border-bottom: 1px solid var(--surface-border);
-  background: hsla(120, 16%, 8%, 0.85);
+  background: var(--shell-header-bg);
   backdrop-filter: blur(16px);
   position: sticky;
   top: 0;

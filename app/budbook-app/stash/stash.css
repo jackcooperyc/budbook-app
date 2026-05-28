@@ -14,13 +14,13 @@
   font-size: var(--text-sm);
   padding: var(--space-3) var(--space-4);
   color: var(--status-low);
-  background: hsla(38, 72%, 54%, 0.1);
+  background: var(--alert-warn-bg);
   border-radius: var(--radius-md);
 }
 
 .stash-alert-hardware {
   color: var(--text-secondary);
-  background: hsla(120, 14%, 14%, 0.5);
+  background: var(--tab-inactive-bg);
   border: 1px solid var(--surface-border);
 }
 
@@ -29,7 +29,7 @@
   font-size: var(--text-sm);
   color: var(--accent-light);
   background: var(--accent-muted);
-  border: 1px solid hsla(122, 42%, 52%, 0.28);
+  border: 1px solid var(--accent-border);
   border-radius: var(--radius-md);
 }
 

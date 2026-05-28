@@ -39,7 +39,7 @@
   padding: var(--space-3);
   border-radius: var(--radius-md);
   border: 1px solid var(--surface-border);
-  background: hsla(120, 14%, 10%, 0.8);
+  background: var(--input-bg);
   color: var(--text-primary);
   font: inherit;
 }
@@ -75,9 +75,9 @@
 
 .scanner-error {
   font-size: var(--text-sm);
-  color: hsl(0, 80%, 65%);
+  color: var(--error-text);
   padding: var(--space-3) var(--space-4);
-  background: hsla(0, 70%, 50%, 0.12);
+  background: var(--error-bg);
   border-radius: var(--radius-md);
 }
 
@@ -104,7 +104,7 @@
 
 .scanner-confidence-demo {
   color: var(--text-tertiary);
-  background: hsla(120, 14%, 20%, 0.6);
+  background: var(--input-bg-muted);
 }
 
 .scanner-result-brand {

@@ -23,7 +23,7 @@
 .media-tab-active {
   background: var(--accent-muted);
   color: var(--accent-light);
-  border-color: hsla(122, 42%, 52%, 0.3);
+  border-color: var(--accent-border);
 }
 
 .media-feed {

@@ -30,7 +30,7 @@
 }
 
 .efficacy-bar-before {
-  background: hsla(120, 10%, 35%, 0.6);
+  background: var(--efficacy-track);
 }
 
 .efficacy-bar-after {
@@ -42,7 +42,7 @@
 }
 
 .efficacy-bar-neutral {
-  background: hsla(38, 50%, 48%, 0.7);
+  background: var(--efficacy-baseline);
 }
 
 .efficacy-delta {

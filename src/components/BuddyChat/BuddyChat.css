@@ -37,8 +37,8 @@
 
 .buddy-chat-bubble-assistant {
   align-self: flex-start;
-  background: hsla(122, 42%, 52%, 0.12);
-  border: 1px solid hsla(122, 42%, 52%, 0.22);
+  background: var(--chat-user-bg);
+  border: 1px solid var(--chat-user-border);
   color: var(--text-secondary);
 }
 
@@ -83,7 +83,7 @@
   padding: var(--space-3);
   border-radius: var(--radius-md);
   border: 1px solid var(--surface-border);
-  background: hsla(120, 14%, 10%, 0.8);
+  background: var(--input-bg);
   color: var(--text-primary);
   font: inherit;
 }

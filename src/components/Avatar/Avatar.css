@@ -6,7 +6,7 @@
   font-weight: var(--weight-semibold);
   color: white;
   flex-shrink: 0;
-  border: 2px solid hsla(122, 42%, 52%, 0.35);
+  border: 2px solid var(--accent-border);
 }
 
 .avatar-xs {

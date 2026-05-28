@@ -2,9 +2,9 @@
   display: block;
   background: linear-gradient(
     90deg,
-    hsla(120, 14%, 18%, 0.6) 0%,
-    hsla(120, 14%, 24%, 0.8) 50%,
-    hsla(120, 14%, 18%, 0.6) 100%
+    var(--skeleton-from) 0%,
+    var(--skeleton-mid) 50%,
+    var(--skeleton-to) 100%
   );
   background-size: 200% 100%;
   animation: skeletonShimmer 1.2s ease-in-out infinite;

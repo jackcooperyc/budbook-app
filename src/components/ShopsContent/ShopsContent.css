@@ -31,6 +31,6 @@
 }
 
 .shops-card-wrap-active .glass-panel {
-  border-color: hsla(122, 42%, 52%, 0.45);
+  border-color: var(--accent-border);
   box-shadow: var(--glow-green);
 }

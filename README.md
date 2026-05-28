@@ -27,6 +27,8 @@ Port **3010** is pinned in `npm run dev` so BudBook does not collide with other 
 
 Optional: set `NEXT_PUBLIC_GOOGLE_MAPS_EMBED_KEY` in `.env.local` for the dispensary map embed (see `.env.example`).
 
+**Theme:** Use the sun/moon toggle in the header, or **Settings → Appearance** for Light / Dark / System. Preference is saved in `localStorage` and applied before first paint to avoid flash.
+
 ## Production
 
 In production the SPA talks to Base44 (`base44.app`) unless mock mode is enabled.

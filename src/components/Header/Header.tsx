@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import Logo from '@/components/Logo/Logo';
 import Avatar from '@/components/Avatar/Avatar';
+import ThemeToggle from '@/components/ThemeToggle/ThemeToggle';
 import { useMobileNav } from '@/context/MobileNavContext';
 import './Header.css';
 
@@ -56,6 +57,7 @@ export default function Header() {
           <Search size={16} strokeWidth={1.75} aria-hidden="true" />
           <input type="search" placeholder="Search strains, sessions…" aria-label="Search" />
         </div>
+        <ThemeToggle />
         <Link href="/budbook-app/profile" className="header-avatar-btn" onClick={close} aria-label="Profile">
           <Avatar name="Jordan Rivers" seed="jordan-rivers" size="sm" />
         </Link>
