@@ -1,0 +1,39 @@
+.manual-add-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.manual-add-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: var(--space-3);
+}
+
+.manual-add-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+}
+
+.manual-add-field input,
+.manual-add-field select {
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--surface-border);
+  background: var(--surface-raised);
+  color: var(--text-primary);
+}
+
+.manual-add-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-2);
+}
+
+.manual-add-error {
+  font-size: var(--text-sm);
+  color: var(--status-low);
+}

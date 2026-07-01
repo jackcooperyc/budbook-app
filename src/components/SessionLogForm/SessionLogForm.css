@@ -38,3 +38,8 @@
     grid-template-columns: 1fr;
   }
 }
+
+.session-log-empty {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+}

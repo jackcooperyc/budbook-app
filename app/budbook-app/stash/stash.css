@@ -4,6 +4,12 @@
   gap: var(--space-6);
 }
 
+.stash-header-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
 .stash-alerts {
   display: flex;
   flex-direction: column;

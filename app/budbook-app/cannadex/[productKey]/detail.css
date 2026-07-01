@@ -1,0 +1,82 @@
+.cannadex-detail {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  max-width: 640px;
+}
+
+.cannadex-detail-back {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+  color: var(--accent-light);
+  text-decoration: none;
+}
+
+.cannadex-detail-hero {
+  padding: var(--space-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.cannadex-detail-title-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.cannadex-detail-brand {
+  font-size: var(--text-md);
+  color: var(--text-secondary);
+}
+
+.cannadex-detail-meta {
+  font-size: var(--text-sm);
+  color: var(--accent-light);
+}
+
+.cannadex-detail-lab,
+.cannadex-detail-key {
+  font-size: var(--text-xs);
+  color: var(--text-tertiary);
+}
+
+.cannadex-detail-lab code,
+.cannadex-detail-key code {
+  font-size: 0.6875rem;
+}
+
+.cannadex-detail-badge {
+  display: inline-block;
+  margin-top: var(--space-2);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+  color: var(--accent-light);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.cannadex-detail-section {
+  padding: var(--space-5);
+}
+
+.cannadex-detail-section h3 {
+  font-size: var(--text-md);
+  margin-bottom: var(--space-4);
+}
+
+.cannadex-detail-stash {
+  padding: var(--space-4);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.cannadex-detail-registered {
+  font-size: var(--text-xs);
+  color: var(--text-tertiary);
+}

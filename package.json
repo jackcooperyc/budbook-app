@@ -6,7 +6,9 @@
     "dev": "next dev -p 3010",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "reset-data": "rm -f data/local-stash.json data/local-sessions.json data/local-posts.json data/caa-registry.json",
+    "reset-rda": "rm -f data/rda-cache.json"
   },
   "dependencies": {
     "lucide-react": "^1.16.0",

@@ -1,45 +1,56 @@
 "use client";
 
-import React, { Suspense, useMemo } from 'react';
+import React, { Suspense, useCallback, useState } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { Package, Plus } from 'lucide-react';
 import ProductCard from '@/components/ProductCard/ProductCard';
-import AccessoryCard from '@/components/AccessoryCard/AccessoryCard';
+import ManualAddProductForm from '@/components/ManualAddProductForm/ManualAddProductForm';
 import EmptyState from '@/components/EmptyState/EmptyState';
 import Skeleton from '@/components/Skeleton/Skeleton';
 import Button from '@/components/Button/Button';
-import { useSimulatedLoad } from '@/hooks/useSimulatedLoad';
-import { useBudbookMock } from '@/hooks/useBudbookMock';
 import { useServerStash } from '@/hooks/useServerStash';
-import { inventoryByProductId, isLowStock, parseOverview } from '@/lib/budbook-data';
-import { mergeInventory, mergeProducts } from '@/lib/stashStorage';
+import { inventoryByProductId, isLowStock } from '@/lib/budbook-data';
+import { computeLowStockAlerts } from '@/lib/app-stats';
 import './stash.css';
 
 function StashContent() {
-  const loading = useSimulatedLoad();
-  const { data } = useBudbookMock();
-  const { products: serverProducts, inventory: serverInventory, loading: stashLoading } =
-    useServerStash();
+  const {
+    products,
+    inventory,
+    loading,
+    error,
+    addManualProduct,
+    updateQuantity,
+    deleteProduct,
+  } = useServerStash();
   const searchParams = useSearchParams();
   const added = searchParams.get('added') === '1';
-
-  const products = useMemo(() => {
-    if (!data) return [];
-    return mergeProducts(data.products, serverProducts);
-  }, [data, serverProducts]);
-
-  const inventory = useMemo(() => {
-    if (!data) return [];
-    return mergeInventory(data.inventory, serverInventory);
-  }, [data, serverInventory]);
+  const [manualOpen, setManualOpen] = useState(false);
 
   const invMap = inventoryByProductId(inventory);
   const lowIds = new Set(
     products.filter((p) => isLowStock(p, invMap.get(p.id))).map((p) => p.id),
   );
+  const lowAlerts = computeLowStockAlerts(products, inventory);
 
-  if (loading || !data || stashLoading) {
+  const handleManualAdd = useCallback(
+    async (input: Parameters<typeof addManualProduct>[0]) => {
+      await addManualProduct(input);
+      setManualOpen(false);
+    },
+    [addManualProduct],
+  );
+
+  const handleDelete = useCallback(
+    async (productId: string) => {
+      if (!window.confirm('Remove this product from your stash?')) return;
+      await deleteProduct(productId);
+    },
+    [deleteProduct],
+  );
+
+  if (loading) {
     return (
       <div className="stash-grid">
         <Skeleton className="skeleton-card" />
@@ -48,9 +59,9 @@ function StashContent() {
     );
   }
 
-  const overview = parseOverview(data.overview);
-  const lowAlerts = overview.inventory_telemetry?.low_product_alerts ?? [];
-  const hardwareAlerts = overview.inventory_telemetry?.hardware_alerts ?? [];
+  if (error) {
+    return <p className="stash-alert">Could not load stash: {error}</p>;
+  }
 
   return (
     <div className="stash-page">
@@ -58,22 +69,33 @@ function StashContent() {
         <div>
           <h2 className="page-title">My Stash</h2>
           <p className="page-subtitle">
-            {products.length} products · {data.accessories.length} hardware items
-            {serverProducts.length > 0 && (
-              <span className="stash-sync-note"> · {serverProducts.length} synced locally</span>
-            )}
+            {products.length} product{products.length === 1 ? '' : 's'} in your stash
           </p>
         </div>
-        <Link href="/budbook-app/scanner">
-          <Button variant="primary" size="sm" icon={<Plus size={14} strokeWidth={1.75} />}>
-            Add product
+        <div className="stash-header-actions">
+          <Button
+            variant="secondary"
+            size="sm"
+            icon={<Plus size={14} strokeWidth={1.75} />}
+            onClick={() => setManualOpen((v) => !v)}
+          >
+            Manual add
           </Button>
-        </Link>
+          <Link href="/budbook-app/scanner">
+            <Button variant="primary" size="sm" icon={<Plus size={14} strokeWidth={1.75} />}>
+              Scan COA
+            </Button>
+          </Link>
+        </div>
       </header>
+
+      {manualOpen && (
+        <ManualAddProductForm onSave={handleManualAdd} onCancel={() => setManualOpen(false)} />
+      )}
 
       {added && (
         <p className="stash-toast-inline" role="status">
-          Product saved to server stash.
+          Product saved to your stash.
         </p>
       )}
 
@@ -93,11 +115,16 @@ function StashContent() {
           title="Your stash is empty"
           description="Scan a COA or add a product manually to start tracking potency and terpenes."
           action={
-            <Link href="/budbook-app/scanner">
-              <Button variant="primary" size="sm">
-                Open scanner
+            <div className="stash-header-actions">
+              <Button variant="secondary" size="sm" onClick={() => setManualOpen(true)}>
+                Add manually
               </Button>
-            </Link>
+              <Link href="/budbook-app/scanner">
+                <Button variant="primary" size="sm">
+                  Open scanner
+                </Button>
+              </Link>
+            </div>
           }
         />
       ) : (
@@ -108,25 +135,12 @@ function StashContent() {
               product={product}
               inventory={invMap.get(product.id)}
               lowStock={lowIds.has(product.id)}
+              editable
+              onUpdateQuantity={(id, qty) => updateQuantity(id, qty)}
+              onDelete={handleDelete}
             />
           ))}
         </div>
-      )}
-
-      {data.accessories.length > 0 && (
-        <section className="stash-hardware">
-          <h3 className="stash-section-title">Hardware & accessories</h3>
-          {hardwareAlerts.map((a) => (
-            <p key={a} className="stash-alert stash-alert-hardware">
-              {a}
-            </p>
-          ))}
-          <div className="stash-hardware-grid">
-            {data.accessories.map((a) => (
-              <AccessoryCard key={a.id} accessory={a} />
-            ))}
-          </div>
-        </section>
       )}
     </div>
   );

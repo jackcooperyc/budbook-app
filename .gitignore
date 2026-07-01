@@ -7,3 +7,6 @@ coverage/
 !.env.example
 tsconfig.tsbuildinfo
 *.tsbuildinfo
+
+# File-backed dev stores (created at runtime)
+data/*.json

@@ -5,15 +5,13 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
   Menu,
-  Package,
   Search,
-  Settings,
   X,
 } from 'lucide-react';
-import Logo from '@/components/Logo/Logo';
 import Avatar from '@/components/Avatar/Avatar';
 import ThemeToggle from '@/components/ThemeToggle/ThemeToggle';
 import { useMobileNav } from '@/context/MobileNavContext';
+import { useCurrentUser } from '@/hooks/useCurrentUser';
 import './Header.css';
 
 const pageTitles: Record<string, string> = {
@@ -36,7 +34,12 @@ const pageTitles: Record<string, string> = {
 export default function Header() {
   const pathname = usePathname();
   const { isOpen, toggle, close } = useMobileNav();
-  const title = pageTitles[pathname] || 'BudBook';
+  const { user, avatarSeed } = useCurrentUser();
+  const title =
+    pageTitles[pathname] ??
+    (pathname.startsWith('/budbook-app/shops/') ? 'Shop menu' :
+    pathname.startsWith('/budbook-app/cannadex/') ? 'Cannadex' :
+    'BudBook');
 
   return (
     <header className="header">
@@ -59,7 +62,11 @@ export default function Header() {
         </div>
         <ThemeToggle />
         <Link href="/budbook-app/profile" className="header-avatar-btn" onClick={close} aria-label="Profile">
-          <Avatar name="Jordan Rivers" seed="jordan-rivers" size="sm" />
+          <Avatar
+            name={user?.full_name ?? 'BudBook user'}
+            seed={avatarSeed}
+            size="sm"
+          />
         </Link>
       </div>
     </header>

@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { readPosts, addPost } from '@/lib/budbook-posts/fileStore';
+import { getDefaultUser } from '../../../../lib/budbook-user/defaultUser';
 import { mockApiDisabledResponse } from '@/lib/mockApi';
+import { getAvatarSeed } from '@/lib/media';
 
 export async function GET() {
   const blocked = mockApiDisabledResponse();
@@ -24,9 +26,11 @@ export async function POST(request: Request) {
     return NextResponse.json({ message: 'Post body is required' }, { status: 400 });
   }
 
+  const user = getDefaultUser();
+
   const post = await addPost({
-    author: body.author ?? 'Jordan Rivers',
-    authorSeed: body.authorSeed ?? 'jordan-rivers',
+    author: body.author ?? user.full_name,
+    authorSeed: body.authorSeed ?? getAvatarSeed(user.full_name),
     body: body.body.trim(),
     strain: body.strain?.trim() || undefined,
     circle: body.circle?.trim() || undefined,

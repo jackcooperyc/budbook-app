@@ -28,6 +28,16 @@
   cursor: pointer;
   text-align: left;
   border-radius: var(--radius-lg);
+  text-decoration: none;
+  color: inherit;
+  position: relative;
+}
+
+.shops-card-badge {
+  position: absolute;
+  top: var(--space-3);
+  right: var(--space-3);
+  z-index: 1;
 }
 
 .shops-card-wrap-active .glass-panel {

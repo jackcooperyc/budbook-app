@@ -1,23 +1,36 @@
 "use client";
 
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Send, Sparkles } from 'lucide-react';
 import Button from '@/components/Button/Button';
+import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { buddyPrompts, getBuddyReply } from '@/data/socialMock';
 import './BuddyChat.css';
 
 type Message = { id: string; role: 'user' | 'assistant'; text: string };
 
 export default function BuddyChat() {
+  const { firstName } = useCurrentUser();
   const [messages, setMessages] = useState<Message[]>([
     {
       id: 'welcome',
       role: 'assistant',
-      text: 'Hey Jordan — I’ve read your last 47 sessions. Ask about strains, efficacy patterns, or stash alerts.',
+      text: 'Ask about strains, efficacy patterns, or stash alerts.',
     },
   ]);
   const [input, setInput] = useState('');
   const listRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (firstName === 'there') return;
+    setMessages([
+      {
+        id: 'welcome',
+        role: 'assistant',
+        text: `Hey ${firstName} — ask about strains, efficacy patterns, or stash alerts.`,
+      },
+    ]);
+  }, [firstName]);
 
   function send(text: string) {
     const trimmed = text.trim();

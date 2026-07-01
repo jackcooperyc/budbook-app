@@ -1,0 +1,67 @@
+.store-menu-page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.store-back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+  color: var(--accent-light);
+  text-decoration: none;
+}
+
+.store-back-link:hover {
+  text-decoration: underline;
+}
+
+.store-menu-title-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.store-brands {
+  font-size: var(--text-sm);
+  color: var(--text-tertiary);
+  margin-top: var(--space-2);
+}
+
+.store-menu-heading {
+  font-size: var(--text-lg);
+  font-weight: var(--weight-semibold);
+  margin-bottom: var(--space-4);
+}
+
+.store-menu-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--space-4);
+}
+
+.store-toast {
+  position: fixed;
+  bottom: var(--space-6);
+  left: 50%;
+  transform: translateX(-50%);
+  padding: var(--space-3) var(--space-5);
+  background: var(--surface-raised);
+  border: 1px solid var(--accent-border);
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
+  box-shadow: var(--glow-green);
+  z-index: 50;
+}
+
+.store-toast button {
+  background: none;
+  border: none;
+  color: var(--accent-light);
+  font: inherit;
+  cursor: pointer;
+  text-decoration: underline;
+  margin-left: var(--space-2);
+}

@@ -1,14 +1,13 @@
 "use client";
 
-import React, { Suspense, useMemo, useState } from 'react';
+import React, { Suspense } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import { PenLine } from 'lucide-react';
-import MediaCard from '@/components/MediaCard/MediaCard';
+import { MessageSquare, PenLine } from 'lucide-react';
 import PostCard from '@/components/PostCard/PostCard';
+import EmptyState from '@/components/EmptyState/EmptyState';
 import Button from '@/components/Button/Button';
 import Skeleton from '@/components/Skeleton/Skeleton';
-import { mediaItems } from '@/data/socialMock';
 import { usePosts } from '@/hooks/usePosts';
 import './media.css';
 
@@ -16,16 +15,13 @@ function MediaContent() {
   const { posts, loading } = usePosts();
   const searchParams = useSearchParams();
   const posted = searchParams.get('posted') === '1';
-  const [tab, setTab] = useState<'feed' | 'curated'>('feed');
-
-  const feed = useMemo(() => posts, [posts]);
 
   return (
     <div className="media-page">
       <header className="page-header">
         <div>
           <h2 className="page-title">Media</h2>
-          <p className="page-subtitle">Community feed and curated wellness content</p>
+          <p className="page-subtitle">Community posts from your circles</p>
         </div>
         <Link href="/budbook-app/post/new">
           <Button variant="primary" size="sm" icon={<PenLine size={14} strokeWidth={1.75} />}>
@@ -40,40 +36,26 @@ function MediaContent() {
         </p>
       )}
 
-      <div className="media-tabs">
-        <button
-          type="button"
-          className={`media-tab ${tab === 'feed' ? 'media-tab-active' : ''}`}
-          onClick={() => setTab('feed')}
-        >
-          Community feed
-        </button>
-        <button
-          type="button"
-          className={`media-tab ${tab === 'curated' ? 'media-tab-active' : ''}`}
-          onClick={() => setTab('curated')}
-        >
-          Curated
-        </button>
+      <div className="media-feed">
+        {loading ? (
+          <Skeleton className="skeleton-row" />
+        ) : posts.length === 0 ? (
+          <EmptyState
+            icon={MessageSquare}
+            title="No posts yet"
+            description="Share session insights, pairings, or wins with your community."
+            action={
+              <Link href="/budbook-app/post/new">
+                <Button variant="primary" size="sm">
+                  Write your first post
+                </Button>
+              </Link>
+            }
+          />
+        ) : (
+          posts.map((post) => <PostCard key={post.id} post={post} />)
+        )}
       </div>
-
-      {tab === 'feed' && (
-        <div className="media-feed">
-          {loading ? (
-            <Skeleton className="skeleton-row" />
-          ) : (
-            feed.map((post) => <PostCard key={post.id} post={post} />)
-          )}
-        </div>
-      )}
-
-      {tab === 'curated' && (
-        <div className="media-grid">
-          {mediaItems.map((item) => (
-            <MediaCard key={item.id} item={item} />
-          ))}
-        </div>
-      )}
     </div>
   );
 }

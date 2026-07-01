@@ -84,3 +84,11 @@
   font-size: 0.625rem;
   color: var(--text-tertiary);
 }
+
+.product-card-actions {
+  display: flex;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+  padding-top: var(--space-2);
+  border-top: 1px solid var(--surface-border);
+}

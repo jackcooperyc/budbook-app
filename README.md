@@ -6,9 +6,9 @@ This repository contains:
 
 - A **native Next.js UI** at `/budbook-app/*` (editable design system, dark botanical brand)
 - The compiled legacy BudBook SPA under `public/budbook-app/` (Base44 build output)
-- Local mock API routes so both UIs run offline with mock data
-- BudBook domain types and mock payload normalization
-- File-backed dev APIs for stash, COA parsing hints, and community posts
+- Local mock API routes so the legacy SPA can run offline (native UI uses file-backed stores)
+- BudBook domain types and normalization layer
+- File-backed dev APIs for stash, sessions, posts, and COA parsing hints
 
 The original Vite / Base44 source project is not included here — only the production build artifacts and the Next.js shell that serves them.
 
@@ -25,7 +25,9 @@ Legacy Base44 SPA (compiled build): [http://localhost:3010/budbook-app/index.htm
 
 Port **3010** is pinned in `npm run dev` so BudBook does not collide with other tools that often bind **3000**.
 
-Optional: set `NEXT_PUBLIC_GOOGLE_MAPS_EMBED_KEY` in `.env.local` for the dispensary map embed (see `.env.example`).
+Optional: set `NEXT_PUBLIC_GOOGLE_MAPS_EMBED_KEY` in `.env.local` for the dispensary map embed (see `.env.example`). Override the dev user with `BUDBOOK_USER_NAME`, `BUDBOOK_USER_USERNAME`, and `BUDBOOK_USER_EMAIL`.
+
+**Data:** The native UI starts empty — add products and log sessions to build your profile. See [docs/data-model.md](docs/data-model.md).
 
 **Theme:** Use the sun/moon toggle in the header, or **Settings → Appearance** for Light / Dark / System. Preference is saved in `localStorage` and applied before first paint to avoid flash.
 
@@ -46,12 +48,18 @@ BUDBOOK_MOCK_ENABLED=1 npm run start
 | `app/budbook-app/` | Native Next.js UI (dashboard, stash, journal, social, cannadex, scanner, buddy) |
 | `src/components/` | Design system + product components (PostCard, SessionLogForm, DispensaryMap, etc.) |
 | `src/lib/budbook-stash/` | File-backed stash store (`data/local-stash.json`) |
+| `src/lib/budbook-sessions/` | File-backed journal store (`data/local-sessions.json`) |
 | `src/lib/budbook-posts/` | File-backed community posts (`data/local-posts.json`) |
+| `lib/budbook-user/` | Dev-mode default user |
+| `docs/data-model.md` | Persisted vs mock data boundaries |
 | `src/lib/budbook-coa/` | COA URL hint parser for scanner demo |
 | `public/budbook-app/` | Legacy compiled Base44 SPA |
-| `lib/budbook-mock/` | Mock entity payload builder |
-| `app/api/internal/` | Mock + dev APIs (payloads, stash, posts, COA parse) |
+| `lib/rda/` | Retail Data Adapter gateway + CannMenus cache |
+| `lib/caa/` | Compliance stub (product_key enrichment) |
+| `app/api/internal/` | Dev APIs (user, stash, sessions, posts, coa) + legacy mock |
 | `types/budbook.ts` | Domain types |
+| `types/rda.ts` | RDA TypeScript contract (spec in `docs/rda-spec.md`) |
+| `docs/mvp-scope.md` | MVP in/out scope tracker |
 | `public/budbook_pitchdeck.html` | Pitch deck (from JCS Data Matrix) |
 
 ### Native routes
@@ -64,7 +72,7 @@ BUDBOOK_MOCK_ENABLED=1 npm run start
 | `/budbook-app/scanner` | COA scanner → parse API + stash POST |
 | `/budbook-app/media` | Community feed + curated content |
 | `/budbook-app/post/new` | Create a community post |
-| `/budbook-app/shops` | Dispensaries with search + map pin selection |
+| `/budbook-app/shops` | Dispensaries with RDA cache, menu, add to stash |
 | `/budbook-app/buddy` | Buddy AI chat |
 | `/budbook-app/friends`, `/circles`, `/cannadex`, `/learn`, `/profile`, `/settings` | Social & profile surfaces |
 

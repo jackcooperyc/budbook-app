@@ -1,9 +1,10 @@
 import React from 'react';
 import Image from 'next/image';
-import { FlaskConical } from 'lucide-react';
+import { FlaskConical, Pencil, Trash2 } from 'lucide-react';
 import type { InventoryItem, Product } from '@/types/budbook';
 import Chip from '@/components/Chip/Chip';
 import TerpeneProfile from '@/components/TerpeneProfile/TerpeneProfile';
+import Button from '@/components/Button/Button';
 import { formatQuantity, getStrainCoverUrl } from '@/lib/media';
 import './ProductCard.css';
 
@@ -11,12 +12,31 @@ interface ProductCardProps {
   product: Product;
   inventory?: InventoryItem;
   lowStock?: boolean;
+  editable?: boolean;
+  onUpdateQuantity?: (productId: string, quantity: number) => void;
+  onDelete?: (productId: string) => void;
 }
 
-export default function ProductCard({ product, inventory, lowStock }: ProductCardProps) {
+export default function ProductCard({
+  product,
+  inventory,
+  lowStock,
+  editable,
+  onUpdateQuantity,
+  onDelete,
+}: ProductCardProps) {
   const qty = inventory
     ? formatQuantity(inventory.quantity, inventory.unit)
     : null;
+
+  function handleEditQuantity() {
+    if (!onUpdateQuantity || !inventory) return;
+    const next = window.prompt('Update quantity (grams):', String(inventory.quantity));
+    if (next == null) return;
+    const parsed = parseFloat(next);
+    if (!Number.isFinite(parsed) || parsed < 0) return;
+    onUpdateQuantity(product.id, parsed);
+  }
 
   return (
     <article className={`product-card glass-panel ${lowStock ? 'product-card-low' : ''}`}>
@@ -49,6 +69,28 @@ export default function ProductCard({ product, inventory, lowStock }: ProductCar
             {product.lab_report_id}
           </span>
         </div>
+        {editable && (
+          <div className="product-card-actions">
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              icon={<Pencil size={12} strokeWidth={1.75} />}
+              onClick={handleEditQuantity}
+            >
+              Edit qty
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              icon={<Trash2 size={12} strokeWidth={1.75} />}
+              onClick={() => onDelete?.(product.id)}
+            >
+              Remove
+            </Button>
+          </div>
+        )}
       </div>
     </article>
   );

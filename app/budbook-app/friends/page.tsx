@@ -1,5 +1,5 @@
-import FriendCard from '@/components/FriendCard/FriendCard';
-import { friends } from '@/data/socialMock';
+import EmptyState from '@/components/EmptyState/EmptyState';
+import { Users } from 'lucide-react';
 import './friends.css';
 
 export default function FriendsPage() {
@@ -11,11 +11,11 @@ export default function FriendsPage() {
           <p className="page-subtitle">People you share sessions and insights with</p>
         </div>
       </header>
-      <div className="friends-list">
-        {friends.map((f) => (
-          <FriendCard key={f.id} friend={f} />
-        ))}
-      </div>
+      <EmptyState
+        icon={Users}
+        title="Friends coming soon"
+        description="Social connections will ship after core stash and journal flows are production-ready."
+      />
     </div>
   );
 }

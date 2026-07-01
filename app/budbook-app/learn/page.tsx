@@ -1,5 +1,5 @@
-import LearnCard from '@/components/LearnCard/LearnCard';
-import { learnItems } from '@/data/socialMock';
+import EmptyState from '@/components/EmptyState/EmptyState';
+import { GraduationCap } from 'lucide-react';
 import './learn.css';
 
 export default function LearnPage() {
@@ -8,14 +8,14 @@ export default function LearnPage() {
       <header className="page-header">
         <div>
           <h2 className="page-title">Learn</h2>
-          <p className="page-subtitle">Courses, guides, and recipes for responsible wellness</p>
+          <p className="page-subtitle">Education and harm-reduction resources</p>
         </div>
       </header>
-      <div className="learn-list">
-        {learnItems.map((item) => (
-          <LearnCard key={item.id} item={item} />
-        ))}
-      </div>
+      <EmptyState
+        icon={GraduationCap}
+        title="Learn content coming soon"
+        description="Curated articles and guides will be added via CMS in a later phase."
+      />
     </div>
   );
 }

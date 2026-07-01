@@ -1,5 +1,5 @@
-import CircleCard from '@/components/CircleCard/CircleCard';
-import { circles } from '@/data/socialMock';
+import EmptyState from '@/components/EmptyState/EmptyState';
+import { UsersRound } from 'lucide-react';
 import './circles.css';
 
 export default function CirclesPage() {
@@ -8,14 +8,14 @@ export default function CirclesPage() {
       <header className="page-header">
         <div>
           <h2 className="page-title">Circles</h2>
-          <p className="page-subtitle">Community groups for shared wellness tracking</p>
+          <p className="page-subtitle">Private groups for shared wellness journeys</p>
         </div>
       </header>
-      <div className="circles-grid">
-        {circles.map((c) => (
-          <CircleCard key={c.id} circle={c} />
-        ))}
-      </div>
+      <EmptyState
+        icon={UsersRound}
+        title="Circles coming soon"
+        description="Create and join circles once the social graph backend is wired up."
+      />
     </div>
   );
 }

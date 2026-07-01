@@ -102,6 +102,11 @@
   background: var(--accent-muted);
 }
 
+.scanner-confidence-inferred {
+  color: var(--text-tertiary);
+  background: var(--input-bg-muted);
+}
+
 .scanner-confidence-demo {
   color: var(--text-tertiary);
   background: var(--input-bg-muted);
@@ -110,4 +115,99 @@
 .scanner-result-brand {
   font-size: var(--text-sm);
   color: var(--text-tertiary);
+}
+
+.scanner-tabs {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.scanner-tab {
+  padding: var(--space-2) var(--space-4);
+  font-size: var(--text-sm);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--surface-border);
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.scanner-tab-active {
+  background: var(--accent-muted);
+  border-color: var(--accent-border);
+  color: var(--accent-light);
+}
+
+.scanner-field textarea {
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--surface-border);
+  background: var(--input-bg);
+  color: var(--text-primary);
+  font: inherit;
+  resize: vertical;
+}
+
+.scanner-result-caa {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  margin: var(--space-2) 0;
+}
+
+.scanner-result-caa a {
+  color: var(--accent-light);
+}
+
+.scanner-duplicate {
+  font-size: var(--text-sm);
+  color: var(--status-low);
+  padding: var(--space-2) var(--space-3);
+  background: var(--alert-warn-bg);
+  border-radius: var(--radius-md);
+}
+
+.scanner-qr-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  padding: var(--space-4);
+}
+
+.scanner-qr-modal {
+  position: relative;
+  padding: var(--space-5);
+  max-width: 400px;
+  width: 100%;
+}
+
+.scanner-qr-close {
+  position: absolute;
+  top: var(--space-3);
+  right: var(--space-3);
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.scanner-qr-video {
+  width: 100%;
+  border-radius: var(--radius-md);
+  background: #000;
+}
+
+.scanner-qr-hint,
+.scanner-qr-error {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  text-align: center;
+  margin-top: var(--space-3);
+}
+
+.scanner-qr-error {
+  color: var(--status-low);
 }

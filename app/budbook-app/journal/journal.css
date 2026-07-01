@@ -10,6 +10,19 @@
   gap: var(--space-4);
 }
 
+.journal-hint,
+.journal-error {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  padding: var(--space-3) var(--space-4);
+  background: var(--tab-inactive-bg);
+  border-radius: var(--radius-md);
+}
+
+.journal-error {
+  color: var(--status-low);
+}
+
 .journal-panel-hint {
   font-size: var(--text-sm);
   color: var(--text-tertiary);

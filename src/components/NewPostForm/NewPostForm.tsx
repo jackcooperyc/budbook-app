@@ -3,7 +3,6 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Button from '@/components/Button/Button';
-import { circles } from '@/data/socialMock';
 import { usePosts } from '@/hooks/usePosts';
 import './NewPostForm.css';
 
@@ -58,14 +57,12 @@ export default function NewPostForm() {
       </label>
       <label className="new-post-field">
         <span>Circle (optional)</span>
-        <select value={circle} onChange={(e) => setCircle(e.target.value)}>
-          <option value="">None</option>
-          {circles.map((c) => (
-            <option key={c.id} value={c.name}>
-              {c.name}
-            </option>
-          ))}
-        </select>
+        <input
+          type="text"
+          value={circle}
+          onChange={(e) => setCircle(e.target.value)}
+          placeholder="e.g. Evening wind-down"
+        />
       </label>
       {error && <p className="new-post-error">{error}</p>}
       <div className="new-post-actions">

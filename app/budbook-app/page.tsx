@@ -1,45 +1,47 @@
 import Link from 'next/link';
-import { ArrowRight, Package, PenLine } from 'lucide-react';
-import { getBudbookMockPayloads } from '@/lib/mockApi';
+import { ArrowRight, BookOpen, Package, PenLine } from 'lucide-react';
 import InsightCard from '@/components/InsightCard/InsightCard';
 import SessionCard from '@/components/SessionCard/SessionCard';
+import EmptyState from '@/components/EmptyState/EmptyState';
 import Button from '@/components/Button/Button';
-import { parseOverview, productNameById } from '@/lib/budbook-data';
+import { getAppData } from '@/lib/app-data';
+import {
+  computeWeeklyFrequency,
+  computeLowStockAlerts,
+  computeLiveInsights,
+  computeActivitySubtitle,
+} from '@/lib/app-stats';
+import { productNameById } from '@/lib/budbook-data';
 import './home.css';
 
 export default async function DashboardPage() {
-  const data = await getBudbookMockPayloads();
-  const overview = parseOverview(data.overview);
-  const insights = overview.data_insights ?? [];
-  const recentSessions = data.sessions.slice(0, 2);
-  const lowAlerts = overview.inventory_telemetry?.low_product_alerts ?? [];
+  const { user, products, inventory, sessions } = await getAppData();
+  const totalSessions = sessions.length;
+  const weeklyFreq = computeWeeklyFrequency(sessions);
+  const lowAlerts = computeLowStockAlerts(products, inventory);
+  const insights = computeLiveInsights(sessions, products);
+  const subtitle = computeActivitySubtitle(sessions);
+  const recentSessions = sessions.slice(0, 2);
 
   return (
     <div className="dashboard">
       <section className="dashboard-hero glass-panel">
-        <p className="dashboard-eyebrow">Welcome back, {data.user.full_name.split(' ')[0]}</p>
+        <p className="dashboard-eyebrow">Welcome back, {user.full_name.split(' ')[0]}</p>
         <h2 className="dashboard-title">
           Your <span className="gradient-text">wellness OS</span>
         </h2>
-        <p className="dashboard-subtitle">
-          {overview.activity_summary?.macroscopic_trend ??
-            'Log sessions, track stash, and learn what works for your body.'}
-        </p>
+        <p className="dashboard-subtitle">{subtitle}</p>
         <div className="dashboard-stats meta-numeric">
           <div>
-            <span className="dashboard-stat-value">
-              {overview.activity_summary?.total_sessions_logged ?? data.sessions.length}
-            </span>
+            <span className="dashboard-stat-value">{totalSessions}</span>
             <span className="dashboard-stat-label">Sessions logged</span>
           </div>
           <div>
-            <span className="dashboard-stat-value">
-              {overview.activity_summary?.average_weekly_frequency ?? '—'}
-            </span>
+            <span className="dashboard-stat-value">{weeklyFreq ?? '—'}</span>
             <span className="dashboard-stat-label">Avg / week</span>
           </div>
           <div>
-            <span className="dashboard-stat-value">{data.products.length}</span>
+            <span className="dashboard-stat-value">{products.length}</span>
             <span className="dashboard-stat-label">Products in stash</span>
           </div>
         </div>
@@ -52,11 +54,6 @@ export default async function DashboardPage() {
           <Link href="/budbook-app/stash">
             <Button variant="secondary" icon={<Package size={16} strokeWidth={1.75} />}>
               View stash
-            </Button>
-          </Link>
-          <Link href="/budbook-app/buddy">
-            <Button variant="ghost" size="sm">
-              Ask Buddy AI
             </Button>
           </Link>
         </div>
@@ -79,26 +76,47 @@ export default async function DashboardPage() {
             Journal <ArrowRight size={14} />
           </Link>
         </div>
-        <div className="dashboard-insights">
-          {insights.map((text, i) => (
-            <InsightCard key={text} text={text} index={i} />
-          ))}
-        </div>
+        {insights.length > 0 ? (
+          <div className="dashboard-insights">
+            {insights.map((text, i) => (
+              <InsightCard key={text} text={text} index={i} />
+            ))}
+          </div>
+        ) : (
+          <p className="dashboard-empty-hint">
+            Log a few sessions to unlock personalized insights from your journal.
+          </p>
+        )}
       </section>
 
       <section className="dashboard-section">
         <div className="dashboard-section-header">
           <h3>Recent sessions</h3>
         </div>
-        <div className="dashboard-sessions">
-          {recentSessions.map((session) => (
-            <SessionCard
-              key={session.id}
-              session={session}
-              strainName={productNameById(data.products, session.product_id)}
-            />
-          ))}
-        </div>
+        {recentSessions.length > 0 ? (
+          <div className="dashboard-sessions">
+            {recentSessions.map((session) => (
+              <SessionCard
+                key={session.id}
+                session={session}
+                strainName={productNameById(products, session.product_id)}
+              />
+            ))}
+          </div>
+        ) : (
+          <EmptyState
+            icon={BookOpen}
+            title="No sessions yet"
+            description="Your recent sessions will appear here once you start logging."
+            action={
+              <Link href="/budbook-app/journal?log=1">
+                <Button variant="primary" size="sm">
+                  Log a session
+                </Button>
+              </Link>
+            }
+          />
+        )}
       </section>
     </div>
   );

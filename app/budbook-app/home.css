@@ -99,3 +99,11 @@
   flex-direction: column;
   gap: var(--space-4);
 }
+
+.dashboard-empty-hint {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  padding: var(--space-4);
+  border-radius: var(--radius-md);
+  border: 1px dashed var(--surface-border);
+}

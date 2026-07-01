@@ -11,7 +11,7 @@ const METHODS = ['Dry Herb Vape', 'Tincture', 'Edible', 'Joint', 'Bong'];
 
 interface SessionLogFormProps {
   products: Product[];
-  onSave: (session: Session) => void;
+  onSave: (session: Session) => void | Promise<void>;
   onCancel: () => void;
 }
 
@@ -30,7 +30,7 @@ export default function SessionLogForm({ products, onSave, onCancel }: SessionLo
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!productId) return;
+    if (!productId || products.length === 0) return;
 
     const session: Session = {
       id: createSessionId(),
@@ -48,7 +48,7 @@ export default function SessionLogForm({ products, onSave, onCancel }: SessionLo
       anxiety_after: anxietyAfter,
       effects_felt: [],
       activities: [],
-      session_notes: 'Logged locally — pattern recognition will update after sync.',
+      session_notes: 'Logged to your journal.',
       session_name: '',
     };
     onSave(session);
@@ -58,6 +58,10 @@ export default function SessionLogForm({ products, onSave, onCancel }: SessionLo
     <form className="session-log-form action-panel" onSubmit={handleSubmit}>
       <h3 className="action-panel-title">Log session</h3>
 
+      {products.length === 0 ? (
+        <p className="session-log-empty">Add a product to your stash before logging a session.</p>
+      ) : (
+        <>
       <label className="session-log-field">
         <span>Product</span>
         <select value={productId} onChange={(e) => setProductId(e.target.value)} required>
@@ -123,10 +127,12 @@ export default function SessionLogForm({ products, onSave, onCancel }: SessionLo
         <Button type="button" variant="ghost" size="sm" onClick={onCancel}>
           Cancel
         </Button>
-        <Button type="submit" variant="primary" size="sm">
+        <Button type="submit" variant="primary" size="sm" disabled={products.length === 0}>
           Save session
         </Button>
       </div>
+        </>
+      )}
     </form>
   );
 }

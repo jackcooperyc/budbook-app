@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import type { BudbookMockPayloads } from '@/types/budbook';
 
+/** @deprecated Native UI uses file-backed stores. Legacy SPA / entity proxy only. */
 export function useBudbookMock() {
   const [data, setData] = useState<BudbookMockPayloads | null>(null);
   const [error, setError] = useState<string | null>(null);
