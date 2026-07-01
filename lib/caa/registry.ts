@@ -1,9 +1,8 @@
 import { readFile, writeFile, mkdir } from 'fs/promises';
-import path from 'path';
 import type { CaaCatalogEntry, CaaCoaParseResult, CaaEnrichment } from '@/types/caa';
+import { dataFile, getDataDir } from '@lib/data-dir';
 
-const DATA_DIR = path.join(process.cwd(), 'data');
-const REGISTRY_FILE = path.join(DATA_DIR, 'caa-registry.json');
+const REGISTRY_FILE = dataFile('caa-registry.json');
 
 type RegistryData = {
   by_product_key: Record<string, CaaCatalogEntry>;
@@ -13,7 +12,7 @@ type RegistryData = {
 const EMPTY: RegistryData = { by_product_key: {}, by_lab_report_id: {} };
 
 async function ensureFile(): Promise<void> {
-  await mkdir(DATA_DIR, { recursive: true });
+  await mkdir(getDataDir(), { recursive: true });
   try {
     await readFile(REGISTRY_FILE, 'utf8');
   } catch {

@@ -16,6 +16,8 @@ The native Next.js UI runs on **persisted file-backed stores**, not mock seed JS
 
 Server components aggregate via `getAppData()` in `src/lib/app-data.ts`. Client pages use the matching hooks (`useServerStash`, `useServerSessions`, `useCurrentUser`).
 
+**Storage path:** `lib/data-dir.ts` writes to `./data` locally and `/tmp/budbook-data` on Vercel (read-only filesystem elsewhere). Data on Vercel is ephemeral per serverless instance — use a database for durable multi-user production.
+
 ## Fresh start
 
 On first run, **your** stash, journal, and posts start empty. The RDA retail cache auto-seeds 3 Portland-area shops on first access (`data/rda-cache.json`).

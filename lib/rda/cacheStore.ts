@@ -1,6 +1,6 @@
 import { readFile, writeFile, mkdir } from 'fs/promises';
-import path from 'path';
 import type { RetailMenuItem, RetailStore } from '@/types/rda';
+import { dataFile, getDataDir } from '@lib/data-dir';
 import { buildRdaSeed } from './seed-data';
 
 export type RdaCache = {
@@ -8,13 +8,12 @@ export type RdaCache = {
   menus: Record<string, RetailMenuItem[]>;
 };
 
-const DATA_DIR = path.join(process.cwd(), 'data');
-const CACHE_FILE = path.join(DATA_DIR, 'rda-cache.json');
+const CACHE_FILE = dataFile('rda-cache.json');
 
 const EMPTY: RdaCache = { stores: [], menus: {} };
 
 async function ensureCache(): Promise<void> {
-  await mkdir(DATA_DIR, { recursive: true });
+  await mkdir(getDataDir(), { recursive: true });
   try {
     await readFile(CACHE_FILE, 'utf8');
   } catch {
@@ -40,7 +39,7 @@ export async function writeRdaCache(cache: RdaCache): Promise<void> {
 
 export async function resetRdaCache(): Promise<RdaCache> {
   const seed = buildRdaSeed();
-  await mkdir(DATA_DIR, { recursive: true });
+  await mkdir(getDataDir(), { recursive: true });
   await writeFile(CACHE_FILE, JSON.stringify(seed, null, 2), 'utf8');
   return seed;
 }

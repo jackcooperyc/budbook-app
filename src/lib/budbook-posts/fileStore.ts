@@ -1,5 +1,5 @@
 import { readFile, writeFile, mkdir } from 'fs/promises';
-import path from 'path';
+import { dataFile, getDataDir } from '@lib/data-dir';
 
 export type SocialPost = {
   id: string;
@@ -12,13 +12,12 @@ export type SocialPost = {
   likes: number;
 };
 
-const POSTS_DIR = path.join(process.cwd(), 'data');
-const POSTS_FILE = path.join(POSTS_DIR, 'local-posts.json');
+const POSTS_FILE = dataFile('local-posts.json');
 
 const EMPTY: SocialPost[] = [];
 
 async function ensureFile(): Promise<void> {
-  await mkdir(POSTS_DIR, { recursive: true });
+  await mkdir(getDataDir(), { recursive: true });
   try {
     await readFile(POSTS_FILE, 'utf8');
   } catch {

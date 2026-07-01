@@ -1,14 +1,13 @@
 import { readFile, writeFile, mkdir } from 'fs/promises';
-import path from 'path';
 import type { Session } from '@/types/budbook';
+import { dataFile, getDataDir } from '@lib/data-dir';
 
-const SESSIONS_DIR = path.join(process.cwd(), 'data');
-const SESSIONS_FILE = path.join(SESSIONS_DIR, 'local-sessions.json');
+const SESSIONS_FILE = dataFile('local-sessions.json');
 
 const EMPTY: Session[] = [];
 
 async function ensureFile(): Promise<void> {
-  await mkdir(SESSIONS_DIR, { recursive: true });
+  await mkdir(getDataDir(), { recursive: true });
   try {
     await readFile(SESSIONS_FILE, 'utf8');
   } catch {

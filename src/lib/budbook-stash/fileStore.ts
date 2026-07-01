@@ -1,21 +1,20 @@
 import { readFile, writeFile, mkdir } from 'fs/promises';
-import path from 'path';
 import type { InventoryItem, Product } from '@/types/budbook';
 import type { CaaCoaParseResult } from '@/types/caa';
 import type { ScanProductInput } from '@/lib/stashStorage';
+import { dataFile, getDataDir } from '@lib/data-dir';
 
 export type LocalStashData = {
   products: Product[];
   inventory: InventoryItem[];
 };
 
-const STASH_DIR = path.join(process.cwd(), 'data');
-const STASH_FILE = path.join(STASH_DIR, 'local-stash.json');
+const STASH_FILE = dataFile('local-stash.json');
 
 const EMPTY: LocalStashData = { products: [], inventory: [] };
 
 async function ensureFile(): Promise<void> {
-  await mkdir(STASH_DIR, { recursive: true });
+  await mkdir(getDataDir(), { recursive: true });
   try {
     await readFile(STASH_FILE, 'utf8');
   } catch {
