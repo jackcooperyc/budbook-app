@@ -1,4 +1,4 @@
-import { desc } from 'drizzle-orm';
+import { desc, eq, sql } from 'drizzle-orm';
 import { readFile, writeFile, mkdir } from 'fs/promises';
 import type { SocialPost } from '@/types/budbook';
 import { getCurrentUserId } from '@lib/budbook-user/currentUser';
@@ -73,4 +73,27 @@ export async function addPost(
   });
 
   return post;
+}
+
+export async function likePost(postId: string): Promise<SocialPost | null> {
+  if (!dbEnabled()) {
+    const rows = await readFilePosts();
+    const index = rows.findIndex((p) => p.id === postId);
+    if (index === -1) return null;
+
+    const updated: SocialPost = { ...rows[index], likes: rows[index].likes + 1 };
+    const next = [...rows];
+    next[index] = updated;
+    await writeFilePosts(next);
+    return updated;
+  }
+
+  const db = getDb()!;
+  const [row] = await db
+    .update(posts)
+    .set({ likes: sql`${posts.likes} + 1` })
+    .where(eq(posts.id, postId))
+    .returning();
+
+  return row ? toSocialPost(row) : null;
 }

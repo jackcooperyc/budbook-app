@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { readPosts, addPost } from '@/lib/budbook-posts/fileStore';
+import { readPosts, addPost, likePost } from '@/lib/budbook-posts/fileStore';
 import { getDefaultUser } from '../../../../lib/budbook-user/defaultUser';
 import { mockApiDisabledResponse } from '@/lib/mockApi';
 import { getAvatarSeed } from '@/lib/media';
@@ -35,6 +35,24 @@ export async function POST(request: Request) {
     strain: body.strain?.trim() || undefined,
     circle: body.circle?.trim() || undefined,
   });
+
+  return NextResponse.json(post);
+}
+
+export async function PATCH(request: Request) {
+  const blocked = mockApiDisabledResponse();
+  if (blocked) return blocked;
+
+  const body = (await request.json()) as { postId?: string; action?: string };
+
+  if (!body?.postId || body.action !== 'like') {
+    return NextResponse.json({ message: 'postId and action: "like" are required' }, { status: 400 });
+  }
+
+  const post = await likePost(body.postId);
+  if (!post) {
+    return NextResponse.json({ message: 'Post not found' }, { status: 404 });
+  }
 
   return NextResponse.json(post);
 }

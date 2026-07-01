@@ -39,7 +39,7 @@ npm run reset-rda    # retail shop cache (re-seeds on next visit)
 |----------|---------|-------------------|
 | `public/budbook-app/mock/budbook-mock-user.json` | Jordan Rivers demo persona | **No** |
 | `GET /api/internal/budbook-mock/payloads` | Full mock payload builder | **No** |
-| `src/data/socialMock.ts` | Static friends/circles/buddy rules | Buddy keyword replies only |
+| `src/data/socialMock.ts` | Static friends/circles/learn/media | Friends/circles/learn empty states; buddy uses live API |
 | `app/api/apps/*/entities/*` | Legacy SPA entity proxy | Legacy SPA only |
 
 The mock JSON file remains in the repo for reference and legacy SPA bootstrap. It is **not merged** into dashboard, stash, journal, profile, or shops.

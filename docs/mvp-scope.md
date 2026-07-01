@@ -22,6 +22,9 @@ Functional MVP — persisted user data + RDA retail cache + CAA compliance path.
 | `product_key` join (RDA menu ↔ CAA) | Done (Phase 3) |
 | Default dev user | Done |
 | Stash CRUD | Done |
+| Neon Postgres persistence | Done |
+| Buddy AI (live stash + journal context) | Done (Phase 4) |
+| Post likes | Done (Phase 4) |
 
 ## Data stores
 
@@ -48,7 +51,9 @@ npm run reset-rda    # clear shop cache
 | `/api/internal/rda/stores` | GET |
 | `/api/internal/rda/stores/[store_key]/menu` | GET |
 | `/api/internal/budbook-stash` | GET, POST (`kind: coa`), PATCH, DELETE |
+| `/api/internal/budbook-posts` | GET, POST, PATCH (`action: like`) |
+| `/api/internal/buddy/chat` | GET (prompts), POST (message) |
 
 ## Next phase
 
-Phase 4: Buddy live context, post likes, auth decision, production deploy.
+Auth (Clerk/Neon Auth), friends/circles graph, RDA live adapters, learn CMS.

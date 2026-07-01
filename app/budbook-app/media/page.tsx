@@ -12,7 +12,7 @@ import { usePosts } from '@/hooks/usePosts';
 import './media.css';
 
 function MediaContent() {
-  const { posts, loading } = usePosts();
+  const { posts, loading, likePost } = usePosts();
   const searchParams = useSearchParams();
   const posted = searchParams.get('posted') === '1';
 
@@ -53,7 +53,7 @@ function MediaContent() {
             }
           />
         ) : (
-          posts.map((post) => <PostCard key={post.id} post={post} />)
+          posts.map((post) => <PostCard key={post.id} post={post} onLike={likePost} />)
         )}
       </div>
     </div>

@@ -4,7 +4,6 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Send, Sparkles } from 'lucide-react';
 import Button from '@/components/Button/Button';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
-import { buddyPrompts, getBuddyReply } from '@/data/socialMock';
 import './BuddyChat.css';
 
 type Message = { id: string; role: 'user' | 'assistant'; text: string };
@@ -18,8 +17,17 @@ export default function BuddyChat() {
       text: 'Ask about strains, efficacy patterns, or stash alerts.',
     },
   ]);
+  const [prompts, setPrompts] = useState<string[]>([]);
   const [input, setInput] = useState('');
+  const [sending, setSending] = useState(false);
   const listRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    fetch('/api/internal/buddy/chat')
+      .then((r) => r.json())
+      .then((data: { prompts?: string[] }) => setPrompts(data.prompts ?? []))
+      .catch(() => setPrompts(['What strain helps me sleep?', 'Compare strains for pain relief']));
+  }, []);
 
   useEffect(() => {
     if (firstName === 'there') return;
@@ -27,26 +35,49 @@ export default function BuddyChat() {
       {
         id: 'welcome',
         role: 'assistant',
-        text: `Hey ${firstName} — ask about strains, efficacy patterns, or stash alerts.`,
+        text: `Hey ${firstName} — ask about your stash, sessions, or efficacy patterns.`,
       },
     ]);
   }, [firstName]);
 
-  function send(text: string) {
+  async function send(text: string) {
     const trimmed = text.trim();
-    if (!trimmed) return;
+    if (!trimmed || sending) return;
 
     const userMsg: Message = { id: `u-${Date.now()}`, role: 'user', text: trimmed };
-    const reply: Message = {
-      id: `a-${Date.now()}`,
-      role: 'assistant',
-      text: getBuddyReply(trimmed),
-    };
-    setMessages((m) => [...m, userMsg, reply]);
+    setMessages((m) => [...m, userMsg]);
     setInput('');
-    requestAnimationFrame(() => {
-      listRef.current?.scrollTo({ top: listRef.current.scrollHeight, behavior: 'smooth' });
-    });
+    setSending(true);
+
+    try {
+      const res = await fetch('/api/internal/buddy/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: trimmed }),
+      });
+      const data = (await res.json()) as { reply?: string; prompts?: string[] };
+      const reply: Message = {
+        id: `a-${Date.now()}`,
+        role: 'assistant',
+        text: data.reply ?? 'I could not generate a reply right now. Try again in a moment.',
+      };
+      setMessages((m) => [...m, reply]);
+      if (data.prompts?.length) setPrompts(data.prompts);
+    } catch {
+      setMessages((m) => [
+        ...m,
+        {
+          id: `a-${Date.now()}`,
+          role: 'assistant',
+          text: 'Something went wrong reaching Buddy. Check your connection and try again.',
+        },
+      ]);
+    } finally {
+      setSending(false);
+      requestAnimationFrame(() => {
+        listRef.current?.scrollTo({ top: listRef.current.scrollHeight, behavior: 'smooth' });
+      });
+    }
   }
 
   return (
@@ -65,8 +96,8 @@ export default function BuddyChat() {
       </div>
 
       <div className="buddy-chat-prompts">
-        {buddyPrompts.map((p) => (
-          <button key={p} type="button" className="buddy-chat-prompt" onClick={() => send(p)}>
+        {prompts.map((p) => (
+          <button key={p} type="button" className="buddy-chat-prompt" onClick={() => send(p)} disabled={sending}>
             {p}
           </button>
         ))}
@@ -76,7 +107,7 @@ export default function BuddyChat() {
         className="buddy-chat-input-row"
         onSubmit={(e) => {
           e.preventDefault();
-          send(input);
+          void send(input);
         }}
       >
         <input
@@ -85,8 +116,9 @@ export default function BuddyChat() {
           onChange={(e) => setInput(e.target.value)}
           placeholder="Ask about your sessions…"
           aria-label="Message Buddy AI"
+          disabled={sending}
         />
-        <Button type="submit" variant="primary" size="sm" icon={<Send size={14} strokeWidth={1.75} />}>
+        <Button type="submit" variant="primary" size="sm" icon={<Send size={14} strokeWidth={1.75} />} disabled={sending}>
           Send
         </Button>
       </form>

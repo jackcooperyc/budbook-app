@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from 'react';
-import type { SocialPost } from '@/lib/budbook-posts/fileStore';
+import type { SocialPost } from '@/types/budbook';
 
 export function usePosts() {
   const [posts, setPosts] = useState<SocialPost[] | null>(null);
@@ -31,5 +31,15 @@ export function usePosts() {
     [reload],
   );
 
-  return { posts: posts ?? [], loading: posts === null, reload, createPost };
+  const likePost = useCallback(async (postId: string) => {
+    const res = await fetch('/api/internal/budbook-posts', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ postId, action: 'like' }),
+    });
+    if (!res.ok) throw new Error('Failed to like post');
+    reload();
+  }, [reload]);
+
+  return { posts: posts ?? [], loading: posts === null, reload, createPost, likePost };
 }
