@@ -178,6 +178,17 @@ export type BudbookUser = {
   role: string;
 };
 
+export type SocialPost = {
+  id: string;
+  author: string;
+  authorSeed: string;
+  body: string;
+  strain?: string;
+  circle?: string;
+  createdAt: string;
+  likes: number;
+};
+
 export type BudbookMockPayloads = {
   overview: unknown;
   user: BudbookUser;

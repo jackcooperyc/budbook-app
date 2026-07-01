@@ -16,7 +16,11 @@ The native Next.js UI runs on **persisted file-backed stores**, not mock seed JS
 
 Server components aggregate via `getAppData()` in `src/lib/app-data.ts`. Client pages use the matching hooks (`useServerStash`, `useServerSessions`, `useCurrentUser`).
 
-**Storage path:** `lib/data-dir.ts` writes to `./data` locally and `/tmp/budbook-data` on Vercel (read-only filesystem elsewhere). Data on Vercel is ephemeral per serverless instance — use a database for durable multi-user production.
+**Storage path:** When `DATABASE_URL` is set, user data and the CAA catalog persist in **Neon Postgres** via Drizzle (`lib/db/`, `lib/repositories/`). Otherwise `lib/data-dir.ts` writes to `./data` locally and `/tmp/budbook-data` on Vercel. File data on Vercel is ephemeral per serverless instance.
+
+```bash
+npm run db:migrate   # apply 001_init.sql (requires DATABASE_URL)
+```
 
 ## Fresh start
 

@@ -14,7 +14,7 @@ Functional MVP — persisted user data + RDA retail cache + CAA compliance path.
 
 | Area | Status |
 |------|--------|
-| File-backed stash, sessions, posts | Done |
+| File-backed stash, sessions, posts | Done (Neon when `DATABASE_URL` set) |
 | RDA shops + menu → stash | Done (Phase 2) |
 | CAA COA parse (url / text / QR) | Done (Phase 3) |
 | CAA registry + Cannadex catalog | Done (Phase 3) |
