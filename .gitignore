@@ -10,3 +10,5 @@ tsconfig.tsbuildinfo
 
 # File-backed dev stores (created at runtime)
 data/*.json
+.vercel
+.vercel
