@@ -201,13 +201,23 @@
 }
 
 .scanner-qr-hint,
-.scanner-qr-error {
+.scanner-qr-error,
+.scanner-qr-loading {
   font-size: var(--text-sm);
   color: var(--text-secondary);
   text-align: center;
   margin-top: var(--space-3);
 }
 
+.scanner-qr-error-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-4) 0;
+}
+
 .scanner-qr-error {
   color: var(--status-low);
+  margin: 0;
 }
