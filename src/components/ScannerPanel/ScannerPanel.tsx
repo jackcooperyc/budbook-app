@@ -8,13 +8,14 @@ import Button from '@/components/Button/Button';
 import TerpeneProfile from '@/components/TerpeneProfile/TerpeneProfile';
 import type { CaaParseResponse } from '@/types/caa';
 import {
+  boostCameraResolution,
   CameraAccessError,
   cameraErrorMessage,
   createQrDetector,
   decodeQrFromImageFile,
-  isBarcodeDetectorSupported,
   openCameraStream,
 } from '@/lib/scanner/camera';
+import { detectQrInVideo } from '@/lib/scanner/detect';
 import './ScannerPanel.css';
 
 type InputMode = 'url' | 'text';
@@ -31,17 +32,21 @@ export default function ScannerPanel() {
   const [qrOpen, setQrOpen] = useState(false);
   const [qrLoading, setQrLoading] = useState(false);
   const [qrError, setQrError] = useState<string | null>(null);
+  const [qrDecoding, setQrDecoding] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const scanLoopRef = useRef<number | null>(null);
+  const scanBusyRef = useRef(false);
   const detectorRef = useRef<Awaited<ReturnType<typeof createQrDetector>>>(null);
   const qrFileRef = useRef<HTMLInputElement>(null);
 
   const stopQr = useCallback(() => {
     if (scanLoopRef.current != null) {
-      cancelAnimationFrame(scanLoopRef.current);
+      window.clearTimeout(scanLoopRef.current);
       scanLoopRef.current = null;
     }
+    scanBusyRef.current = false;
     streamRef.current?.getTracks().forEach((t) => t.stop());
     streamRef.current = null;
     detectorRef.current = null;
@@ -60,10 +65,13 @@ export default function ScannerPanel() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
       });
-      if (!res.ok) throw new Error('Parse failed');
-      setResult(await res.json());
-    } catch {
-      setError('CAA parse failed — check your input and try again.');
+      const data = (await res.json()) as CaaParseResponse & { message?: string };
+      if (!res.ok) {
+        throw new Error(data.message ?? 'Parse failed');
+      }
+      setResult(data);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'CAA parse failed — check your input and try again.');
     } finally {
       setScanning(false);
     }
@@ -84,33 +92,40 @@ export default function ScannerPanel() {
     });
 
     const detector = detectorRef.current;
-    if (!detector) return;
+    const canvas = canvasRef.current;
+    if (!canvas) return;
 
     const tick = async () => {
-      if (!videoRef.current || videoRef.current.readyState < 2) {
-        scanLoopRef.current = requestAnimationFrame(tick);
+      const video = videoRef.current;
+      if (!video || video.readyState < 2 || scanBusyRef.current) {
+        scanLoopRef.current = window.setTimeout(tick, 120);
         return;
       }
+
+      scanBusyRef.current = true;
       try {
-        const codes = await detector.detect(videoRef.current);
-        if (codes.length > 0 && codes[0].rawValue) {
+        const payload = await detectQrInVideo(detector, video, canvas);
+        if (payload) {
           stopQr();
-          void runParse({ qr_payload: codes[0].rawValue });
+          void runParse({ qr_payload: payload });
           return;
         }
       } catch {
         /* continue scanning */
+      } finally {
+        scanBusyRef.current = false;
       }
-      scanLoopRef.current = requestAnimationFrame(tick);
+      scanLoopRef.current = window.setTimeout(tick, 180);
     };
 
-    scanLoopRef.current = requestAnimationFrame(tick);
+    scanLoopRef.current = window.setTimeout(tick, 300);
 
     return () => {
       if (scanLoopRef.current != null) {
-        cancelAnimationFrame(scanLoopRef.current);
+        window.clearTimeout(scanLoopRef.current);
         scanLoopRef.current = null;
       }
+      scanBusyRef.current = false;
     };
   }, [qrOpen, qrError, qrLoading, runParse, stopQr]);
 
@@ -119,25 +134,21 @@ export default function ScannerPanel() {
     setQrLoading(true);
     setQrOpen(true);
 
-    if (!isBarcodeDetectorSupported()) {
-      setQrError(
-        'QR scanning requires Chrome or Edge (BarcodeDetector API). Paste the COA URL or text instead.',
-      );
+    if (typeof window === 'undefined' || !window.isSecureContext) {
+      setQrError('QR scanning requires HTTPS. Paste the COA URL or use Upload QR image.');
       setQrLoading(false);
       return;
     }
 
-    try {
-      const detector = await createQrDetector();
-      if (!detector) {
-        setQrError('QR scanning is not supported in this browser.');
-        setQrLoading(false);
-        return;
-      }
-      detectorRef.current = detector;
+    // Request the camera immediately while the click still has user activation.
+    const streamPromise = openCameraStream();
 
-      const stream = await openCameraStream();
+    try {
+      // BarcodeDetector is not available on iOS Safari; we still support scanning via jsQR.
+      const [detector, stream] = await Promise.all([createQrDetector(), streamPromise]);
+      detectorRef.current = detector;
       streamRef.current = stream;
+      await boostCameraResolution(stream);
       setQrLoading(false);
     } catch (err) {
       streamRef.current?.getTracks().forEach((t) => t.stop());
@@ -158,25 +169,27 @@ export default function ScannerPanel() {
     e.target.value = '';
     if (!file) return;
 
-    if (!isBarcodeDetectorSupported()) {
-      setError('QR image upload requires Chrome or Edge.');
-      return;
-    }
-
     setError(null);
-    setScanning(true);
+    setQrDecoding(true);
     try {
-      const payload = await decodeQrFromImageFile(file);
+      const canvas = canvasRef.current ?? document.createElement('canvas');
+      const payload = await decodeQrFromImageFile(file, canvas);
       if (!payload) {
-        setError('No QR code found in that image. Try a clearer photo or paste the COA URL.');
+        setError(
+          'No QR code found in that image. Fill the frame with the code, use good lighting, or paste the COA URL.',
+        );
         return;
       }
       stopQr();
       await runParse({ qr_payload: payload });
-    } catch {
-      setError('Could not read QR code from image.');
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : 'Could not read QR code from image. Try a PNG/JPEG screenshot or paste the COA URL.',
+      );
     } finally {
-      setScanning(false);
+      setQrDecoding(false);
     }
   }
 
@@ -227,12 +240,13 @@ export default function ScannerPanel() {
       <input
         ref={qrFileRef}
         type="file"
-        accept="image/*"
+        accept="image/*,.heic,.heif"
         className="scanner-qr-file-input"
         aria-hidden="true"
         tabIndex={-1}
         onChange={(e) => void handleQrImageUpload(e)}
       />
+      <canvas ref={canvasRef} className="scanner-qr-canvas" aria-hidden="true" />
 
       <div className="scanner-tabs">
         <button
@@ -274,7 +288,7 @@ export default function ScannerPanel() {
           </label>
         )}
         <div className="scanner-actions">
-          <Button type="submit" variant="primary" size="sm" disabled={scanning}>
+          <Button type="submit" variant="primary" size="sm" disabled={scanning || qrDecoding}>
             {scanning ? 'Parsing…' : 'Parse via CAA'}
           </Button>
           <Button
@@ -283,7 +297,7 @@ export default function ScannerPanel() {
             size="sm"
             icon={<QrCode size={14} />}
             onClick={() => void startQr()}
-            disabled={scanning}
+            disabled={scanning || qrDecoding}
           >
             Scan QR
           </Button>
@@ -293,9 +307,9 @@ export default function ScannerPanel() {
             size="sm"
             icon={<Upload size={14} />}
             onClick={() => qrFileRef.current?.click()}
-            disabled={scanning}
+            disabled={scanning || qrDecoding}
           >
-            Upload QR image
+            {qrDecoding ? 'Reading QR…' : 'Upload QR image'}
           </Button>
         </div>
       </form>
@@ -327,10 +341,16 @@ export default function ScannerPanel() {
                 </div>
               </div>
             ) : (
-              <video ref={videoRef} className="scanner-qr-video" muted playsInline autoPlay />
+              <div className="scanner-qr-viewfinder">
+                <video ref={videoRef} className="scanner-qr-video" muted playsInline autoPlay />
+                <div className="scanner-qr-reticle" aria-hidden="true" />
+              </div>
             )}
             {!qrError && !qrLoading && (
-              <p className="scanner-qr-hint">Point your camera at a COA QR code</p>
+              <p className="scanner-qr-hint">
+                Fill the frame with the QR code — hold steady 6–12 inches away. Screen glare? Use
+                Upload QR image.
+              </p>
             )}
           </div>
         </div>
@@ -346,9 +366,7 @@ export default function ScannerPanel() {
         <div className="scanner-result glass-panel">
           <div className="scanner-result-header">
             <h3>CAA extraction</h3>
-            <span className={`scanner-confidence scanner-confidence-${parse.confidence}`}>
-              {parse.confidence === 'high' ? 'Matched' : 'Inferred'}
-            </span>
+            <span className="scanner-confidence scanner-confidence-high">Lab verified</span>
           </div>
           <p className="scanner-result-strain">{parse.strain_name}</p>
           <p className="scanner-result-brand">{parse.brand}</p>

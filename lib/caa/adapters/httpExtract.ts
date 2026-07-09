@@ -93,7 +93,9 @@ export function parseCoaLabText(
   const category = parseCategory(text);
   const type = parseType(text);
   const terpene_profile = parseTerpenes(text);
-  const confidence: CaaParseConfidence = terpene_profile.length > 0 ? 'high' : 'inferred';
+  if (terpene_profile.length === 0) return null;
+
+  const confidence: CaaParseConfidence = 'high';
 
   return {
     lab_report_id: labReportIdFromText(text),

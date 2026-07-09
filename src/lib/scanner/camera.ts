@@ -1,9 +1,12 @@
+/** Camera helpers for QR scanning — desktop webcams, mobile rear camera, permission UX. */
+
 export type CameraErrorCode =
   | 'insecure'
   | 'unsupported'
   | 'denied'
   | 'not_found'
   | 'in_use'
+  | 'site_blocked'
   | 'unknown';
 
 export class CameraAccessError extends Error {
@@ -16,20 +19,48 @@ export class CameraAccessError extends Error {
   }
 }
 
-export function cameraErrorMessage(code: CameraErrorCode): string {
+const SITE_CAMERA_HINT =
+  'In Chrome: click the lock/tune icon in the address bar → Site settings → Camera → Allow, then reload.';
+
+const MAC_CAMERA_HINT =
+  'On Mac: System Settings → Privacy & Security → Camera → enable Google Chrome, then reload.';
+
+export function cameraErrorMessage(
+  code: CameraErrorCode,
+  permission?: PermissionState | 'unsupported',
+): string {
+  if (permission === 'denied') {
+    return `Camera is blocked for this site. ${SITE_CAMERA_HINT} You can also use Upload QR image or paste the COA URL.`;
+  }
+
   switch (code) {
     case 'insecure':
       return 'Camera requires a secure connection (HTTPS). Open BudBook over https://budbook.cupr.app.';
     case 'unsupported':
       return 'This browser does not support camera access. Try Chrome or Edge, or paste the COA URL manually.';
     case 'denied':
-      return 'Camera permission was blocked. Click the lock icon in the address bar → Camera → Allow. On Mac, also check System Settings → Privacy & Security → Camera → Google Chrome.';
+      return `Camera permission was blocked. ${SITE_CAMERA_HINT} ${MAC_CAMERA_HINT} Or use Upload QR image / paste the COA URL.`;
     case 'not_found':
-      return 'Chrome cannot access a camera on this device. On Mac: System Settings → Privacy & Security → Camera → enable Google Chrome, then reload. If you have no webcam, use Upload QR image or paste the COA URL.';
+      return `No camera was found or Chrome could not open it. ${SITE_CAMERA_HINT} ${MAC_CAMERA_HINT} If you have no webcam, use Upload QR image or paste the COA URL.`;
     case 'in_use':
       return 'Your camera is in use by another app. Close other apps and try again.';
+    case 'site_blocked':
+      return `This page is not allowed to use the camera. ${SITE_CAMERA_HINT}`;
     default:
-      return 'Could not open the camera. Try Upload QR image, or paste the COA URL manually.';
+      return `Could not open the camera. ${SITE_CAMERA_HINT} Try Upload QR image or paste the COA URL.`;
+  }
+}
+
+/** Best-effort read of browser camera permission — use only when reporting errors, not before getUserMedia. */
+export async function queryCameraPermission(): Promise<PermissionState | 'unsupported'> {
+  if (typeof navigator === 'undefined' || !navigator.permissions?.query) {
+    return 'unsupported';
+  }
+  try {
+    const status = await navigator.permissions.query({ name: 'camera' as PermissionName });
+    return status.state;
+  } catch {
+    return 'unsupported';
   }
 }
 
@@ -49,10 +80,11 @@ function mapDomException(err: unknown, videoDeviceCount: number): CameraAccessEr
         return new CameraAccessError('denied', cameraErrorMessage('denied'));
       case 'NotFoundError':
       case 'DevicesNotFoundError':
+      case 'OverconstrainedError':
         return new CameraAccessError(
           'not_found',
           videoDeviceCount > 0
-            ? 'A camera is connected but Chrome could not open it. Check site and system camera permissions, then try again or use Upload QR image.'
+            ? `A camera is connected but Chrome could not open it. ${SITE_CAMERA_HINT} ${MAC_CAMERA_HINT} Or use Upload QR image.`
             : cameraErrorMessage('not_found'),
         );
       case 'NotReadableError':
@@ -75,10 +107,12 @@ function constraintAttempts(): MediaStreamConstraints[] {
     ];
   }
 
+  // Desktop: start with the loosest possible constraint. Some Mac webcams will
+  // throw NotFound/Overconstrained when we ask for resolution or facingMode.
   return [
-    { video: { facingMode: { ideal: 'user' } }, audio: false },
     { video: true, audio: false },
-    { video: { facingMode: { ideal: 'environment' } }, audio: false },
+    { video: { width: { ideal: 1280 }, height: { ideal: 720 } }, audio: false },
+    { video: { width: { ideal: 1920 }, height: { ideal: 1080 } }, audio: false },
   ];
 }
 
@@ -89,7 +123,8 @@ async function listVideoInputs(): Promise<MediaDeviceInfo[]> {
 }
 
 /**
- * Request a camera stream with desktop-safe fallbacks and per-device retries.
+ * Request a camera stream. Invoke synchronously from a click handler so Chrome
+ * still has user activation when prompting — do not await other work first.
  */
 export async function openCameraStream(): Promise<MediaStream> {
   if (typeof window === 'undefined' || !window.isSecureContext) {
@@ -108,6 +143,10 @@ export async function openCameraStream(): Promise<MediaStream> {
     } catch (err) {
       lastError = err;
       if (err instanceof DOMException && err.name === 'NotAllowedError') {
+        const permission = await queryCameraPermission();
+        if (permission === 'denied') {
+          throw new CameraAccessError('site_blocked', cameraErrorMessage('site_blocked'));
+        }
         throw mapDomException(err, 0);
       }
     }
@@ -125,9 +164,18 @@ export async function openCameraStream(): Promise<MediaStream> {
     } catch (err) {
       lastError = err;
       if (err instanceof DOMException && err.name === 'NotAllowedError') {
+        const permission = await queryCameraPermission();
+        if (permission === 'denied') {
+          throw new CameraAccessError('site_blocked', cameraErrorMessage('site_blocked'));
+        }
         throw mapDomException(err, videoInputs.length);
       }
     }
+  }
+
+  const permission = await queryCameraPermission();
+  if (permission === 'denied') {
+    throw new CameraAccessError('site_blocked', cameraErrorMessage('site_blocked'));
   }
 
   throw mapDomException(lastError, videoInputs.length);
@@ -137,30 +185,42 @@ export function isBarcodeDetectorSupported(): boolean {
   return typeof window !== 'undefined' && 'BarcodeDetector' in window;
 }
 
-export async function createQrDetector() {
+export type QrDetector = {
+  detect: (source: ImageBitmapSource) => Promise<{ rawValue: string }[]>;
+};
+
+export async function createQrDetector(): Promise<QrDetector | null> {
   if (!isBarcodeDetectorSupported()) return null;
 
   const BarcodeDetector = (
     window as unknown as {
-      BarcodeDetector: new (opts: { formats: string[] }) => {
-        detect: (source: ImageBitmapSource) => Promise<{ rawValue: string }[]>;
-      };
+      BarcodeDetector: new (opts: { formats: string[] }) => QrDetector;
     }
   ).BarcodeDetector;
 
   return new BarcodeDetector({ formats: ['qr_code'] });
 }
 
-/** Decode a QR code from a still image (screenshot or photo of a COA label). */
-export async function decodeQrFromImageFile(file: File): Promise<string | null> {
-  const detector = await createQrDetector();
-  if (!detector) return null;
-
-  const bitmap = await createImageBitmap(file);
+/** Raise webcam resolution after the stream opens (best-effort). */
+export async function boostCameraResolution(stream: MediaStream): Promise<void> {
+  const track = stream.getVideoTracks()[0];
+  if (!track?.applyConstraints) return;
   try {
-    const codes = await detector.detect(bitmap);
-    return codes[0]?.rawValue ?? null;
-  } finally {
-    bitmap.close();
+    await track.applyConstraints({
+      width: { ideal: 1920 },
+      height: { ideal: 1080 },
+    });
+  } catch {
+    /* device may not support higher resolution */
   }
+}
+
+/** Decode a QR code from a still image (screenshot or photo of a COA label). */
+export async function decodeQrFromImageFile(
+  file: File,
+  canvas: HTMLCanvasElement,
+): Promise<string | null> {
+  const { detectQrInImageFile } = await import('./detect');
+  const detector = await createQrDetector();
+  return detectQrInImageFile(detector, file, canvas);
 }

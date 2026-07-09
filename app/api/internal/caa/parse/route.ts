@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { parseCoaInput } from '@lib/caa/parse';
+import { parseCoaInput, CaaParseError } from '@lib/caa/parse';
 import { findStashByLabReportId } from '@lib/caa/duplicates';
 import { registerCoaParse } from '@lib/caa/registry';
 import { internalApiGuard } from '@lib/auth/guard';
@@ -40,15 +40,23 @@ export async function POST(request: Request) {
     return NextResponse.json({ message: 'url, text, or qr_payload is required' }, { status: 400 });
   }
 
-  const parse = await parseCoaInput(input, source);
-  await registerCoaParse(parse);
-  const existing = await findStashByLabReportId(parse.lab_report_id);
+  try {
+    const parse = await parseCoaInput(input, source);
+    await registerCoaParse(parse);
+    const existing = await findStashByLabReportId(parse.lab_report_id);
 
-  const response: CaaParseResponse = {
-    parse,
-    duplicate_in_stash: existing != null,
-    existing_product_id: existing?.product_id ?? null,
-  };
+    const response: CaaParseResponse = {
+      parse,
+      duplicate_in_stash: existing != null,
+      existing_product_id: existing?.product_id ?? null,
+    };
 
-  return NextResponse.json(response);
+    return NextResponse.json(response);
+  } catch (err) {
+    const message =
+      err instanceof CaaParseError
+        ? err.message
+        : 'CAA parse failed — check your input and try again.';
+    return NextResponse.json({ message }, { status: 422 });
+  }
 }
