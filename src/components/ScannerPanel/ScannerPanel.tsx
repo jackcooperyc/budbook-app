@@ -3,7 +3,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { QrCode, ScanLine, X } from 'lucide-react';
+import { QrCode, ScanLine, Upload, X } from 'lucide-react';
 import Button from '@/components/Button/Button';
 import TerpeneProfile from '@/components/TerpeneProfile/TerpeneProfile';
 import type { CaaParseResponse } from '@/types/caa';
@@ -11,6 +11,7 @@ import {
   CameraAccessError,
   cameraErrorMessage,
   createQrDetector,
+  decodeQrFromImageFile,
   isBarcodeDetectorSupported,
   openCameraStream,
 } from '@/lib/scanner/camera';
@@ -34,6 +35,7 @@ export default function ScannerPanel() {
   const streamRef = useRef<MediaStream | null>(null);
   const scanLoopRef = useRef<number | null>(null);
   const detectorRef = useRef<Awaited<ReturnType<typeof createQrDetector>>>(null);
+  const qrFileRef = useRef<HTMLInputElement>(null);
 
   const stopQr = useCallback(() => {
     if (scanLoopRef.current != null) {
@@ -151,6 +153,33 @@ export default function ScannerPanel() {
     }
   }
 
+  async function handleQrImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    if (!file) return;
+
+    if (!isBarcodeDetectorSupported()) {
+      setError('QR image upload requires Chrome or Edge.');
+      return;
+    }
+
+    setError(null);
+    setScanning(true);
+    try {
+      const payload = await decodeQrFromImageFile(file);
+      if (!payload) {
+        setError('No QR code found in that image. Try a clearer photo or paste the COA URL.');
+        return;
+      }
+      stopQr();
+      await runParse({ qr_payload: payload });
+    } catch {
+      setError('Could not read QR code from image.');
+    } finally {
+      setScanning(false);
+    }
+  }
+
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (mode === 'url') {
@@ -191,9 +220,19 @@ export default function ScannerPanel() {
         <h2>COA Scanner</h2>
         <p>
           Ingest lab reports through the Compliance Abstraction Adapter (CAA). Paste a URL,
-          COA text, or scan a QR code. Desktop QR scan works in Chrome or Edge with a webcam.
+          COA text, or scan a QR code. On desktop without a webcam, use Upload QR image.
         </p>
       </div>
+
+      <input
+        ref={qrFileRef}
+        type="file"
+        accept="image/*"
+        className="scanner-qr-file-input"
+        aria-hidden="true"
+        tabIndex={-1}
+        onChange={(e) => void handleQrImageUpload(e)}
+      />
 
       <div className="scanner-tabs">
         <button
@@ -248,6 +287,16 @@ export default function ScannerPanel() {
           >
             Scan QR
           </Button>
+          <Button
+            type="button"
+            variant="secondary"
+            size="sm"
+            icon={<Upload size={14} />}
+            onClick={() => qrFileRef.current?.click()}
+            disabled={scanning}
+          >
+            Upload QR image
+          </Button>
         </div>
       </form>
 
@@ -262,9 +311,20 @@ export default function ScannerPanel() {
             ) : qrError ? (
               <div className="scanner-qr-error-block">
                 <p className="scanner-qr-error">{qrError}</p>
-                <Button type="button" variant="secondary" size="sm" onClick={() => void startQr()}>
-                  Try again
-                </Button>
+                <div className="scanner-qr-error-actions">
+                  <Button type="button" variant="secondary" size="sm" onClick={() => void startQr()}>
+                    Try again
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    size="sm"
+                    icon={<Upload size={14} />}
+                    onClick={() => qrFileRef.current?.click()}
+                  >
+                    Upload QR image
+                  </Button>
+                </div>
               </div>
             ) : (
               <video ref={videoRef} className="scanner-qr-video" muted playsInline autoPlay />

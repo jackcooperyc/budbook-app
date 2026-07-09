@@ -23,17 +23,25 @@ export function cameraErrorMessage(code: CameraErrorCode): string {
     case 'unsupported':
       return 'This browser does not support camera access. Try Chrome or Edge, or paste the COA URL manually.';
     case 'denied':
-      return 'Camera permission was blocked. Check site permissions in your browser lock icon, or paste the COA URL manually.';
+      return 'Camera permission was blocked. Click the lock icon in the address bar → Camera → Allow. On Mac, also check System Settings → Privacy & Security → Camera → Google Chrome.';
     case 'not_found':
-      return 'No camera was found on this device. Use paste-text or URL mode instead.';
+      return 'Chrome cannot access a camera on this device. On Mac: System Settings → Privacy & Security → Camera → enable Google Chrome, then reload. If you have no webcam, use Upload QR image or paste the COA URL.';
     case 'in_use':
       return 'Your camera is in use by another app. Close other apps and try again.';
     default:
-      return 'Could not open the camera. Try Chrome or Edge on desktop, or paste the COA URL manually.';
+      return 'Could not open the camera. Try Upload QR image, or paste the COA URL manually.';
   }
 }
 
-function mapDomException(err: unknown): CameraAccessError {
+function isLikelyMobile(): boolean {
+  if (typeof navigator === 'undefined') return false;
+  return (
+    /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ||
+    (navigator.maxTouchPoints > 1 && window.matchMedia('(max-width: 768px)').matches)
+  );
+}
+
+function mapDomException(err: unknown, videoDeviceCount: number): CameraAccessError {
   if (err instanceof DOMException) {
     switch (err.name) {
       case 'NotAllowedError':
@@ -41,13 +49,15 @@ function mapDomException(err: unknown): CameraAccessError {
         return new CameraAccessError('denied', cameraErrorMessage('denied'));
       case 'NotFoundError':
       case 'DevicesNotFoundError':
-        return new CameraAccessError('not_found', cameraErrorMessage('not_found'));
+        return new CameraAccessError(
+          'not_found',
+          videoDeviceCount > 0
+            ? 'A camera is connected but Chrome could not open it. Check site and system camera permissions, then try again or use Upload QR image.'
+            : cameraErrorMessage('not_found'),
+        );
       case 'NotReadableError':
       case 'TrackStartError':
         return new CameraAccessError('in_use', cameraErrorMessage('in_use'));
-      case 'OverconstrainedError':
-      case 'ConstraintNotSatisfiedError':
-        return new CameraAccessError('unknown', cameraErrorMessage('unknown'));
       default:
         break;
     }
@@ -56,9 +66,30 @@ function mapDomException(err: unknown): CameraAccessError {
   return new CameraAccessError('unknown', cameraErrorMessage('unknown'));
 }
 
+function constraintAttempts(): MediaStreamConstraints[] {
+  if (isLikelyMobile()) {
+    return [
+      { video: { facingMode: { ideal: 'environment' } }, audio: false },
+      { video: { facingMode: { ideal: 'user' } }, audio: false },
+      { video: true, audio: false },
+    ];
+  }
+
+  return [
+    { video: { facingMode: { ideal: 'user' } }, audio: false },
+    { video: true, audio: false },
+    { video: { facingMode: { ideal: 'environment' } }, audio: false },
+  ];
+}
+
+async function listVideoInputs(): Promise<MediaDeviceInfo[]> {
+  if (!navigator.mediaDevices?.enumerateDevices) return [];
+  const devices = await navigator.mediaDevices.enumerateDevices();
+  return devices.filter((d) => d.kind === 'videoinput');
+}
+
 /**
- * Request a camera stream with desktop-safe fallbacks.
- * Mobile rear camera (`environment`) is tried first; desktop webcams typically need `user` or unconstrained video.
+ * Request a camera stream with desktop-safe fallbacks and per-device retries.
  */
 export async function openCameraStream(): Promise<MediaStream> {
   if (typeof window === 'undefined' || !window.isSecureContext) {
@@ -69,26 +100,37 @@ export async function openCameraStream(): Promise<MediaStream> {
     throw new CameraAccessError('unsupported', cameraErrorMessage('unsupported'));
   }
 
-  const attempts: MediaStreamConstraints[] = [
-    { video: { facingMode: { ideal: 'environment' } }, audio: false },
-    { video: { facingMode: { ideal: 'user' } }, audio: false },
-    { video: true, audio: false },
-  ];
-
   let lastError: unknown;
 
-  for (const constraints of attempts) {
+  for (const constraints of constraintAttempts()) {
     try {
       return await navigator.mediaDevices.getUserMedia(constraints);
     } catch (err) {
       lastError = err;
       if (err instanceof DOMException && err.name === 'NotAllowedError') {
-        throw mapDomException(err);
+        throw mapDomException(err, 0);
       }
     }
   }
 
-  throw mapDomException(lastError);
+  const videoInputs = await listVideoInputs();
+
+  for (const device of videoInputs) {
+    if (!device.deviceId) continue;
+    try {
+      return await navigator.mediaDevices.getUserMedia({
+        video: { deviceId: { exact: device.deviceId } },
+        audio: false,
+      });
+    } catch (err) {
+      lastError = err;
+      if (err instanceof DOMException && err.name === 'NotAllowedError') {
+        throw mapDomException(err, videoInputs.length);
+      }
+    }
+  }
+
+  throw mapDomException(lastError, videoInputs.length);
 }
 
 export function isBarcodeDetectorSupported(): boolean {
@@ -107,4 +149,18 @@ export async function createQrDetector() {
   ).BarcodeDetector;
 
   return new BarcodeDetector({ formats: ['qr_code'] });
+}
+
+/** Decode a QR code from a still image (screenshot or photo of a COA label). */
+export async function decodeQrFromImageFile(file: File): Promise<string | null> {
+  const detector = await createQrDetector();
+  if (!detector) return null;
+
+  const bitmap = await createImageBitmap(file);
+  try {
+    const codes = await detector.detect(bitmap);
+    return codes[0]?.rawValue ?? null;
+  } finally {
+    bitmap.close();
+  }
 }
