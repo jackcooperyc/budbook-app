@@ -15,23 +15,10 @@ type SocialFile = {
 
 const EMPTY: SocialFile = { friends: {}, circles: {} };
 
-const DEMO_USERS = [
-  { id: 'user-demo-alex', email: 'alex@budbook.demo', full_name: 'Alex Chen', username: 'alexchen' },
-  { id: 'user-demo-morgan', email: 'morgan@budbook.demo', full_name: 'Morgan Lee', username: 'morganl' },
-  { id: 'user-demo-riley', email: 'riley@budbook.demo', full_name: 'Riley Santos', username: 'rsantos' },
-];
-
-const DEMO_FRIENDS: Omit<FriendProfile, 'id'>[] = [
-  { name: 'Alex Chen', username: 'alexchen', online: true, sessionsShared: 12, lastActive: new Date().toISOString(), favoriteStrain: 'Blue Dream' },
-  { name: 'Morgan Lee', username: 'morganl', online: false, sessionsShared: 8, lastActive: new Date(Date.now() - 86400000).toISOString(), favoriteStrain: 'GMO Cookies' },
-  { name: 'Riley Santos', username: 'rsantos', online: true, sessionsShared: 5, lastActive: new Date().toISOString(), favoriteStrain: 'Jack Herer' },
-];
-
-const DEMO_CIRCLES: CircleGroup[] = [
-  { id: 'circle-1', name: 'PDX Evening Wind-Down', description: 'Micro-dose logs and sleep hygiene for Portland creatives.', memberCount: 14, isPrivate: true, recentActivity: 'Alex shared a GMO Cookies session · 2h ago' },
-  { id: 'circle-2', name: 'CBD-Forward Wellness', description: 'Tincture dosing, low-THC experiments, and anxiety tracking.', memberCount: 28, isPrivate: false, recentActivity: "Morgan posted a Charlotte's Web efficacy chart · 5h ago" },
-  { id: 'circle-3', name: 'CŪPR Hardware Crew', description: 'Vaporizer maintenance, grind consistency, and session prep.', memberCount: 9, isPrivate: true, recentActivity: 'Riley uploaded chamber clean photos · yesterday' },
-];
+function demoSeedingEnabled(): boolean {
+  // Demo seed data should never appear in production user-facing flows.
+  return process.env.NODE_ENV !== 'production' && process.env.BUDBOOK_MOCK_ENABLED === '1';
+}
 
 async function ensureSocialFile(): Promise<void> {
   await mkdir(getDataDir(), { recursive: true });
@@ -54,18 +41,36 @@ async function writeSocialFile(data: SocialFile): Promise<void> {
 }
 
 async function seedDemoSocialDb(userId: string): Promise<void> {
+  if (!demoSeedingEnabled()) return;
   const db = getDb()!;
 
-  for (const demo of DEMO_USERS) {
+  // Seed data for local mock mode only.
+  const demoUsers = [
+    { id: 'user-demo-alex', email: 'alex@budbook.demo', full_name: 'Alex Chen', username: 'alexchen' },
+    { id: 'user-demo-morgan', email: 'morgan@budbook.demo', full_name: 'Morgan Lee', username: 'morganl' },
+    { id: 'user-demo-riley', email: 'riley@budbook.demo', full_name: 'Riley Santos', username: 'rsantos' },
+  ];
+  const demoFriends: Omit<FriendProfile, 'id'>[] = [
+    { name: 'Alex Chen', username: 'alexchen', online: true, sessionsShared: 12, lastActive: new Date().toISOString(), favoriteStrain: 'Blue Dream' },
+    { name: 'Morgan Lee', username: 'morganl', online: false, sessionsShared: 8, lastActive: new Date(Date.now() - 86400000).toISOString(), favoriteStrain: 'GMO Cookies' },
+    { name: 'Riley Santos', username: 'rsantos', online: true, sessionsShared: 5, lastActive: new Date().toISOString(), favoriteStrain: 'Jack Herer' },
+  ];
+  const demoCircles: CircleGroup[] = [
+    { id: 'circle-1', name: 'PDX Evening Wind-Down', description: 'Micro-dose logs and sleep hygiene for Portland creatives.', memberCount: 14, isPrivate: true, recentActivity: 'Alex shared a GMO Cookies session · 2h ago' },
+    { id: 'circle-2', name: 'CBD-Forward Wellness', description: 'Tincture dosing, low-THC experiments, and anxiety tracking.', memberCount: 28, isPrivate: false, recentActivity: "Morgan posted a Charlotte's Web efficacy chart · 5h ago" },
+    { id: 'circle-3', name: 'CŪPR Hardware Crew', description: 'Vaporizer maintenance, grind consistency, and session prep.', memberCount: 9, isPrivate: true, recentActivity: 'Riley uploaded chamber clean photos · yesterday' },
+  ];
+
+  for (const demo of demoUsers) {
     await ensureUserExists({ ...demo, role: 'user' });
   }
 
   const existing = await db.select().from(friendships).where(eq(friendships.userId, userId)).limit(1);
   if (existing.length > 0) return;
 
-  for (let i = 0; i < DEMO_USERS.length; i++) {
-    const demo = DEMO_USERS[i];
-    const meta = DEMO_FRIENDS[i];
+  for (let i = 0; i < demoUsers.length; i++) {
+    const demo = demoUsers[i];
+    const meta = demoFriends[i];
     await db.insert(friendships).values({
       id: `friend-${userId}-${demo.id}`,
       userId,
@@ -75,7 +80,7 @@ async function seedDemoSocialDb(userId: string): Promise<void> {
     }).onConflictDoNothing();
   }
 
-  for (const circle of DEMO_CIRCLES) {
+  for (const circle of demoCircles) {
     await db.insert(circles).values({
       id: `${circle.id}-${userId}`,
       ownerId: userId,
@@ -93,14 +98,31 @@ async function seedDemoSocialDb(userId: string): Promise<void> {
 }
 
 async function seedDemoSocialFile(userId: string): Promise<void> {
+  if (!demoSeedingEnabled()) return;
   const data = await readSocialFile();
   if ((data.friends[userId]?.length ?? 0) > 0) return;
 
-  data.friends[userId] = DEMO_USERS.map((u, i) => ({
+  const demoUsers = [
+    { id: 'user-demo-alex', email: 'alex@budbook.demo', full_name: 'Alex Chen', username: 'alexchen' },
+    { id: 'user-demo-morgan', email: 'morgan@budbook.demo', full_name: 'Morgan Lee', username: 'morganl' },
+    { id: 'user-demo-riley', email: 'riley@budbook.demo', full_name: 'Riley Santos', username: 'rsantos' },
+  ];
+  const demoFriends: Omit<FriendProfile, 'id'>[] = [
+    { name: 'Alex Chen', username: 'alexchen', online: true, sessionsShared: 12, lastActive: new Date().toISOString(), favoriteStrain: 'Blue Dream' },
+    { name: 'Morgan Lee', username: 'morganl', online: false, sessionsShared: 8, lastActive: new Date(Date.now() - 86400000).toISOString(), favoriteStrain: 'GMO Cookies' },
+    { name: 'Riley Santos', username: 'rsantos', online: true, sessionsShared: 5, lastActive: new Date().toISOString(), favoriteStrain: 'Jack Herer' },
+  ];
+  const demoCircles: CircleGroup[] = [
+    { id: 'circle-1', name: 'PDX Evening Wind-Down', description: 'Micro-dose logs and sleep hygiene for Portland creatives.', memberCount: 14, isPrivate: true, recentActivity: 'Alex shared a GMO Cookies session · 2h ago' },
+    { id: 'circle-2', name: 'CBD-Forward Wellness', description: 'Tincture dosing, low-THC experiments, and anxiety tracking.', memberCount: 28, isPrivate: false, recentActivity: "Morgan posted a Charlotte's Web efficacy chart · 5h ago" },
+    { id: 'circle-3', name: 'CŪPR Hardware Crew', description: 'Vaporizer maintenance, grind consistency, and session prep.', memberCount: 9, isPrivate: true, recentActivity: 'Riley uploaded chamber clean photos · yesterday' },
+  ];
+
+  data.friends[userId] = demoUsers.map((u, i) => ({
     id: u.id,
-    ...DEMO_FRIENDS[i],
+    ...demoFriends[i],
   }));
-  data.circles[userId] = DEMO_CIRCLES.map((c) => ({ ...c, id: `${c.id}-${userId}` }));
+  data.circles[userId] = demoCircles.map((c) => ({ ...c, id: `${c.id}-${userId}` }));
   await writeSocialFile(data);
 }
 
@@ -135,7 +157,7 @@ export async function listFriends(): Promise<FriendProfile[]> {
     online: i % 2 === 0,
     sessionsShared: r.sessionsShared,
     lastActive: r.createdAt.toISOString(),
-    favoriteStrain: DEMO_FRIENDS[i % DEMO_FRIENDS.length]?.favoriteStrain,
+    favoriteStrain: undefined,
   }));
 }
 

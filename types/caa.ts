@@ -2,7 +2,7 @@ import type { Product, TerpeneProfile } from './budbook';
 
 export type ComplianceStatus = 'pending' | 'confirmed';
 
-export type CaaParseConfidence = 'high' | 'inferred';
+export type CaaParseConfidence = 'high';
 
 export type CaaParseSource = 'url' | 'text' | 'qr';
 

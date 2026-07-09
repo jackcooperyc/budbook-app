@@ -102,16 +102,6 @@
   background: var(--accent-muted);
 }
 
-.scanner-confidence-inferred {
-  color: var(--text-tertiary);
-  background: var(--input-bg-muted);
-}
-
-.scanner-confidence-demo {
-  color: var(--text-tertiary);
-  background: var(--input-bg-muted);
-}
-
 .scanner-result-brand {
   font-size: var(--text-sm);
   color: var(--text-tertiary);

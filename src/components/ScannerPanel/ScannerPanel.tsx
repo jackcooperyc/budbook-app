@@ -196,7 +196,11 @@ export default function ScannerPanel() {
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (mode === 'url') {
-      void runParse({ url: url || 'https://lab.example.com/coa/demo' });
+      if (!url.trim()) {
+        setError('Paste a lab report URL to parse.');
+        return;
+      }
+      void runParse({ url: url.trim() });
     } else {
       if (!text.trim()) {
         setError('Paste COA text to parse.');

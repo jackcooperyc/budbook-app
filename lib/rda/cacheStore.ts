@@ -12,12 +12,17 @@ const CACHE_FILE = dataFile('rda-cache.json');
 
 const EMPTY: RdaCache = { stores: [], menus: {} };
 
+function demoSeedingEnabled(): boolean {
+  // Do not ship demo retail data into production.
+  return process.env.NODE_ENV !== 'production' && process.env.BUDBOOK_MOCK_ENABLED === '1';
+}
+
 async function ensureCache(): Promise<void> {
   await mkdir(getDataDir(), { recursive: true });
   try {
     await readFile(CACHE_FILE, 'utf8');
   } catch {
-    const seed = buildRdaSeed();
+    const seed = demoSeedingEnabled() ? buildRdaSeed() : EMPTY;
     await writeFile(CACHE_FILE, JSON.stringify(seed, null, 2), 'utf8');
   }
 }
@@ -38,7 +43,7 @@ export async function writeRdaCache(cache: RdaCache): Promise<void> {
 }
 
 export async function resetRdaCache(): Promise<RdaCache> {
-  const seed = buildRdaSeed();
+  const seed = demoSeedingEnabled() ? buildRdaSeed() : EMPTY;
   await mkdir(getDataDir(), { recursive: true });
   await writeFile(CACHE_FILE, JSON.stringify(seed, null, 2), 'utf8');
   return seed;
