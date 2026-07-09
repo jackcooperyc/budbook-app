@@ -2,11 +2,11 @@ import { NextResponse } from 'next/server';
 import { parseCoaInput } from '@lib/caa/parse';
 import { findStashByLabReportId } from '@lib/caa/duplicates';
 import { registerCoaParse } from '@lib/caa/registry';
-import { mockApiDisabledResponse } from '@/lib/mockApi';
+import { internalApiGuard } from '@lib/auth/guard';
 import type { CaaParseResponse } from '@/types/caa';
 
 export async function POST(request: Request) {
-  const blocked = mockApiDisabledResponse();
+  const blocked = await internalApiGuard();
   if (blocked) return blocked;
 
   const body = (await request.json()) as {
@@ -40,7 +40,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ message: 'url, text, or qr_payload is required' }, { status: 400 });
   }
 
-  const parse = parseCoaInput(input, source);
+  const parse = await parseCoaInput(input, source);
   await registerCoaParse(parse);
   const existing = await findStashByLabReportId(parse.lab_report_id);
 

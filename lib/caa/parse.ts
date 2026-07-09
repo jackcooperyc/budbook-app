@@ -1,6 +1,7 @@
 import type { Product } from '@/types/budbook';
 import type { CaaCoaParseResult, CaaParseConfidence, CaaParseSource } from '@/types/caa';
 import { deriveProductKey } from '@lib/rda/keying';
+import { parseCoaFromUrl, parseCoaLabText } from '@lib/caa/adapters/httpExtract';
 
 type StrainHint = {
   strain_name: string;
@@ -87,7 +88,43 @@ function inferHint(normalized: string): { hint: StrainHint; confidence: CaaParse
   return { hint: variants[hash % variants.length], confidence: 'inferred' };
 }
 
-export function parseCoaInput(
+export async function parseCoaInput(
+  input: string,
+  source: CaaParseSource,
+): Promise<CaaCoaParseResult> {
+  if (source === 'url') {
+    const live = await parseCoaFromUrl(input);
+    if (live) return live;
+  }
+
+  if (source === 'text' || source === 'qr') {
+    const fromText = parseCoaLabText(input, source);
+    if (fromText) return fromText;
+  }
+
+  const normalized = input.trim().toLowerCase();
+  const matched = matchHint(normalized) ?? inferHint(normalized);
+  const { hint, confidence } = matched;
+
+  const product_key = deriveProductKey(hint.brand, hint.strain_name, hint.category);
+
+  return {
+    lab_report_id: labReportIdFromInput(input),
+    product_key,
+    strain_name: hint.strain_name,
+    brand: hint.brand,
+    type: hint.type,
+    category: hint.category,
+    thc_percentage: hint.thc_percentage,
+    cbd_percentage: hint.cbd_percentage,
+    terpene_profile: hint.terpenes,
+    compliance_status: 'confirmed',
+    confidence,
+    parse_source: source,
+  };
+}
+
+export function parseCoaInputSync(
   input: string,
   source: CaaParseSource,
 ): CaaCoaParseResult {
@@ -113,10 +150,10 @@ export function parseCoaInput(
   };
 }
 
-export function parseCoaUrl(url: string): CaaCoaParseResult {
+export function parseCoaUrl(url: string): Promise<CaaCoaParseResult> {
   return parseCoaInput(url, 'url');
 }
 
-export function parseCoaText(text: string): CaaCoaParseResult {
+export function parseCoaText(text: string): Promise<CaaCoaParseResult> {
   return parseCoaInput(text, 'text');
 }

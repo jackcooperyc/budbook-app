@@ -8,17 +8,17 @@ import {
   deleteProductFromServerStash,
 } from '@/lib/budbook-stash/fileStore';
 import { registerCoaParse } from '@lib/caa/registry';
-import { mockApiDisabledResponse } from '@/lib/mockApi';
+import { internalApiGuard } from '@lib/auth/guard';
 import type { CaaCoaParseResult } from '@/types/caa';
 
 export async function GET() {
-  const blocked = mockApiDisabledResponse();
+  const blocked = await internalApiGuard();
   if (blocked) return blocked;
   return NextResponse.json(await readServerStash());
 }
 
 export async function POST(request: Request) {
-  const blocked = mockApiDisabledResponse();
+  const blocked = await internalApiGuard();
   if (blocked) return blocked;
 
   const body = (await request.json()) as {
@@ -74,7 +74,7 @@ export async function POST(request: Request) {
 }
 
 export async function PATCH(request: Request) {
-  const blocked = mockApiDisabledResponse();
+  const blocked = await internalApiGuard();
   if (blocked) return blocked;
 
   const body = (await request.json()) as {
@@ -96,7 +96,7 @@ export async function PATCH(request: Request) {
 }
 
 export async function DELETE(request: Request) {
-  const blocked = mockApiDisabledResponse();
+  const blocked = await internalApiGuard();
   if (blocked) return blocked;
 
   const body = (await request.json()) as { productId?: string };

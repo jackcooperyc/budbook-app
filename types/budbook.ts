@@ -189,6 +189,25 @@ export type SocialPost = {
   likes: number;
 };
 
+export type FriendProfile = {
+  id: string;
+  name: string;
+  username: string;
+  online: boolean;
+  sessionsShared: number;
+  lastActive: string;
+  favoriteStrain?: string;
+};
+
+export type CircleGroup = {
+  id: string;
+  name: string;
+  description: string;
+  memberCount: number;
+  isPrivate: boolean;
+  recentActivity: string;
+};
+
 export type BudbookMockPayloads = {
   overview: unknown;
   user: BudbookUser;

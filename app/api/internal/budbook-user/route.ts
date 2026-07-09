@@ -1,9 +1,9 @@
 import { NextResponse } from 'next/server';
-import { getDefaultUser } from '../../../../lib/budbook-user/defaultUser';
-import { mockApiDisabledResponse } from '@/lib/mockApi';
+import { internalApiGuard } from '@lib/auth/guard';
+import { resolveCurrentUser } from '@lib/auth/resolveUser';
 
 export async function GET() {
-  const blocked = mockApiDisabledResponse();
+  const blocked = await internalApiGuard();
   if (blocked) return blocked;
-  return NextResponse.json(getDefaultUser());
+  return NextResponse.json(await resolveCurrentUser());
 }

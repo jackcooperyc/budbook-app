@@ -4,6 +4,29 @@
   gap: var(--space-6);
 }
 
+.circles-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--space-4);
+}
+
+.circles-create {
+  display: flex;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  align-items: center;
+}
+
+.circles-create input {
+  flex: 1;
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--surface-border);
+  background: var(--surface-raised);
+  color: var(--text-primary);
+  font: inherit;
+}
+
 .circles-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));

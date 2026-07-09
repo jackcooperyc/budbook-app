@@ -1,9 +1,9 @@
 import { NextResponse } from 'next/server';
-import { listCatalogEntries } from '@lib/caa/registry';
 import { internalApiGuard } from '@lib/auth/guard';
+import { listFriends } from '@lib/repositories/social';
 
 export async function GET() {
   const blocked = await internalApiGuard();
   if (blocked) return blocked;
-  return NextResponse.json(await listCatalogEntries());
+  return NextResponse.json(await listFriends());
 }

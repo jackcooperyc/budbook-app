@@ -1,10 +1,11 @@
 import { NextResponse } from 'next/server';
 import { buildBuddyContext } from '@lib/buddy/buildContext';
+import { getBuddyLlmReply } from '@lib/buddy/llm';
 import { getBuddyPrompts, getBuddyReply } from '@lib/buddy/reply';
-import { mockApiDisabledResponse } from '@/lib/mockApi';
+import { internalApiGuard } from '@lib/auth/guard';
 
 export async function GET() {
-  const blocked = mockApiDisabledResponse();
+  const blocked = await internalApiGuard();
   if (blocked) return blocked;
 
   const context = await buildBuddyContext();
@@ -12,7 +13,7 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-  const blocked = mockApiDisabledResponse();
+  const blocked = await internalApiGuard();
   if (blocked) return blocked;
 
   const body = (await request.json()) as { message?: string };
@@ -23,7 +24,8 @@ export async function POST(request: Request) {
   }
 
   const context = await buildBuddyContext();
-  const reply = getBuddyReply(message, context);
+  const llmReply = await getBuddyLlmReply(message, context);
+  const reply = llmReply ?? getBuddyReply(message, context);
 
   return NextResponse.json({ reply, prompts: getBuddyPrompts(context) });
 }

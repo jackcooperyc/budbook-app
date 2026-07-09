@@ -1,50 +1,44 @@
 .friend-card {
   display: flex;
-  gap: var(--space-4);
+  flex-direction: column;
+  gap: var(--space-3);
   padding: var(--space-5);
+}
+
+.friend-card-main {
+  display: flex;
   align-items: center;
+  gap: var(--space-3);
 }
 
-.friend-card-body {
-  flex: 1;
-  min-width: 0;
-}
-
-.friend-card-header {
+.friend-card-name-row {
   display: flex;
   align-items: center;
   gap: var(--space-2);
 }
 
-.friend-card-header h3 {
-  font-size: var(--text-md);
+.friend-card-name {
   font-weight: var(--weight-semibold);
+  font-size: var(--text-sm);
 }
 
-.friend-card-online {
-  font-size: 0.625rem;
-  font-weight: var(--weight-semibold);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--status-good);
-  padding: 2px var(--space-2);
-  background: var(--accent-muted);
-  border-radius: var(--radius-full);
+.friend-card-status {
+  font-size: 0.6875rem;
+  color: var(--text-tertiary);
+}
+
+.friend-card-status.is-online {
+  color: var(--accent-light);
 }
 
 .friend-card-username {
   font-size: var(--text-xs);
   color: var(--text-tertiary);
-  margin-top: 2px;
 }
 
-.friend-card-meta,
-.friend-card-strain {
-  font-size: var(--text-sm);
+.friend-card-meta {
+  margin: 0;
+  font-size: var(--text-xs);
   color: var(--text-secondary);
-  margin-top: var(--space-2);
-}
-
-.friend-card-strain {
-  color: var(--accent-light);
+  line-height: var(--leading-normal);
 }

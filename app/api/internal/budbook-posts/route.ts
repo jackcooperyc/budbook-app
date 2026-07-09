@@ -1,17 +1,17 @@
 import { NextResponse } from 'next/server';
 import { readPosts, addPost, likePost } from '@/lib/budbook-posts/fileStore';
 import { getDefaultUser } from '../../../../lib/budbook-user/defaultUser';
-import { mockApiDisabledResponse } from '@/lib/mockApi';
+import { internalApiGuard } from '@lib/auth/guard';
 import { getAvatarSeed } from '@/lib/media';
 
 export async function GET() {
-  const blocked = mockApiDisabledResponse();
+  const blocked = await internalApiGuard();
   if (blocked) return blocked;
   return NextResponse.json(await readPosts());
 }
 
 export async function POST(request: Request) {
-  const blocked = mockApiDisabledResponse();
+  const blocked = await internalApiGuard();
   if (blocked) return blocked;
 
   const body = (await request.json()) as {
@@ -40,7 +40,7 @@ export async function POST(request: Request) {
 }
 
 export async function PATCH(request: Request) {
-  const blocked = mockApiDisabledResponse();
+  const blocked = await internalApiGuard();
   if (blocked) return blocked;
 
   const body = (await request.json()) as { postId?: string; action?: string };

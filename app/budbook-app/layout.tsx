@@ -1,6 +1,7 @@
 "use client";
 
 import React from 'react';
+import { usePathname } from 'next/navigation';
 import Sidebar from '@/components/Sidebar/Sidebar';
 import Header from '@/components/Header/Header';
 import { MobileNavProvider, useMobileNav } from '@/context/MobileNavContext';
@@ -24,6 +25,13 @@ function AppLayoutInner({ children }: { children: React.ReactNode }) {
 }
 
 export default function BudbookAppLayout({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname();
+  const isSignIn = pathname === '/budbook-app/sign-in';
+
+  if (isSignIn) {
+    return <>{children}</>;
+  }
+
   return (
     <MobileNavProvider>
       <AppLayoutInner>{children}</AppLayoutInner>

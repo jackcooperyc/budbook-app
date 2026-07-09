@@ -1,4 +1,4 @@
-import { readFile } from 'fs/promises';
+import { readdir, readFile } from 'fs/promises';
 import path from 'path';
 import { sql } from 'drizzle-orm';
 import { getDb } from '@lib/db/client';
@@ -22,14 +22,16 @@ async function main() {
     process.exit(1);
   }
 
-  const sqlPath = path.join(process.cwd(), 'lib/db/migrations/001_init.sql');
-  const raw = await readFile(sqlPath, 'utf8');
+  const migrationsDir = path.join(process.cwd(), 'lib/db/migrations');
+  const files = (await readdir(migrationsDir)).filter((f) => f.endsWith('.sql')).sort();
 
-  for (const statement of splitStatements(raw)) {
-    await db.execute(sql.raw(statement));
+  for (const file of files) {
+    const raw = await readFile(path.join(migrationsDir, file), 'utf8');
+    for (const statement of splitStatements(raw)) {
+      await db.execute(sql.raw(statement));
+    }
+    console.log(`Applied ${file}`);
   }
-
-  console.log('Migration 001_init.sql applied.');
 }
 
 main().catch((err) => {

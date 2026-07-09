@@ -1,10 +1,10 @@
 import { NextResponse } from 'next/server';
 import { listRetailStores } from '@lib/rda/gateway';
-import { mockApiDisabledResponse } from '@/lib/mockApi';
+import { internalApiGuard } from '@lib/auth/guard';
 import type { RetailStoreQuery } from '@/types/rda';
 
 export async function GET(request: Request) {
-  const blocked = mockApiDisabledResponse();
+  const blocked = await internalApiGuard();
   if (blocked) return blocked;
 
   const { searchParams } = new URL(request.url);

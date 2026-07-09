@@ -1,11 +1,11 @@
 import { NextResponse } from 'next/server';
 import { parseCoaUrl } from '@lib/caa/parse';
 import { findStashByLabReportId } from '@lib/caa/duplicates';
-import { mockApiDisabledResponse } from '@/lib/mockApi';
+import { internalApiGuard } from '@lib/auth/guard';
 
 /** @deprecated Use POST /api/internal/caa/parse */
 export async function POST(request: Request) {
-  const blocked = mockApiDisabledResponse();
+  const blocked = await internalApiGuard();
   if (blocked) return blocked;
 
   const body = (await request.json()) as { url?: string };
@@ -21,7 +21,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ message: 'Invalid URL' }, { status: 400 });
   }
 
-  const parse = parseCoaUrl(url);
+  const parse = await parseCoaUrl(url);
   const existing = await findStashByLabReportId(parse.lab_report_id);
 
   return NextResponse.json({

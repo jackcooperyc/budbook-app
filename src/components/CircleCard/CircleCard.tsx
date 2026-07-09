@@ -1,30 +1,20 @@
+"use client";
+
 import React from 'react';
-import { Lock, Users } from 'lucide-react';
-import type { Circle } from '@/data/socialMock';
+import type { CircleGroup } from '@/types/budbook';
 import './CircleCard.css';
 
-interface CircleCardProps {
-  circle: Circle;
-}
-
-export default function CircleCard({ circle }: CircleCardProps) {
+export default function CircleCard({ circle }: { circle: CircleGroup }) {
   return (
     <article className="circle-card glass-panel">
       <div className="circle-card-header">
-        <h3>{circle.name}</h3>
-        {circle.isPrivate && (
-          <span className="circle-card-private">
-            <Lock size={12} strokeWidth={1.75} aria-hidden="true" />
-            Private
-          </span>
-        )}
+        <h3 className="circle-card-name">{circle.name}</h3>
+        <span className="circle-card-badge">{circle.isPrivate ? 'Private' : 'Open'}</span>
       </div>
-      <p className="circle-card-desc">{circle.description}</p>
-      <p className="circle-card-members">
-        <Users size={14} strokeWidth={1.75} aria-hidden="true" />
-        {circle.memberCount} members
+      <p className="circle-card-description">{circle.description}</p>
+      <p className="circle-card-meta">
+        {circle.memberCount} members · {circle.recentActivity}
       </p>
-      <p className="circle-card-activity">{circle.recentActivity}</p>
     </article>
   );
 }

@@ -1,14 +1,14 @@
 import type { RetailMenuItem, RetailStore } from '@/types/rda';
 import { deriveMenuItemKey, deriveProductKey, deriveStoreKey } from './keying';
 
-const FETCHED_AT = '2026-07-01T00:00:00.000Z';
+const FETCHED_AT = () => new Date().toISOString();
 
 function source(url: string | null = null) {
   return {
     provider: 'cannmenus' as const,
     adapter: 'cannmenus' as const,
     source_confidence: 'high' as const,
-    fetched_at: FETCHED_AT,
+    fetched_at: FETCHED_AT(),
     source_url: url,
   };
 }

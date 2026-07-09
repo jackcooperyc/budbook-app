@@ -3,12 +3,12 @@ import { getRetailMenuItem } from '@lib/rda/gateway';
 import { getCaaEnrichment } from '@lib/caa/enrich';
 import { toProduct } from '@lib/rda/resolvers';
 import { addProductFromMenu } from '@/lib/budbook-stash/fileStore';
-import { mockApiDisabledResponse } from '@/lib/mockApi';
+import { internalApiGuard } from '@lib/auth/guard';
 
 type Params = { params: Promise<{ store_key: string; menu_item_key: string }> };
 
 export async function POST(_request: Request, { params }: Params) {
-  const blocked = mockApiDisabledResponse();
+  const blocked = await internalApiGuard();
   if (blocked) return blocked;
 
   const { store_key, menu_item_key } = await params;

@@ -1,6 +1,7 @@
 "use client";
 
 import React from 'react';
+import { useRouter } from 'next/navigation';
 import Button from '@/components/Button/Button';
 import ThemePreference from '@/components/ThemePreference/ThemePreference';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
@@ -8,6 +9,7 @@ import './settings.css';
 
 export default function SettingsPage() {
   const { user } = useCurrentUser();
+  const router = useRouter();
 
   async function exportJournal() {
     const res = await fetch('/api/internal/budbook-sessions');
@@ -25,6 +27,12 @@ export default function SettingsPage() {
     URL.revokeObjectURL(url);
   }
 
+  async function signOut() {
+    await fetch('/api/auth/sign-out', { method: 'POST' });
+    router.push('/budbook-app/sign-in');
+    router.refresh();
+  }
+
   return (
     <div className="settings-page">
       <h2 className="page-title">Settings</h2>
@@ -38,6 +46,9 @@ export default function SettingsPage() {
           <span>Username</span>
           <span className="meta-numeric">@{user?.username ?? '—'}</span>
         </p>
+        <Button variant="secondary" size="sm" onClick={() => void signOut()}>
+          Sign out
+        </Button>
       </section>
       <section className="settings-section glass-panel">
         <h3>Preferences</h3>

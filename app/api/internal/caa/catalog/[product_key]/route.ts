@@ -1,12 +1,12 @@
 import { NextResponse } from 'next/server';
 import { getCatalogEntry } from '@lib/caa/registry';
 import { findStashByLabReportId } from '@lib/caa/duplicates';
-import { mockApiDisabledResponse } from '@/lib/mockApi';
+import { internalApiGuard } from '@lib/auth/guard';
 
 type Params = { params: Promise<{ product_key: string }> };
 
 export async function GET(_request: Request, { params }: Params) {
-  const blocked = mockApiDisabledResponse();
+  const blocked = await internalApiGuard();
   if (blocked) return blocked;
 
   const { product_key } = await params;

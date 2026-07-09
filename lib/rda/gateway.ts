@@ -1,5 +1,11 @@
 import type { RetailMenuItem, RetailStore, RetailStoreQuery } from '@/types/rda';
 import { readRdaCache } from './cacheStore';
+import { ensureFreshRdaCache } from './refresh';
+
+async function loadCache() {
+  await ensureFreshRdaCache();
+  return readRdaCache();
+}
 
 function matchesQuery(store: RetailStore, query: RetailStoreQuery): boolean {
   if (query.state && store.state.toLowerCase() !== query.state.toLowerCase()) return false;
@@ -9,17 +15,17 @@ function matchesQuery(store: RetailStore, query: RetailStoreQuery): boolean {
 }
 
 export async function listRetailStores(query: RetailStoreQuery = {}): Promise<RetailStore[]> {
-  const cache = await readRdaCache();
+  const cache = await loadCache();
   return cache.stores.filter((s) => matchesQuery(s, query));
 }
 
 export async function getRetailStore(storeKey: string): Promise<RetailStore | null> {
-  const cache = await readRdaCache();
+  const cache = await loadCache();
   return cache.stores.find((s) => s.store_key === storeKey) ?? null;
 }
 
 export async function getRetailMenu(storeKey: string): Promise<RetailMenuItem[]> {
-  const cache = await readRdaCache();
+  const cache = await loadCache();
   return cache.menus[storeKey] ?? [];
 }
 

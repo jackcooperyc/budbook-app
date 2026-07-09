@@ -1,16 +1,16 @@
 import { NextResponse } from 'next/server';
 import { addServerSession, readServerSessions } from '@/lib/budbook-sessions/fileStore';
-import { mockApiDisabledResponse } from '@/lib/mockApi';
+import { internalApiGuard } from '@lib/auth/guard';
 import type { Session } from '@/types/budbook';
 
 export async function GET() {
-  const blocked = mockApiDisabledResponse();
+  const blocked = await internalApiGuard();
   if (blocked) return blocked;
   return NextResponse.json(await readServerSessions());
 }
 
 export async function POST(request: Request) {
-  const blocked = mockApiDisabledResponse();
+  const blocked = await internalApiGuard();
   if (blocked) return blocked;
 
   const body = (await request.json()) as Partial<Session>;

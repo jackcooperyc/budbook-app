@@ -5,6 +5,7 @@ import {
   integer,
   jsonb,
   pgTable,
+  primaryKey,
   smallint,
   text,
   timestamp,
@@ -104,6 +105,44 @@ export const caaCatalogEntries = pgTable('caa_catalog_entries', {
   complianceStatus: text('compliance_status').notNull().default('confirmed'),
   registeredAt: timestamp('registered_at', { withTimezone: true }).notNull().defaultNow(),
 });
+
+export const friendships = pgTable('friendships', {
+  id: text('id').primaryKey(),
+  userId: text('user_id')
+    .notNull()
+    .references(() => users.id, { onDelete: 'cascade' }),
+  friendUserId: text('friend_user_id')
+    .notNull()
+    .references(() => users.id, { onDelete: 'cascade' }),
+  status: text('status').notNull().default('accepted'),
+  sessionsShared: integer('sessions_shared').notNull().default(0),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+});
+
+export const circles = pgTable('circles', {
+  id: text('id').primaryKey(),
+  ownerId: text('owner_id')
+    .notNull()
+    .references(() => users.id, { onDelete: 'cascade' }),
+  name: text('name').notNull(),
+  description: text('description').notNull().default(''),
+  isPrivate: boolean('is_private').notNull().default(false),
+  recentActivity: text('recent_activity').notNull().default(''),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+});
+
+export const circleMembers = pgTable(
+  'circle_members',
+  {
+    circleId: text('circle_id')
+      .notNull()
+      .references(() => circles.id, { onDelete: 'cascade' }),
+    userId: text('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+  },
+  (table) => [primaryKey({ columns: [table.circleId, table.userId] })],
+);
 
 export type DbProduct = typeof products.$inferSelect;
 export type DbInventoryItem = typeof inventoryItems.$inferSelect;

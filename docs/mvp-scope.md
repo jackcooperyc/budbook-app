@@ -56,4 +56,6 @@ npm run reset-rda    # clear shop cache
 
 ## Next phase
 
-Auth (Clerk/Neon Auth), friends/circles graph, RDA live adapters, learn CMS.
+Learn CMS, RDA live Weedmaps/Leafly adapter, CAA Metrc integration, invite-based friend requests.
+
+See [phase-5.md](./phase-5.md) for auth, social, and adapter details.

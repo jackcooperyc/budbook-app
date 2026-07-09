@@ -1,0 +1,31 @@
+import { getDefaultUser } from '@lib/budbook-user/defaultUser';
+import { ensureUserExists } from '@lib/budbook-user/currentUser';
+import { authEnabled, getSessionUser } from '@lib/auth/session';
+import type { BudbookUser } from '@/types/budbook';
+
+/** Resolved user for API handlers — session when auth is on, dev user otherwise. */
+export async function resolveCurrentUser(): Promise<BudbookUser> {
+  if (authEnabled()) {
+    const sessionUser = await getSessionUser();
+    if (sessionUser) {
+      await ensureUserExists(sessionUser);
+      return sessionUser;
+    }
+  }
+
+  const devUser = getDefaultUser();
+  await ensureUserExists(devUser);
+  return devUser;
+}
+
+export async function requireAuthenticatedUser(): Promise<BudbookUser | null> {
+  if (!authEnabled()) {
+    return resolveCurrentUser();
+  }
+
+  const sessionUser = await getSessionUser();
+  if (!sessionUser) return null;
+
+  await ensureUserExists(sessionUser);
+  return sessionUser;
+}
