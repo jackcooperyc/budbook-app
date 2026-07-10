@@ -5,7 +5,6 @@ import { scanInputFromRequestBody } from '@lib/coa/input';
 import { internalApiGuard } from '@lib/auth/guard';
 import type { CaaParseResponse } from '@/types/caa';
 
-/** @deprecated Prefer POST /api/internal/scans — kept for backward compatibility. */
 export async function POST(request: Request) {
   const blocked = await internalApiGuard();
   if (blocked) return blocked;
@@ -27,7 +26,12 @@ export async function POST(request: Request) {
   try {
     const result = await createAndRunScanJob({ input: scanInput });
 
-    const response: CaaParseResponse = {
+    const response: CaaParseResponse & {
+      job: typeof result.job;
+      report: typeof result.report;
+    } = {
+      job: result.job,
+      report: result.report,
       parse: result.parse,
       duplicate_in_stash: result.duplicate_in_stash,
       existing_product_id: result.existing_product_id,
@@ -37,12 +41,14 @@ export async function POST(request: Request) {
 
     return NextResponse.json(response);
   } catch (err) {
+    if (err instanceof CoaResolveError) {
+      const status =
+        err.code === 'INVALID_INPUT' || err.code === 'INVALID_URL' ? 400 : 422;
+      return NextResponse.json({ message: err.message, code: err.code }, { status });
+    }
+
     const message =
-      err instanceof CoaResolveError
-        ? err.message
-        : err instanceof Error
-          ? err.message
-          : 'CAA parse failed — check your input and try again.';
+      err instanceof Error ? err.message : 'COA scan failed — check your input and try again.';
     return NextResponse.json({ message }, { status: 422 });
   }
 }

@@ -11,6 +11,7 @@ import {
   timestamp,
 } from 'drizzle-orm/pg-core';
 import type { Product, Session, TerpeneProfile } from '@/types/budbook';
+import type { NormalizedCoaResult } from '@lib/coa/types';
 
 export const users = pgTable('users', {
   id: text('id').primaryKey(),
@@ -144,9 +145,66 @@ export const circleMembers = pgTable(
   (table) => [primaryKey({ columns: [table.circleId, table.userId] })],
 );
 
+export const scanJobs = pgTable('scan_jobs', {
+  id: text('id').primaryKey(),
+  userId: text('user_id')
+    .notNull()
+    .references(() => users.id, { onDelete: 'cascade' }),
+  inputKind: text('input_kind').notNull(),
+  sourceUrl: text('source_url').notNull(),
+  status: text('status').notNull().default('queued'),
+  provider: text('provider'),
+  attemptCount: integer('attempt_count').notNull().default(0),
+  errorCode: text('error_code'),
+  errorMessage: text('error_message'),
+  metadata: jsonb('metadata').$type<Record<string, unknown>>().notNull().default({}),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+  completedAt: timestamp('completed_at', { withTimezone: true }),
+});
+
+export const coaReports = pgTable('coa_reports', {
+  id: text('id').primaryKey(),
+  scanJobId: text('scan_job_id')
+    .notNull()
+    .references(() => scanJobs.id, { onDelete: 'cascade' }),
+  userId: text('user_id')
+    .notNull()
+    .references(() => users.id, { onDelete: 'cascade' }),
+  provider: text('provider').notNull(),
+  parserVersion: text('parser_version').notNull(),
+  sourceUrl: text('source_url').notNull(),
+  contentHash: text('content_hash'),
+  rawMetadata: jsonb('raw_metadata').$type<Record<string, unknown>>().notNull().default({}),
+  normalizedPayload: jsonb('normalized_payload').$type<NormalizedCoaResult>().notNull(),
+  confidencePayload: jsonb('confidence_payload').$type<Record<string, unknown>>().notNull().default({}),
+  extractedAt: timestamp('extracted_at', { withTimezone: true }).notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+});
+
+export const coaReportStashLinks = pgTable(
+  'coa_report_stash_links',
+  {
+    coaReportId: text('coa_report_id')
+      .notNull()
+      .references(() => coaReports.id, { onDelete: 'cascade' }),
+    productId: text('product_id')
+      .notNull()
+      .references(() => products.id, { onDelete: 'cascade' }),
+    userId: text('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [primaryKey({ columns: [table.coaReportId, table.productId] })],
+);
+
 export type DbProduct = typeof products.$inferSelect;
 export type DbInventoryItem = typeof inventoryItems.$inferSelect;
 export type DbSession = typeof sessions.$inferSelect;
 export type DbPost = typeof posts.$inferSelect;
 export type DbCaaCatalogEntry = typeof caaCatalogEntries.$inferSelect;
 export type DbUser = typeof users.$inferSelect;
+export type DbScanJob = typeof scanJobs.$inferSelect;
+export type DbCoaReport = typeof coaReports.$inferSelect;
+export type DbCoaReportStashLink = typeof coaReportStashLinks.$inferSelect;

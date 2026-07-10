@@ -6,6 +6,19 @@ export type CaaParseConfidence = 'high';
 
 export type CaaParseSource = 'url' | 'text' | 'qr';
 
+/** Re-export COA scan domain types — see lib/coa/types.ts for full definitions. */
+export type {
+  CoaReport,
+  CoaScanErrorCode,
+  ConfidenceLevel,
+  FieldSource,
+  FieldValue,
+  NormalizedCoaResult,
+  ScanInput,
+  ScanJob,
+  ScanJobStatus,
+} from '@lib/coa/types';
+
 /** Result of CAA COA ingest — authoritative for terpenes and lab_report_id. */
 export type CaaCoaParseResult = {
   lab_report_id: string;
@@ -47,4 +60,6 @@ export type CaaParseResponse = {
   parse: CaaCoaParseResult;
   duplicate_in_stash: boolean;
   existing_product_id: string | null;
+  coa_report_id?: string | null;
+  scan_job_id?: string | null;
 };

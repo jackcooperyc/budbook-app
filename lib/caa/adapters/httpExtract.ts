@@ -114,19 +114,10 @@ export function parseCoaLabText(
 }
 
 export async function fetchCoaDocumentText(url: string): Promise<string | null> {
+  const { fetchCoaUrl } = await import('@lib/coa/fetch');
   try {
-    const res = await fetch(url, {
-      signal: AbortSignal.timeout(12_000),
-      headers: { Accept: 'text/html,text/plain,application/pdf,*/*' },
-    });
-    if (!res.ok) return null;
-    const contentType = res.headers.get('content-type') ?? '';
-    if (contentType.includes('pdf')) {
-      const buf = await res.arrayBuffer();
-      const raw = Buffer.from(buf).toString('latin1');
-      return raw.replace(/[^\x09\x0A\x0D\x20-\x7E]/g, ' ');
-    }
-    return await res.text();
+    const result = await fetchCoaUrl(url);
+    return result?.body ?? null;
   } catch {
     return null;
   }

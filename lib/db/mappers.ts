@@ -1,11 +1,15 @@
 import type { InventoryItem, Product, Session } from '@/types/budbook';
 import type { CaaCatalogEntry, CaaEnrichment } from '@/types/caa';
 import type { SocialPost } from '@/types/budbook';
+import type { CoaReport, CoaReportStashLink, ScanJob } from '@lib/coa/types';
 import type {
   DbCaaCatalogEntry,
+  DbCoaReport,
+  DbCoaReportStashLink,
   DbInventoryItem,
   DbPost,
   DbProduct,
+  DbScanJob,
   DbSession,
 } from './schema';
 
@@ -100,5 +104,49 @@ export function toCaaEnrichment(row: DbCaaCatalogEntry): CaaEnrichment {
     terpene_profile: row.terpeneProfile ?? [],
     strain_name: row.strainName,
     brand: row.brand,
+  };
+}
+
+export function toScanJob(row: DbScanJob): ScanJob {
+  return {
+    id: row.id,
+    user_id: row.userId,
+    input_kind: row.inputKind as ScanJob['input_kind'],
+    source_url: row.sourceUrl,
+    status: row.status as ScanJob['status'],
+    provider: row.provider,
+    attempt_count: row.attemptCount,
+    error_code: (row.errorCode as ScanJob['error_code']) ?? null,
+    error_message: row.errorMessage,
+    metadata: row.metadata ?? {},
+    created_at: row.createdAt.toISOString(),
+    updated_at: row.updatedAt.toISOString(),
+    completed_at: row.completedAt?.toISOString() ?? null,
+  };
+}
+
+export function toCoaReport(row: DbCoaReport): CoaReport {
+  return {
+    id: row.id,
+    scan_job_id: row.scanJobId,
+    user_id: row.userId,
+    provider: row.provider,
+    parser_version: row.parserVersion,
+    source_url: row.sourceUrl,
+    content_hash: row.contentHash,
+    raw_metadata: row.rawMetadata ?? {},
+    normalized_payload: row.normalizedPayload,
+    confidence_payload: row.confidencePayload ?? {},
+    extracted_at: row.extractedAt.toISOString(),
+    created_at: row.createdAt.toISOString(),
+  };
+}
+
+export function toCoaReportStashLink(row: DbCoaReportStashLink): CoaReportStashLink {
+  return {
+    coa_report_id: row.coaReportId,
+    product_id: row.productId,
+    user_id: row.userId,
+    created_at: row.createdAt.toISOString(),
   };
 }

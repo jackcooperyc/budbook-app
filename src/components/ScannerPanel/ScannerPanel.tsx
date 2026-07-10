@@ -60,7 +60,7 @@ export default function ScannerPanel() {
     setResult(null);
     setError(null);
     try {
-      const res = await fetch('/api/internal/caa/parse', {
+      const res = await fetch('/api/internal/scans', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
@@ -218,7 +218,7 @@ export default function ScannerPanel() {
       const res = await fetch('/api/internal/budbook-stash', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ kind: 'coa', coa: result.parse }),
+        body: JSON.stringify({ kind: 'coa', coa: result.parse, coa_report_id: result.coa_report_id }),
       });
       if (!res.ok) throw new Error('Save failed');
       router.push('/budbook-app/stash?added=1');

@@ -8,6 +8,7 @@ import {
   deleteProductFromServerStash,
 } from '@/lib/budbook-stash/fileStore';
 import { registerCoaParse } from '@lib/caa/registry';
+import { attachCoaReportToStashItem } from '@lib/repositories/coaScan';
 import { internalApiGuard } from '@lib/auth/guard';
 import type { CaaCoaParseResult } from '@/types/caa';
 
@@ -34,11 +35,15 @@ export async function POST(request: Request) {
     unit?: string;
     category?: string;
     coa?: CaaCoaParseResult;
+    coa_report_id?: string;
   };
 
   if (body.kind === 'coa' && body.coa) {
     await registerCoaParse(body.coa);
     const product = await addCoaProductToServerStash(body.coa);
+    if (body.coa_report_id) {
+      await attachCoaReportToStashItem(body.coa_report_id, product.id);
+    }
     return NextResponse.json({ product, caa_status: 'confirmed' });
   }
 
