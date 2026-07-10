@@ -1,56 +1,54 @@
 # BudBook Data Model
 
-The native Next.js UI runs on **persisted file-backed stores**, not mock seed JSON. Mock data is retained only for the legacy Base44 SPA compatibility layer.
+The native Next.js UI runs on **persisted data** — Neon Postgres in production, file-backed JSON stores for local dev without `DATABASE_URL`.
 
 ## Source of truth (native UI)
 
 | Domain | Store | API |
 |--------|-------|-----|
-| User identity | `lib/budbook-user/defaultUser.ts` (+ env overrides) | `GET /api/internal/budbook-user` |
-| Stash (products + inventory) | `data/local-stash.json` | `GET/POST/PATCH/DELETE /api/internal/budbook-stash` |
-| Journal sessions | `data/local-sessions.json` | `GET/POST /api/internal/budbook-sessions` |
-| Community posts | `data/local-posts.json` | `GET/POST /api/internal/budbook-posts` |
-| Retail shops + menus | `data/rda-cache.json` | `GET /api/internal/rda/stores`, `.../menu` |
-| CAA COA catalog | `data/caa-registry.json` | `POST /api/internal/caa/parse`, `GET .../catalog` |
+| User identity | Neon `users` + JWT session (or dev default user) | `GET /api/auth/session`, `GET /api/internal/budbook-user` |
+| Stash (products + inventory) | `products` + `inventory_items` | `GET/POST/PATCH/DELETE /api/internal/budbook-stash` |
+| Journal sessions | `sessions` | `GET/POST /api/internal/budbook-sessions` |
+| Community posts | `posts` | `GET/POST /api/internal/budbook-posts` |
+| Retail shops + menus | `rda_stores` + `rda_menu_items` | `GET /api/internal/rda/stores`, `.../menu`, `POST .../import` |
+| CAA COA catalog | `caa_catalog_entries` | `POST /api/internal/caa/parse`, `GET .../catalog` |
 | COA parse (legacy alias) | — | `POST /api/internal/budbook-coa/parse` → CAA |
+| Friends / circles | `friendships`, `circles`, `circle_members` | `GET/POST /api/internal/budbook-friends`, `.../circles` |
 
 Server components aggregate via `getAppData()` in `src/lib/app-data.ts`. Client pages use the matching hooks (`useServerStash`, `useServerSessions`, `useCurrentUser`).
 
-**Storage path:** When `DATABASE_URL` is set, user data and the CAA catalog persist in **Neon Postgres** via Drizzle (`lib/db/`, `lib/repositories/`). Otherwise `lib/data-dir.ts` writes to `./data` locally and `/tmp/budbook-data` on Vercel. File data on Vercel is ephemeral per serverless instance.
+**Storage path:** When `DATABASE_URL` is set, user data, CAA catalog, and RDA shops persist in **Neon Postgres** via Drizzle (`lib/db/`, `lib/repositories/`). Otherwise `lib/data-dir.ts` writes to `./data` locally and `/tmp/budbook-data` on Vercel. File data on Vercel is ephemeral per serverless instance.
 
 ```bash
-npm run db:migrate   # apply 001_init.sql (requires DATABASE_URL)
+npm run db:migrate   # apply lib/db/migrations/*.sql (requires DATABASE_URL)
 ```
 
 ## Fresh start
 
-On first run, **your** stash, journal, and posts start empty. The RDA retail cache auto-seeds 3 Portland-area shops on first access (`data/rda-cache.json`).
-
-To reset local dev data:
+On first run, stash, journal, posts, friends, and circles start **empty**. Retail shops are empty until an operator imports data.
 
 ```bash
-npm run reset-data   # your stash, journal, posts
-npm run reset-rda    # retail shop cache (re-seeds on next visit)
+npm run reset-data   # your stash, journal, posts, CAA registry
+npm run reset-rda    # clear RDA shops and menus
+npm run rda:import -- fixtures/rda/example-shop.json   # example operator import
 ```
 
-## Mock seed data (legacy only)
+## RDA tables
 
-| Artifact | Purpose | Used by native UI? |
-|----------|---------|-------------------|
-| `public/budbook-app/mock/budbook-mock-user.json` | Jordan Rivers demo persona | **No** |
-| `GET /api/internal/budbook-mock/payloads` | Full mock payload builder | **No** |
-| `src/data/socialMock.ts` | Static friends/circles/learn/media | Friends/circles/learn empty states; buddy uses live API |
-| `app/api/apps/*/entities/*` | Legacy SPA entity proxy | Legacy SPA only |
+| Table | Column | Purpose |
+|-------|--------|---------|
+| `rda_stores` | `store_key`, `data` (JSONB) | Full `RetailStore` document |
+| `rda_menu_items` | `menu_item_key`, `store_key`, `data` (JSONB) | Full `RetailMenuItem` document |
 
-The mock JSON file remains in the repo for reference and legacy SPA bootstrap. It is **not merged** into dashboard, stash, journal, profile, or shops.
+See `fixtures/rda/example-shop.json` for the import format.
 
 ## Post-MVP surfaces
 
 | Route | Waiting on |
 |-------|------------|
-| `/budbook-app/friends`, `/circles`, `/learn` | Social graph / CMS |
-| Real Metrc / lab API COA parsing | CAA live adapter |
+| `/budbook-app/friends` | Friend invites / social graph |
+| `/budbook-app/learn` | CMS content |
 
 ## Insights and stats
 
-Dashboard and profile stats are computed from persisted sessions and stash only (`src/lib/app-stats.ts`). No mock `overview` or `data_insights` fallback.
+Dashboard and profile stats are computed from persisted sessions and stash only (`src/lib/app-stats.ts`).

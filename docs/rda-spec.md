@@ -134,17 +134,11 @@ Maps to `app/api/internal/rda/*` handlers (not yet implemented). Follows the sam
 | `/api/internal/rda/stores/[store_key]` | `GET` | Single store detail |
 | `/api/internal/rda/stores/[store_key]/menu` | `GET` | Menu items for a store |
 | `/api/internal/rda/sync` | `POST` | Trigger cache refresh for a store or region (operator/dev) |
+| `/api/internal/rda/import` | `POST` | Operator shop import (`Authorization: Bearer $RDA_IMPORT_SECRET`) |
 
-### Env guard
+### Auth
 
-Reuse [`mockApiDisabledResponse`](../lib/budbook-mock/guard.ts) at the top of each handler:
-
-```ts
-const blocked = mockApiDisabledResponse();
-if (blocked) return blocked;
-```
-
-Routes are available in development by default. In production they are disabled unless `BUDBOOK_MOCK_ENABLED=1` (same opt-in as existing BudBook mock/dev APIs). A dedicated `RDA_ENABLED` env var may be introduced when live retail sync ships.
+RDA read routes use `internalApiGuard()` (session auth when `BUDBOOK_AUTH_SECRET` is set). The import route uses `RDA_IMPORT_SECRET` instead of user session.
 
 ---
 

@@ -21,13 +21,3 @@ export function saveLocalSession(session: Session): void {
 export function createSessionId(): string {
   return `sess-local-${Date.now()}`;
 }
-
-export function mergeSessions(mock: Session[], local: Session[]): Session[] {
-  const byId = new Map<string, Session>();
-  for (const s of [...mock, ...local]) {
-    byId.set(s.id, s);
-  }
-  return [...byId.values()].sort(
-    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
-  );
-}

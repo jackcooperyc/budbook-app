@@ -12,6 +12,7 @@ import {
 } from 'drizzle-orm/pg-core';
 import type { Product, Session, TerpeneProfile } from '@/types/budbook';
 import type { NormalizedCoaResult } from '@lib/coa/types';
+import type { RetailMenuItem, RetailStore } from '@/types/rda';
 
 export const users = pgTable('users', {
   id: text('id').primaryKey(),
@@ -145,6 +146,20 @@ export const circleMembers = pgTable(
   (table) => [primaryKey({ columns: [table.circleId, table.userId] })],
 );
 
+export const rdaStores = pgTable('rda_stores', {
+  storeKey: text('store_key').primaryKey(),
+  data: jsonb('data').$type<RetailStore>().notNull(),
+  fetchedAt: timestamp('fetched_at', { withTimezone: true }).notNull().defaultNow(),
+});
+
+export const rdaMenuItems = pgTable('rda_menu_items', {
+  menuItemKey: text('menu_item_key').primaryKey(),
+  storeKey: text('store_key')
+    .notNull()
+    .references(() => rdaStores.storeKey, { onDelete: 'cascade' }),
+  data: jsonb('data').$type<RetailMenuItem>().notNull(),
+});
+
 export const scanJobs = pgTable('scan_jobs', {
   id: text('id').primaryKey(),
   userId: text('user_id')
@@ -198,6 +213,9 @@ export const coaReportStashLinks = pgTable(
   },
   (table) => [primaryKey({ columns: [table.coaReportId, table.productId] })],
 );
+
+export type DbRdaStore = typeof rdaStores.$inferSelect;
+export type DbRdaMenuItem = typeof rdaMenuItems.$inferSelect;
 
 export type DbProduct = typeof products.$inferSelect;
 export type DbInventoryItem = typeof inventoryItems.$inferSelect;

@@ -58,9 +58,6 @@ export default function SettingsPage() {
           Export journal data
         </Button>
       </section>
-      <p className="settings-legacy">
-        The legacy Base44 SPA bundle is not included in this repository. Use the native BudBook UI for development.
-      </p>
     </div>
   );
 }

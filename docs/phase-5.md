@@ -25,7 +25,7 @@ Paste raw lab report text in the scanner for best live-parse results.
 
 ## 3. RDA cache refresh
 
-`lib/rda/refresh.ts` re-seeds shop cache when `source.fetched_at` exceeds `RDA_CACHE_TTL_MS` (default 24h).
+`lib/rda/refresh.ts` marks operator-imported records as stale (`source_confidence: low`) when `source.fetched_at` exceeds `RDA_CACHE_TTL_MS` (default 24h). Data is **not** wiped on TTL expiry.
 
 Hook point for future CannMenus / Weedmaps live adapters.
 
@@ -39,12 +39,12 @@ Hook point for future CannMenus / Weedmaps live adapters.
 
 APIs: `GET /api/internal/budbook-friends`, `GET/POST /api/internal/budbook-circles`.
 
-Demo friends/circles seed on first visit.
+Friends and circles start empty — users create circles via the UI. Friend invites ship post-MVP.
 
 ## 5. Buddy LLM (optional)
 
 Set `BUDBOOK_OPENAI_API_KEY` for GPT-powered replies. Without it, rule-based coach uses live stash/journal context.
 
 ```bash
-npm run db:migrate   # applies 001 + 002
+npm run db:migrate   # applies 001 + 002 + 003
 ```

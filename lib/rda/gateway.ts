@@ -1,11 +1,6 @@
 import type { RetailMenuItem, RetailStore, RetailStoreQuery } from '@/types/rda';
-import { readRdaCache } from './cacheStore';
+import * as rdaRepo from '@lib/repositories/rda';
 import { ensureFreshRdaCache } from './refresh';
-
-async function loadCache() {
-  await ensureFreshRdaCache();
-  return readRdaCache();
-}
 
 function matchesQuery(store: RetailStore, query: RetailStoreQuery): boolean {
   if (query.state && store.state.toLowerCase() !== query.state.toLowerCase()) return false;
@@ -15,24 +10,25 @@ function matchesQuery(store: RetailStore, query: RetailStoreQuery): boolean {
 }
 
 export async function listRetailStores(query: RetailStoreQuery = {}): Promise<RetailStore[]> {
-  const cache = await loadCache();
-  return cache.stores.filter((s) => matchesQuery(s, query));
+  await ensureFreshRdaCache();
+  const stores = await rdaRepo.listStores();
+  return stores.filter((s) => matchesQuery(s, query));
 }
 
 export async function getRetailStore(storeKey: string): Promise<RetailStore | null> {
-  const cache = await loadCache();
-  return cache.stores.find((s) => s.store_key === storeKey) ?? null;
+  await ensureFreshRdaCache();
+  return rdaRepo.getStore(storeKey);
 }
 
 export async function getRetailMenu(storeKey: string): Promise<RetailMenuItem[]> {
-  const cache = await loadCache();
-  return cache.menus[storeKey] ?? [];
+  await ensureFreshRdaCache();
+  return rdaRepo.getMenu(storeKey);
 }
 
 export async function getRetailMenuItem(
   storeKey: string,
   menuItemKey: string,
 ): Promise<RetailMenuItem | null> {
-  const menu = await getRetailMenu(storeKey);
-  return menu.find((m) => m.menu_item_key === menuItemKey) ?? null;
+  await ensureFreshRdaCache();
+  return rdaRepo.getMenuItem(storeKey, menuItemKey);
 }

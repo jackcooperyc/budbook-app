@@ -11,18 +11,6 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  async rewrites() {
-    return [
-      {
-        source: '/budbook-app/legacy',
-        destination: '/budbook-app/index.html',
-      },
-      {
-        source: '/budbook-app/legacy/:path*',
-        destination: '/budbook-app/index.html',
-      },
-    ];
-  },
   async headers() {
     return [
       {

@@ -1,28 +1,30 @@
-# Auth Decision (Phase 4)
+# Auth Decision
 
 ## Decision
 
-**Defer full authentication for MVP+.** Continue using the single dev user (`getDefaultUser` / `getCurrentUserId`) with Neon row scoping by `user_id`.
+**Session auth is implemented for production.** Email sign-in with JWT httpOnly cookie when `BUDBOOK_AUTH_SECRET` is set.
 
-## Rationale
+Without `BUDBOOK_AUTH_SECRET`, local dev uses the single default user (`getDefaultUser` / `getCurrentUserId`).
 
-- The core loop (stash → sessions → insights → posts) works end-to-end with persisted Neon data.
-- Adding OAuth (Clerk, NextAuth, Neon Auth) is a product decision that touches every route, env vars, and Vercel preview URLs — better as a dedicated sprint than a sidecar.
-- `users` table and `user_id` foreign keys are already in place for a clean auth swap.
+## Implementation
 
-## When auth ships
+| Component | Behavior |
+|-----------|----------|
+| `POST /api/auth/sign-in` | Email + display name → session cookie |
+| `POST /api/auth/sign-out` | Clear session |
+| `GET /api/auth/session` | Current session status |
+| `internalApiGuard()` | Requires session when auth is enabled |
+| `resolveCurrentUser()` | Session user in production; dev user locally |
+| `getCurrentUserId()` | Scopes stash, sessions, posts, social by `user_id` |
 
-1. Replace `getCurrentUserId()` body with session lookup.
-2. Gate `/api/internal/*` behind authenticated session (keep `BUDBOOK_MOCK_ENABLED` only for dev/staging if needed).
-3. Map provider subject → `users.id` on first login.
-4. Buddy, stash, sessions, and posts already scope by `user_id` — no schema change required.
+## Vercel setup
 
-## Alternatives considered
+```bash
+openssl rand -hex 32   # → BUDBOOK_AUTH_SECRET in Production
+```
 
-| Option | Verdict |
-|--------|---------|
-| Clerk + Next.js middleware | Strong UX; adds vendor + monthly cost |
-| Neon Auth | Tight Postgres integration; newer surface area |
-| NextAuth (Auth.js) | Flexible; more setup for App Router |
+Middleware protects `/budbook-app/*` and `/api/internal/*` when auth is enabled.
 
-**Recommendation:** Clerk or Neon Auth when multi-user beta starts.
+## Future work
+
+OAuth providers (Clerk, Neon Auth) can map provider subject → `users.id` on first login. Schema and `user_id` scoping are already in place.

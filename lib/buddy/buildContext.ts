@@ -1,11 +1,14 @@
-import { getDefaultUser } from '@lib/budbook-user/defaultUser';
+import { resolveCurrentUser } from '@lib/auth/resolveUser';
 import { readServerSessions } from '@lib/repositories/sessions';
 import { readServerStash } from '@lib/repositories/stash';
 import type { BuddyContext } from './types';
 
 export async function buildBuddyContext(): Promise<BuddyContext> {
-  const [stash, sessions] = await Promise.all([readServerStash(), readServerSessions()]);
-  const user = getDefaultUser();
+  const [stash, sessions, user] = await Promise.all([
+    readServerStash(),
+    readServerSessions(),
+    resolveCurrentUser(),
+  ]);
 
   return {
     products: stash.products,

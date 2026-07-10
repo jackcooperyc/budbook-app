@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { readPosts, addPost, likePost } from '@/lib/budbook-posts/fileStore';
-import { getDefaultUser } from '../../../../lib/budbook-user/defaultUser';
+import { resolveCurrentUser } from '@lib/auth/resolveUser';
 import { internalApiGuard } from '@lib/auth/guard';
 import { getAvatarSeed } from '@/lib/media';
 
@@ -26,7 +26,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ message: 'Post body is required' }, { status: 400 });
   }
 
-  const user = getDefaultUser();
+  const user = await resolveCurrentUser();
 
   const post = await addPost({
     author: body.author ?? user.full_name,

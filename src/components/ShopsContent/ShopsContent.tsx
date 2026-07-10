@@ -67,8 +67,8 @@ export default function ShopsContent({ dispensaries, stores }: ShopsContentProps
       {dispensaries.length === 0 ? (
         <EmptyState
           icon={Store}
-          title="No dispensaries in cache"
-          description="RDA cache is empty. Run npm run reset-rda to seed shop data for development."
+          title="No dispensaries configured yet"
+          description="Partner shops are loaded by operators via RDA import. See docs/rda-spec.md for setup."
         />
       ) : filtered.length === 0 ? (
         <EmptyState

@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint .",
     "reset-data": "rm -f data/local-stash.json data/local-sessions.json data/local-posts.json data/caa-registry.json data/local-social.json data/coa-scan-jobs.json data/coa-reports.json",
-    "reset-rda": "rm -f data/rda-cache.json",
+    "reset-rda": "tsx scripts/rda-clear.ts",
+    "rda:import": "tsx scripts/rda-import.ts",
     "db:migrate": "npx tsx scripts/db-migrate.ts",
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio"

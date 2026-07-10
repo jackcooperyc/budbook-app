@@ -1,0 +1,73 @@
+{
+  "stores": [
+    {
+      "store_key": "example-local-leaf",
+      "name": "Example Local Leaf",
+      "address": "123 Main St",
+      "city": "Missoula",
+      "state": "MT",
+      "zip": "59801",
+      "lat": 46.8721,
+      "lng": -113.994,
+      "hours": {
+        "mon": "9:00 AM - 8:00 PM",
+        "tue": "9:00 AM - 8:00 PM",
+        "wed": "9:00 AM - 8:00 PM",
+        "thu": "9:00 AM - 8:00 PM",
+        "fri": "9:00 AM - 9:00 PM",
+        "sat": "10:00 AM - 9:00 PM",
+        "sun": "10:00 AM - 6:00 PM"
+      },
+      "services": {
+        "has_delivery": false,
+        "has_storefront": true,
+        "medical": true,
+        "recreational": true
+      },
+      "license_number": "MT-EXAMPLE-001",
+      "rating": 4.6,
+      "review_count": 128,
+      "image_url": null,
+      "brands_carried": ["Example Farms", "Mountain Craft"],
+      "source": {
+        "provider": "cannmenus",
+        "adapter": "cannmenus",
+        "source_confidence": "high",
+        "fetched_at": "2026-07-09T00:00:00.000Z",
+        "source_url": null
+      }
+    }
+  ],
+  "menus": {
+    "example-local-leaf": [
+      {
+        "menu_item_key": "example-local-leaf-blue-dream-3.5g",
+        "store_key": "example-local-leaf",
+        "product_key": "example-blue-dream-flower",
+        "sku": null,
+        "raw_name": "Blue Dream 3.5g",
+        "product_name": "Blue Dream",
+        "brand_name": "Example Farms",
+        "category": "flower",
+        "subcategory": "hybrid",
+        "tags": ["hybrid"],
+        "display_weight": "3.5g",
+        "percentage_thc": 22.4,
+        "percentage_cbd": 0.1,
+        "mg_thc": null,
+        "mg_cbd": null,
+        "price": 35,
+        "medical": true,
+        "recreational": true,
+        "image_url": null,
+        "source": {
+          "provider": "cannmenus",
+          "adapter": "cannmenus",
+          "source_confidence": "high",
+          "fetched_at": "2026-07-09T00:00:00.000Z",
+          "source_url": null
+        }
+      }
+    ]
+  }
+}

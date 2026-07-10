@@ -1,16 +1,13 @@
 # BudBook App
 
-Standalone host for the BudBook consumer SPA, extracted from the JCS / CŪPR ecosystem monorepo.
+Standalone host for the BudBook consumer app, extracted from the JCS / CŪPR ecosystem monorepo.
 
 This repository contains:
 
 - A **native Next.js UI** at `/budbook-app/*` (editable design system, dark botanical brand)
-- The compiled legacy BudBook SPA under `public/budbook-app/` (Base44 build output)
-- Local mock API routes so the legacy SPA can run offline (native UI uses file-backed stores)
 - BudBook domain types and normalization layer
-- File-backed dev APIs for stash, sessions, posts, and COA parsing hints
-
-The original Vite / Base44 source project is not included here — only the production build artifacts and the Next.js shell that serves them.
+- Neon-backed persistence (or file-backed stores for local dev without `DATABASE_URL`)
+- Internal APIs for stash, sessions, posts, COA parsing, retail shops, and Buddy AI
 
 ## Development
 
@@ -19,60 +16,61 @@ npm ci
 npm run dev
 ```
 
-Open [http://localhost:3010/budbook-app](http://localhost:3010/budbook-app) for the **native Next.js UI** (editable design system).
-
-Legacy Base44 SPA (compiled build): [http://localhost:3010/budbook-app/index.html?mock=1](http://localhost:3010/budbook-app/index.html?mock=1)
+Open [http://localhost:3010/budbook-app](http://localhost:3010/budbook-app).
 
 Port **3010** is pinned in `npm run dev` so BudBook does not collide with other tools that often bind **3000**.
 
-Optional: set `NEXT_PUBLIC_GOOGLE_MAPS_EMBED_KEY` in `.env.local` for the dispensary map embed (see `.env.example`). Override the dev user with `BUDBOOK_USER_NAME`, `BUDBOOK_USER_USERNAME`, and `BUDBOOK_USER_EMAIL`.
+Optional: set `NEXT_PUBLIC_GOOGLE_MAPS_EMBED_KEY` in `.env.local` for the dispensary map embed (see `.env.example`). Override the dev user with `BUDBOOK_USER_NAME`, `BUDBOOK_USER_USERNAME`, and `BUDBOOK_USER_EMAIL` when `BUDBOOK_AUTH_SECRET` is unset.
 
 **Data:** The native UI starts empty — add products and log sessions to build your profile. See [docs/data-model.md](docs/data-model.md).
+
+**Shops:** Operator-imported retail data via `npm run rda:import -- fixtures/rda/example-shop.json` (see [docs/rda-spec.md](docs/rda-spec.md)).
 
 **Theme:** Use the sun/moon toggle in the header, or **Settings → Appearance** for Light / Dark / System. Preference is saved in `localStorage` and applied before first paint to avoid flash.
 
 ## Production
 
-In production the SPA talks to Base44 (`base44.app`) unless mock mode is enabled.
+Required for production:
 
-To allow mock data in a deployed environment:
+| Variable | Purpose |
+|----------|---------|
+| `DATABASE_URL` | Neon Postgres |
+| `BUDBOOK_AUTH_SECRET` | JWT session auth (`openssl rand -hex 32`) |
 
-```bash
-BUDBOOK_MOCK_ENABLED=1 npm run start
-```
+Optional:
+
+| Variable | Purpose |
+|----------|---------|
+| `BUDBOOK_OPENAI_API_KEY` | Buddy LLM layer |
+| `RDA_IMPORT_SECRET` | Protects `POST /api/internal/rda/import` for operator shop imports |
 
 ## Structure
 
 | Path | Purpose |
 |------|---------|
 | `app/budbook-app/` | Native Next.js UI (dashboard, stash, journal, social, cannadex, scanner, buddy) |
-| `src/components/` | Design system + product components (PostCard, SessionLogForm, DispensaryMap, etc.) |
-| `src/lib/budbook-stash/` | File-backed stash store (`data/local-stash.json`) |
-| `src/lib/budbook-sessions/` | File-backed journal store (`data/local-sessions.json`) |
-| `src/lib/budbook-posts/` | File-backed community posts (`data/local-posts.json`) |
-| `lib/budbook-user/` | Dev-mode default user |
-| `docs/data-model.md` | Persisted vs mock data boundaries |
-| `src/lib/budbook-coa/` | COA URL hint parser for scanner demo |
-| `public/budbook-app/` | Legacy compiled Base44 SPA |
-| `lib/rda/` | Retail Data Adapter gateway + CannMenus cache |
-| `lib/caa/` | Compliance stub (product_key enrichment) |
-| `app/api/internal/` | Dev APIs (user, stash, sessions, posts, coa) + legacy mock |
+| `src/components/` | Design system + product components |
+| `lib/repositories/` | Neon + file-backed data access |
+| `lib/rda/` | Retail Data Adapter gateway |
+| `lib/caa/` | Compliance Abstraction Adapter (Confident LIMS, COA parse) |
+| `lib/buddy/` | Buddy AI context + replies |
+| `app/api/internal/` | Stash, sessions, posts, CAA, RDA, Buddy APIs |
 | `types/budbook.ts` | Domain types |
-| `types/rda.ts` | RDA TypeScript contract (spec in `docs/rda-spec.md`) |
-| `docs/mvp-scope.md` | MVP in/out scope tracker |
-| `public/budbook_pitchdeck.html` | Pitch deck (from JCS Data Matrix) |
+| `types/rda.ts` | RDA TypeScript contract |
+| `docs/mvp-scope.md` | MVP scope tracker |
+| `fixtures/rda/` | Example operator shop import JSON |
 
 ### Native routes
 
 | Route | Purpose |
 |-------|---------|
 | `/budbook-app` | Dashboard |
-| `/budbook-app/stash` | Products + hardware (mock + server stash) |
+| `/budbook-app/stash` | Products + inventory |
 | `/budbook-app/journal` | Sessions + log form |
 | `/budbook-app/scanner` | COA scanner → parse API + stash POST |
 | `/budbook-app/media` | Community feed + curated content |
 | `/budbook-app/post/new` | Create a community post |
-| `/budbook-app/shops` | Dispensaries with RDA cache, menu, add to stash |
+| `/budbook-app/shops` | Dispensaries (operator-imported RDA data) |
 | `/budbook-app/buddy` | Buddy AI chat |
 | `/budbook-app/friends`, `/circles`, `/cannadex`, `/learn`, `/profile`, `/settings` | Social & profile surfaces |
 

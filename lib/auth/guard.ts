@@ -1,12 +1,8 @@
 import { NextResponse } from 'next/server';
 import { authEnabled, getSessionUser } from '@lib/auth/session';
-import { mockApiDisabledResponse } from '@/lib/mockApi';
 
-/** Guard internal BudBook APIs: env enable flag + optional session auth. */
+/** Guard internal BudBook APIs: optional session auth when BUDBOOK_AUTH_SECRET is set. */
 export async function internalApiGuard(): Promise<NextResponse | null> {
-  const blocked = mockApiDisabledResponse();
-  if (blocked) return blocked;
-
   if (!authEnabled()) return null;
 
   const user = await getSessionUser();
