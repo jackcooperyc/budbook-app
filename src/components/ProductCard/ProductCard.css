@@ -85,6 +85,21 @@
   color: var(--text-tertiary);
 }
 
+.product-card-coa-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  margin-top: var(--space-1);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-medium);
+  color: var(--accent-light);
+  text-decoration: none;
+}
+
+.product-card-coa-link:hover {
+  text-decoration: underline;
+}
+
 .product-card-actions {
   display: flex;
   gap: var(--space-2);

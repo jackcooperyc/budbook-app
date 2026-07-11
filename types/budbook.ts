@@ -21,6 +21,12 @@ export type Product = {
   dispensary_id: string;
   /** Join key for CAA / RDA / Cannadex. Set when known. */
   product_key?: string;
+  /**
+   * Original COA / QR evidence URL when known (http(s) only).
+   * Provenance source of truth remains coa_reports.source_url via coa_report_stash_links;
+   * this field is a stash-facing convenience populated on read / confirm.
+   */
+  coa_source_url?: string;
 };
 
 export type InventoryItem = {

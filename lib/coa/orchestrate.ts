@@ -17,6 +17,7 @@ import {
   type ScanJob,
   type ScanJobStatus,
 } from '@lib/coa/types';
+import { isHttpSourceUrl } from '@lib/coa/userMessages';
 import type { CaaCoaParseResult, CaaParseResponse } from '@/types/caa';
 import type { Product } from '@/types/budbook';
 import { addCoaProductToServerStash } from '@lib/repositories/stash';
@@ -319,6 +320,11 @@ export type ConfirmScanJobResult = {
 
 /**
  * Apply optional user corrections, persist provenance, and save to My Stash.
+ *
+ * Confirm intentionally marks the job `resolved` after the user reviews —
+ * including when extraction was `partial` or `needs_review`. Field-level
+ * sources stay honest (`user_confirmed` only where the user edited); overall
+ * extraction notes record that the user verified before save.
  */
 export async function confirmScanJob(
   jobId: string,
@@ -394,7 +400,12 @@ export async function confirmScanJob(
   await registerCoaParse(parse);
 
   const duplicate = await findStashByLabReportId(parse.lab_report_id);
-  const product = await addCoaProductToServerStash(parse);
+  const coaSourceUrl = isHttpSourceUrl(updatedReport.source_url)
+    ? updatedReport.source_url
+    : isHttpSourceUrl(updatedReport.normalized_payload.source.sourceUrl)
+      ? updatedReport.normalized_payload.source.sourceUrl
+      : undefined;
+  const product = await addCoaProductToServerStash(parse, { coaSourceUrl });
   const link = await attachCoaReportToStashItem(updatedReport.id, product.id);
 
   if (!link) {

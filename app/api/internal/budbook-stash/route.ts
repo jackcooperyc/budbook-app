@@ -8,7 +8,11 @@ import {
   deleteProductFromServerStash,
 } from '@/lib/budbook-stash/fileStore';
 import { registerCoaParse } from '@lib/caa/registry';
-import { attachCoaReportToStashItem } from '@lib/repositories/coaScan';
+import { isHttpSourceUrl } from '@lib/coa/userMessages';
+import {
+  attachCoaReportToStashItem,
+  getCoaReportForUser,
+} from '@lib/repositories/coaScan';
 import { internalApiGuard } from '@lib/auth/guard';
 import type { CaaCoaParseResult } from '@/types/caa';
 
@@ -40,7 +44,18 @@ export async function POST(request: Request) {
 
   if (body.kind === 'coa' && body.coa) {
     await registerCoaParse(body.coa);
-    const product = await addCoaProductToServerStash(body.coa);
+    let coaSourceUrl: string | undefined;
+    if (body.coa_report_id) {
+      const report = await getCoaReportForUser(body.coa_report_id);
+      if (report) {
+        if (isHttpSourceUrl(report.source_url)) {
+          coaSourceUrl = report.source_url;
+        } else if (isHttpSourceUrl(report.normalized_payload.source.sourceUrl)) {
+          coaSourceUrl = report.normalized_payload.source.sourceUrl;
+        }
+      }
+    }
+    const product = await addCoaProductToServerStash(body.coa, { coaSourceUrl });
     if (body.coa_report_id) {
       await attachCoaReportToStashItem(body.coa_report_id, product.id);
     }

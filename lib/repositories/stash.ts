@@ -1,11 +1,13 @@
-import { and, desc, eq } from 'drizzle-orm';
+import { and, eq } from 'drizzle-orm';
 import type { Product, InventoryItem } from '@/types/budbook';
 import type { CaaCoaParseResult } from '@/types/caa';
 import type { ScanProductInput } from '@/lib/stashStorage';
+import { isHttpSourceUrl } from '@lib/coa/userMessages';
 import { getCurrentUserId } from '@lib/budbook-user/currentUser';
 import { dbEnabled, getDb } from '@lib/db/client';
 import { toInventoryItem, toProduct } from '@lib/db/mappers';
 import { inventoryItems, products } from '@lib/db/schema';
+import { getCoaSourceUrlsByProductId } from '@lib/repositories/coaScan';
 import {
   buildCoaProduct,
   buildMenuInventory,
@@ -20,8 +22,41 @@ import {
 
 export type { LocalStashData, ManualProductInput, MenuStashInput };
 
+async function withCoaSourceUrls(data: LocalStashData): Promise<LocalStashData> {
+  const urls = await getCoaSourceUrlsByProductId(data.products.map((p) => p.id));
+  if (Object.keys(urls).length === 0) {
+    return {
+      ...data,
+      products: data.products.map((p) =>
+        isHttpSourceUrl(p.coa_source_url) ? p : omitNonOpenableCoaUrl(p),
+      ),
+    };
+  }
+
+  return {
+    ...data,
+    products: data.products.map((p) => {
+      const fromLink = urls[p.id];
+      const url = fromLink ?? (isHttpSourceUrl(p.coa_source_url) ? p.coa_source_url : undefined);
+      if (!url) return omitNonOpenableCoaUrl(p);
+      return { ...p, coa_source_url: url };
+    }),
+  };
+}
+
+function omitNonOpenableCoaUrl(product: Product): Product {
+  if (!product.coa_source_url || isHttpSourceUrl(product.coa_source_url)) {
+    return product;
+  }
+  const { coa_source_url: _, ...rest } = product;
+  void _;
+  return rest;
+}
+
 export async function readServerStash(): Promise<LocalStashData> {
-  if (!dbEnabled()) return readFileStash();
+  if (!dbEnabled()) {
+    return withCoaSourceUrls(await readFileStash());
+  }
 
   const userId = await getCurrentUserId();
   const db = getDb()!;
@@ -31,10 +66,10 @@ export async function readServerStash(): Promise<LocalStashData> {
     db.select().from(inventoryItems).where(eq(inventoryItems.userId, userId)),
   ]);
 
-  return {
+  return withCoaSourceUrls({
     products: productRows.map(toProduct),
     inventory: inventoryRows.map(toInventoryItem),
-  };
+  });
 }
 
 async function insertProductWithInventory(product: Product, inventory: InventoryItem): Promise<void> {
@@ -85,17 +120,47 @@ export async function addProductToServerStash(input: ScanProductInput): Promise<
   return product;
 }
 
-export async function addCoaProductToServerStash(parse: CaaCoaParseResult): Promise<Product> {
+export type AddCoaProductOptions = {
+  /** Original COA / QR http(s) URL to denormalize onto the stash product (file store). */
+  coaSourceUrl?: string;
+};
+
+function withOptionalCoaSourceUrl(product: Product, coaSourceUrl?: string): Product {
+  if (!isHttpSourceUrl(coaSourceUrl) || !coaSourceUrl) return product;
+  return { ...product, coa_source_url: coaSourceUrl };
+}
+
+export async function addCoaProductToServerStash(
+  parse: CaaCoaParseResult,
+  options?: AddCoaProductOptions,
+): Promise<Product> {
   const stash = await readServerStash();
   const existing = stash.products.find((p) => p.lab_report_id === parse.lab_report_id);
-  if (existing) return existing;
+  if (existing) {
+    const next = withOptionalCoaSourceUrl(existing, options?.coaSourceUrl);
+    if (
+      !dbEnabled() &&
+      next.coa_source_url &&
+      next.coa_source_url !== existing.coa_source_url
+    ) {
+      const raw = await readFileStash();
+      await writeFileStash({
+        products: raw.products.map((p) => (p.id === existing.id ? next : p)),
+        inventory: raw.inventory,
+      });
+    }
+    return next;
+  }
 
-  const { product, inventory } = buildCoaProduct(parse);
+  const built = buildCoaProduct(parse);
+  const product = withOptionalCoaSourceUrl(built.product, options?.coaSourceUrl);
+  const { inventory } = built;
 
   if (!dbEnabled()) {
+    const raw = await readFileStash();
     await writeFileStash({
-      products: [product, ...stash.products],
-      inventory: [inventory, ...stash.inventory],
+      products: [product, ...raw.products],
+      inventory: [inventory, ...raw.inventory],
     });
     return product;
   }

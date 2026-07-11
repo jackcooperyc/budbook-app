@@ -1,4 +1,4 @@
-import { and, eq } from 'drizzle-orm';
+import { and, eq, inArray } from 'drizzle-orm';
 import { readFile, writeFile, mkdir } from 'fs/promises';
 import type {
   CoaReport,
@@ -10,6 +10,7 @@ import type {
   ScanJobStatus,
 } from '@lib/coa/types';
 import { normalizeUrl } from '@lib/coa/normalize';
+import { isHttpSourceUrl } from '@lib/coa/userMessages';
 import { jobMetadataForScanInput } from '@lib/coa/input';
 import { validateScanInput } from '@lib/coa/validate';
 import { getCurrentUserId } from '@lib/budbook-user/currentUser';
@@ -407,6 +408,72 @@ export type UpdateCoaReportNormalizedInput = {
   confidencePayload?: Record<string, unknown>;
   rawMetadata?: Record<string, unknown>;
 };
+
+/**
+ * Resolve openable COA evidence URLs for stash products via coa_report_stash_links.
+ * Prefers the newest linked report per product. Non-http(s) provenance (text:/qr:) is omitted.
+ */
+export async function getCoaSourceUrlsByProductId(
+  productIds: string[],
+  userId?: string,
+): Promise<Record<string, string>> {
+  const ids = [...new Set(productIds.filter(Boolean))];
+  if (ids.length === 0) return {};
+
+  const ownerId = userId ?? (await getCurrentUserId());
+  const byProduct: Record<string, string> = {};
+
+  if (!dbEnabled()) {
+    const data = await readFileReports();
+    const links = data.links
+      .filter((link) => link.user_id === ownerId && ids.includes(link.product_id))
+      .sort((a, b) => b.created_at.localeCompare(a.created_at));
+
+    for (const link of links) {
+      if (byProduct[link.product_id]) continue;
+      const report = data.reports[link.coa_report_id];
+      if (!report || report.user_id !== ownerId) continue;
+      const url =
+        (isHttpSourceUrl(report.source_url) && report.source_url) ||
+        (isHttpSourceUrl(report.normalized_payload?.source?.sourceUrl) &&
+          report.normalized_payload.source.sourceUrl);
+      if (url) byProduct[link.product_id] = url;
+    }
+    return byProduct;
+  }
+
+  const db = getDb()!;
+  const rows = await db
+    .select({
+      productId: coaReportStashLinks.productId,
+      sourceUrl: coaReports.sourceUrl,
+      normalizedPayload: coaReports.normalizedPayload,
+      createdAt: coaReportStashLinks.createdAt,
+    })
+    .from(coaReportStashLinks)
+    .innerJoin(coaReports, eq(coaReportStashLinks.coaReportId, coaReports.id))
+    .where(
+      and(
+        eq(coaReportStashLinks.userId, ownerId),
+        inArray(coaReportStashLinks.productId, ids),
+      ),
+    );
+
+  const sorted = [...rows].sort(
+    (a, b) => b.createdAt.getTime() - a.createdAt.getTime(),
+  );
+
+  for (const row of sorted) {
+    if (byProduct[row.productId]) continue;
+    const normalizedUrl = row.normalizedPayload?.source?.sourceUrl;
+    const url =
+      (isHttpSourceUrl(row.sourceUrl) && row.sourceUrl) ||
+      (isHttpSourceUrl(normalizedUrl) && normalizedUrl);
+    if (url) byProduct[row.productId] = url;
+  }
+
+  return byProduct;
+}
 
 /** Persist user-confirmed corrections onto an owned COA report. */
 export async function updateCoaReportNormalized(

@@ -11,7 +11,7 @@ import {
   normalizedToCaaParse,
 } from '@lib/coa/normalize';
 import { selectProvider, type CoaProviderInput } from '@lib/coa/providers';
-import type { CoaScanErrorCode, NormalizedCoaResult, ScanInput, ScanJobStatus } from '@lib/coa/types';
+import type { CoaScanErrorCode, FieldValue, NormalizedCoaResult, ScanInput, ScanJobStatus } from '@lib/coa/types';
 import { validateScanInput } from '@lib/coa/validate';
 
 export class CoaResolveError extends Error {
@@ -238,6 +238,42 @@ async function resolveInlineScan(input: ScanInput): Promise<ResolvedCoaScan> {
   }
 
   const normalized = normalizedFromCaaParse(parse, sourceUrl, 'caa_inline', contentHash);
+
+  // Text / non-URL QR is heuristic CAA — never present as fully lab-verified.
+  // Keep potency only when CAA found labeled values; force review before stash.
+  if (input.kind === 'text' || input.kind === 'qr_payload') {
+    const note =
+      input.kind === 'text'
+        ? 'Parsed from pasted text — verify labeled fields before saving.'
+        : 'Parsed from QR text payload — verify labeled fields before saving.';
+    normalized.extraction = {
+      status: 'partial',
+      confidence: parse.confidence === 'high' ? 'medium' : 'low',
+      notes: [...normalized.extraction.notes, note],
+    };
+    normalized.warnings.push('INLINE_TEXT_NEEDS_REVIEW');
+    const downgrade = <T,>(field: FieldValue<T> | undefined): FieldValue<T> | undefined => {
+      if (!field || field.confidence !== 'high') return field;
+      return { ...field, confidence: 'medium' };
+    };
+    normalized.product = {
+      ...normalized.product,
+      name: downgrade(normalized.product.name),
+      brand: downgrade(normalized.product.brand),
+      category: downgrade(normalized.product.category),
+      strain: downgrade(normalized.product.strain),
+      batchNumber: downgrade(normalized.product.batchNumber),
+      lotNumber: downgrade(normalized.product.lotNumber),
+      packageDate: downgrade(normalized.product.packageDate),
+    };
+    normalized.cannabinoids = normalized.cannabinoids.map((c) =>
+      c.confidence === 'high' ? { ...c, confidence: 'medium' as const } : c,
+    );
+    normalized.terpenes = normalized.terpenes.map((t) =>
+      t.confidence === 'high' ? { ...t, confidence: 'medium' as const } : t,
+    );
+  }
+
   return {
     normalized,
     provider: 'caa_inline',
@@ -246,6 +282,7 @@ async function resolveInlineScan(input: ScanInput): Promise<ResolvedCoaScan> {
       parse_source: parse.parse_source,
       product_key: parse.product_key,
       html_persisted: false,
+      input_kind: input.kind,
     },
     parse,
     jobStatus: mapExtractionToJobStatus(normalized.extraction.status),

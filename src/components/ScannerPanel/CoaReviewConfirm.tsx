@@ -8,11 +8,13 @@ import {
   type CoaFieldCorrections,
 } from '@lib/coa/confirm';
 import type {
+  CoaScanErrorCode,
   ConfidenceLevel,
   FieldSource,
   NormalizedCoaResult,
   ScanJobStatus,
 } from '@lib/coa/types';
+import { isHttpSourceUrl } from '@lib/coa/userMessages';
 import Button from '@/components/Button/Button';
 import TerpeneProfile from '@/components/TerpeneProfile/TerpeneProfile';
 
@@ -24,6 +26,9 @@ type CoaReviewConfirmProps = {
   provider: string | null;
   duplicateInStash?: boolean;
   existingProductId?: string | null;
+  /** Optional scan-level notice (PDF / insufficient / partial). */
+  notice?: string | null;
+  errorCode?: CoaScanErrorCode | string | null;
   onConfirmed: (productId: string) => void;
   onCancel?: () => void;
 };
@@ -47,19 +52,43 @@ function FieldBadge({
   );
 }
 
-function extractionBanner(status: ScanJobStatus, confidence: ConfidenceLevel): {
+function statusBadgeLabel(status: ScanJobStatus, confidence: ConfidenceLevel): string {
+  if (status === 'needs_review' || confidence === 'low') return 'Needs review';
+  if (status === 'partial' || confidence === 'medium') return 'Partial';
+  if (status === 'resolved' && confidence === 'high') return 'Evidence ready';
+  return status.replace(/_/g, ' ');
+}
+
+function extractionBanner(
+  status: ScanJobStatus,
+  confidence: ConfidenceLevel,
+  errorCode?: CoaScanErrorCode | string | null,
+  warnings: string[] = [],
+): {
   text: string;
   className: string;
 } {
+  if (errorCode === 'PDF_NOT_SUPPORTED_YET' || warnings.includes('PDF_NOT_SUPPORTED_YET')) {
+    return {
+      text: 'PDF auto-extract is not available. Enter labeled fields from the PDF yourself, then confirm. Confirming marks this scan user-verified (not PDF OCR).',
+      className: 'scanner-review-banner scanner-review-banner-warn',
+    };
+  }
+  if (warnings.includes('INLINE_TEXT_NEEDS_REVIEW')) {
+    return {
+      text: 'Parsed from pasted text — values are not lab-verified until you confirm. Correct anything uncertain before saving.',
+      className: 'scanner-review-banner scanner-review-banner-warn',
+    };
+  }
   if (status === 'needs_review' || confidence === 'low') {
     return {
-      text: 'Needs review — some fields are missing or low confidence. Correct before saving.',
+      text: 'Needs review — some fields are missing or low confidence. Correct before saving. Confirm marks the scan resolved after your review, even if extraction was partial.',
       className: 'scanner-review-banner scanner-review-banner-warn',
     };
   }
   if (status === 'partial' || confidence === 'medium') {
     return {
-      text: 'Partial extraction — verify uncertain fields. Low-confidence values are not lab-verified.',
+      text: 'Partial extraction — verify uncertain fields. Low-confidence values are not lab-verified. Confirming saves your reviewed values to My Stash.',
       className: 'scanner-review-banner scanner-review-banner-warn',
     };
   }
@@ -67,6 +96,13 @@ function extractionBanner(status: ScanJobStatus, confidence: ConfidenceLevel): {
     text: 'Evidence-backed preview — confirm or correct fields, then save to My Stash.',
     className: 'scanner-review-banner',
   };
+}
+
+function sourceLabel(sourceUrl: string, provider: string | null): string {
+  if (isHttpSourceUrl(sourceUrl)) return sourceUrl;
+  if (sourceUrl.startsWith('text:')) return 'Pasted text';
+  if (sourceUrl.startsWith('qr:')) return 'QR payload (text)';
+  return provider ?? 'Inline input';
 }
 
 export default function CoaReviewConfirm({
@@ -77,6 +113,8 @@ export default function CoaReviewConfirm({
   provider,
   duplicateInStash,
   existingProductId,
+  errorCode,
+  notice,
   onConfirmed,
   onCancel,
 }: CoaReviewConfirmProps) {
@@ -96,7 +134,14 @@ export default function CoaReviewConfirm({
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const banner = extractionBanner(status, normalized.extraction.confidence);
+  const banner = extractionBanner(
+    status,
+    normalized.extraction.confidence,
+    errorCode,
+    normalized.warnings,
+  );
+  const bannerText = notice?.trim() || banner.text;
+  const httpSource = isHttpSourceUrl(sourceUrl);
   const terpenes = normalized.terpenes.map((t) => ({
     terpene_name: t.name,
     percentage: t.value ?? 0,
@@ -166,20 +211,22 @@ export default function CoaReviewConfirm({
         <span
           className={`scanner-confidence ${confidenceClass(normalized.extraction.confidence)}`}
         >
-          {status === 'resolved' && normalized.extraction.confidence === 'high'
-            ? 'Evidence ready'
-            : status.replace(/_/g, ' ')}
+          {statusBadgeLabel(status, normalized.extraction.confidence)}
         </span>
       </div>
 
-      <p className={banner.className}>{banner.text}</p>
+      <p className={banner.className}>{bannerText}</p>
 
       <p className="scanner-result-meta meta-numeric">
         Source: {provider ?? normalized.source.provider}
         {' · '}
-        <a href={sourceUrl} target="_blank" rel="noreferrer">
-          Open report
-        </a>
+        {httpSource ? (
+          <a href={sourceUrl} target="_blank" rel="noopener noreferrer">
+            Open report
+          </a>
+        ) : (
+          <span>{sourceLabel(sourceUrl, provider)}</span>
+        )}
       </p>
 
       {duplicateInStash && (

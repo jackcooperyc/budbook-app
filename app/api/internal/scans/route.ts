@@ -53,7 +53,25 @@ export async function POST(request: Request) {
     const result = await createAndRunScanJob({ input: scanInput });
     const payload = toScanApiResponse(result);
 
-    // Legacy ScannerPanel expects a CAA parse payload on success.
+    // Prefer review path: return full Phase 2 payload whenever normalized exists
+    // (URL, text paste, or QR), even if legacy CAA parse is missing.
+    if (payload.normalized && payload.scanId) {
+      const httpStatus =
+        payload.status === 'needs_review' && payload.error
+          ? statusForCode(payload.error.code)
+          : 200;
+      return NextResponse.json(
+        {
+          ...payload,
+          ...(payload.error
+            ? { code: payload.error.code, message: payload.error.message }
+            : {}),
+        },
+        { status: httpStatus },
+      );
+    }
+
+    // Legacy ScannerPanel expects a CAA parse payload when no normalized report.
     if (!isPhase2Shape && !payload.parse) {
       return NextResponse.json(
         {
@@ -66,6 +84,7 @@ export async function POST(request: Request) {
           status: payload.status,
           normalized: payload.normalized,
           attemptCount: payload.attemptCount,
+          error: payload.error,
         },
         { status: 422 },
       );

@@ -14,6 +14,11 @@ import type {
 } from '@lib/coa/types';
 import { COA_SCAN_MAX_ATTEMPTS } from '@lib/coa/types';
 import {
+  canRetryScan,
+  retryCapMessage,
+  userMessageForScanError,
+} from '@lib/coa/userMessages';
+import {
   boostCameraResolution,
   CameraAccessError,
   cameraErrorMessage,
@@ -53,6 +58,7 @@ type ReviewState = {
   provider: string | null;
   duplicateInStash: boolean;
   existingProductId: string | null;
+  errorCode: CoaScanErrorCode | string | null;
 };
 
 type LegacyResult = CaaParseResponse;
@@ -66,22 +72,26 @@ function looksLikeHttpUrl(value: string): boolean {
   }
 }
 
+function errorCodeFromPayload(data: ScanApiPayload): CoaScanErrorCode | string | null {
+  return data.error?.code ?? data.code ?? null;
+}
+
 function errorMessageFromPayload(data: ScanApiPayload, fallback: string): string {
-  if (data.error?.message) {
-    return data.code || data.error.code
-      ? `${data.error.code ?? data.code}: ${data.error.message}`
-      : data.error.message;
+  const code = errorCodeFromPayload(data);
+  if (code) {
+    return userMessageForScanError(code, data.error?.message ?? data.message ?? fallback);
   }
-  if (data.message) {
-    return data.code ? `${data.code}: ${data.message}` : data.message;
-  }
+  if (data.error?.message) return data.error.message;
+  if (data.message) return data.message;
   return fallback;
 }
 
-function canRetryStatus(status: ScanJobStatus | undefined, attemptCount: number | undefined): boolean {
-  if (!status) return false;
-  if (status !== 'failed' && status !== 'needs_review') return false;
-  return (attemptCount ?? 0) < COA_SCAN_MAX_ATTEMPTS;
+function isConfirmableStatus(status: ScanJobStatus | undefined): boolean {
+  return status === 'resolved' || status === 'partial' || status === 'needs_review';
+}
+
+function canOpenReview(data: ScanApiPayload): boolean {
+  return Boolean(data.scanId && data.normalized && isConfirmableStatus(data.status));
 }
 
 export default function ScannerPanel() {
@@ -94,6 +104,7 @@ export default function ScannerPanel() {
   const [review, setReview] = useState<ReviewState | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [retryableScanId, setRetryableScanId] = useState<string | null>(null);
+  const [retryHint, setRetryHint] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [qrOpen, setQrOpen] = useState(false);
   const [qrLoading, setQrLoading] = useState(false);
@@ -121,18 +132,35 @@ export default function ScannerPanel() {
     setQrError(null);
   }, []);
 
-  const applyScanPayload = useCallback((data: ScanApiPayload, preferReview: boolean) => {
-    const scanId = data.scanId;
-    const status = data.status;
-    const normalized = data.normalized ?? null;
-
+  const updateRetryState = useCallback((data: ScanApiPayload, scanId?: string | null) => {
+    const id = scanId ?? data.scanId ?? null;
+    const code = errorCodeFromPayload(data);
+    if (id && canRetryScan(data.status, data.attemptCount, code)) {
+      setRetryableScanId(id);
+      setRetryHint(retryCapMessage(data.attemptCount));
+      return;
+    }
+    setRetryableScanId(null);
     if (
-      preferReview &&
-      scanId &&
-      normalized &&
-      status &&
-      (status === 'resolved' || status === 'partial' || status === 'needs_review')
+      id &&
+      (data.status === 'failed' || data.status === 'needs_review') &&
+      (data.attemptCount ?? 0) >= COA_SCAN_MAX_ATTEMPTS
     ) {
+      setRetryHint(retryCapMessage(data.attemptCount));
+    } else if (code === 'PDF_NOT_SUPPORTED_YET') {
+      setRetryHint('Retry will not help for PDF links — use an HTML URL or paste labeled text.');
+    } else {
+      setRetryHint(null);
+    }
+  }, []);
+
+  const openReview = useCallback(
+    (data: ScanApiPayload) => {
+      const scanId = data.scanId;
+      const status = data.status;
+      const normalized = data.normalized;
+      if (!scanId || !normalized || !status) return false;
+
       setReview({
         scanId,
         status,
@@ -141,109 +169,56 @@ export default function ScannerPanel() {
         provider: data.provider ?? normalized.source.provider,
         duplicateInStash: Boolean(data.duplicate_in_stash),
         existingProductId: data.existing_product_id ?? null,
+        errorCode: errorCodeFromPayload(data),
       });
       setLegacyResult(null);
-      setRetryableScanId(
-        canRetryStatus(status, data.attemptCount) && status === 'needs_review' ? scanId : null,
-      );
-      return;
-    }
-
-    if (data.parse) {
-      setLegacyResult({
-        parse: data.parse,
-        duplicate_in_stash: Boolean(data.duplicate_in_stash),
-        existing_product_id: data.existing_product_id ?? null,
-        coa_report_id: data.coa_report_id ?? data.coaReportId ?? null,
-        scan_job_id: scanId ?? null,
-      });
-      setReview(null);
-      setRetryableScanId(null);
-      return;
-    }
-
-    if (preferReview && scanId && normalized) {
-      setReview({
-        scanId,
-        status: status ?? 'needs_review',
-        normalized,
-        sourceUrl: data.sourceUrl || normalized.source.sourceUrl,
-        provider: data.provider ?? normalized.source.provider,
-        duplicateInStash: Boolean(data.duplicate_in_stash),
-        existingProductId: data.existing_product_id ?? null,
-      });
-      setLegacyResult(null);
-      return;
-    }
-
-    throw new Error(
-      errorMessageFromPayload(data, 'Could not extract lab data from that input.'),
-    );
-  }, []);
-
-  const runPhase2UrlScan = useCallback(
-    async (sourceType: 'manual_url' | 'qr_url', sourceUrl: string) => {
-      setScanning(true);
-      setLegacyResult(null);
-      setReview(null);
-      setError(null);
-      setRetryableScanId(null);
-      try {
-        const res = await fetch('/api/internal/scans', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ sourceType, sourceUrl }),
-        });
-        const data = (await res.json()) as ScanApiPayload;
-
-        if (!res.ok) {
-          if (data.scanId && canRetryStatus(data.status, data.attemptCount)) {
-            setRetryableScanId(data.scanId);
-          } else if (data.scanId && (data.status === 'failed' || data.status === 'needs_review')) {
-            setRetryableScanId(
-              canRetryStatus(data.status, data.attemptCount) ? data.scanId : null,
-            );
-          }
-          // Partial/needs_review with normalized still opens review UI.
-          if (
-            data.normalized &&
-            data.scanId &&
-            (data.status === 'partial' || data.status === 'needs_review' || data.status === 'resolved')
-          ) {
-            applyScanPayload(data, true);
-            if (data.status === 'needs_review') {
-              setError(
-                errorMessageFromPayload(
-                  data,
-                  'Extraction needs review — correct fields below or retry.',
-                ),
-              );
-            }
-            return;
-          }
-          throw new Error(errorMessageFromPayload(data, 'Scan failed'));
-        }
-
-        applyScanPayload(data, true);
-        if (data.scanId && canRetryStatus(data.status, data.attemptCount)) {
-          setRetryableScanId(data.scanId);
-        }
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'COA scan failed — check your input and try again.');
-      } finally {
-        setScanning(false);
-      }
+      updateRetryState(data, scanId);
+      return true;
     },
-    [applyScanPayload],
+    [updateRetryState],
   );
 
-  const runLegacyParse = useCallback(
+  const applyScanPayload = useCallback(
+    (data: ScanApiPayload, preferReview: boolean) => {
+      if (preferReview && canOpenReview(data)) {
+        openReview(data);
+        return;
+      }
+
+      if (data.parse) {
+        setLegacyResult({
+          parse: data.parse,
+          duplicate_in_stash: Boolean(data.duplicate_in_stash),
+          existing_product_id: data.existing_product_id ?? null,
+          coa_report_id: data.coa_report_id ?? data.coaReportId ?? null,
+          scan_job_id: data.scanId ?? null,
+        });
+        setReview(null);
+        setRetryableScanId(null);
+        setRetryHint(null);
+        return;
+      }
+
+      if (preferReview && data.scanId && data.normalized) {
+        openReview(data);
+        return;
+      }
+
+      throw new Error(
+        errorMessageFromPayload(data, 'Could not extract lab data from that input.'),
+      );
+    },
+    [openReview],
+  );
+
+  const runScanRequest = useCallback(
     async (body: Record<string, string>) => {
       setScanning(true);
       setLegacyResult(null);
       setReview(null);
       setError(null);
       setRetryableScanId(null);
+      setRetryHint(null);
       try {
         const res = await fetch('/api/internal/scans', {
           method: 'POST',
@@ -251,39 +226,54 @@ export default function ScannerPanel() {
           body: JSON.stringify(body),
         });
         const data = (await res.json()) as ScanApiPayload;
-        if (!res.ok) {
-          if (data.scanId && canRetryStatus(data.status, data.attemptCount)) {
-            setRetryableScanId(data.scanId);
+        const code = errorCodeFromPayload(data);
+
+        if (canOpenReview(data)) {
+          openReview(data);
+          if (!res.ok || code === 'PDF_NOT_SUPPORTED_YET') {
+            setError(
+              errorMessageFromPayload(
+                data,
+                'Extraction needs review — correct fields below or try another source.',
+              ),
+            );
           }
-          throw new Error(errorMessageFromPayload(data, 'Parse failed'));
+          return;
         }
-        // Prefer review when Phase 2 normalized payload is present.
-        if (data.normalized && data.scanId) {
-          applyScanPayload(data, true);
-        } else {
-          applyScanPayload(data, false);
+
+        if (!res.ok) {
+          updateRetryState(data);
+          throw new Error(errorMessageFromPayload(data, 'Scan failed'));
         }
+
+        applyScanPayload(data, true);
+        updateRetryState(data);
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'CAA parse failed — check your input and try again.');
+        setError(
+          err instanceof Error
+            ? err.message
+            : 'COA scan failed — check your input and try again.',
+        );
       } finally {
         setScanning(false);
       }
     },
-    [applyScanPayload],
+    [applyScanPayload, openReview, updateRetryState],
   );
 
   const handleQrPayload = useCallback(
     async (payload: string) => {
       const trimmed = payload.trim();
       if (looksLikeHttpUrl(trimmed)) {
-        await runPhase2UrlScan('qr_url', trimmed);
         setUrl(trimmed);
         setMode('url');
+        await runScanRequest({ sourceType: 'qr_url', sourceUrl: trimmed });
         return;
       }
-      await runLegacyParse({ qr_payload: trimmed });
+      // Non-URL QR text → same job + review path as paste text.
+      await runScanRequest({ qr_payload: trimmed });
     },
-    [runLegacyParse, runPhase2UrlScan],
+    [runScanRequest],
   );
 
   async function handleRetry() {
@@ -296,24 +286,24 @@ export default function ScannerPanel() {
         { method: 'POST' },
       );
       const data = (await res.json()) as ScanApiPayload;
-      if (!res.ok) {
-        if (canRetryStatus(data.status, data.attemptCount)) {
-          setRetryableScanId(retryableScanId);
+
+      if (canOpenReview(data)) {
+        openReview({ ...data, scanId: data.scanId ?? retryableScanId });
+        if (!res.ok) {
+          setError(errorMessageFromPayload(data, 'Retry completed — review fields below.'));
         } else {
-          setRetryableScanId(null);
+          updateRetryState({ ...data, scanId: data.scanId ?? retryableScanId });
         }
-        if (
-          data.normalized &&
-          (data.status === 'partial' || data.status === 'needs_review' || data.status === 'resolved')
-        ) {
-          applyScanPayload({ ...data, scanId: data.scanId ?? retryableScanId }, true);
-        }
+        return;
+      }
+
+      if (!res.ok) {
+        updateRetryState({ ...data, scanId: data.scanId ?? retryableScanId });
         throw new Error(errorMessageFromPayload(data, 'Retry failed'));
       }
+
       applyScanPayload({ ...data, scanId: data.scanId ?? retryableScanId }, true);
-      setRetryableScanId(
-        canRetryStatus(data.status, data.attemptCount) ? (data.scanId ?? retryableScanId) : null,
-      );
+      updateRetryState({ ...data, scanId: data.scanId ?? retryableScanId });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Retry failed.');
     } finally {
@@ -442,13 +432,13 @@ export default function ScannerPanel() {
         setError('Paste a lab report URL to parse.');
         return;
       }
-      void runPhase2UrlScan('manual_url', url.trim());
+      void runScanRequest({ sourceType: 'manual_url', sourceUrl: url.trim() });
     } else {
       if (!text.trim()) {
         setError('Paste COA text to parse.');
         return;
       }
-      void runLegacyParse({ text: text.trim() });
+      void runScanRequest({ text: text.trim() });
     }
   }
 
@@ -482,8 +472,8 @@ export default function ScannerPanel() {
         <ScanLine size={36} strokeWidth={1.5} className="scanner-icon" aria-hidden="true" />
         <h2>COA Scanner</h2>
         <p>
-          Scan a package QR or paste a lab report URL for an evidence-backed preview. Correct
-          uncertain fields, confirm, and save to My Stash. Paste text still uses the CAA path.
+          Scan a package QR, paste a lab report URL, or paste labeled COA text. Review uncertain
+          fields, confirm, and save to My Stash. PDF links are not auto-extracted yet.
         </p>
       </div>
 
@@ -533,13 +523,13 @@ export default function ScannerPanel() {
               value={text}
               onChange={(e) => setText(e.target.value)}
               rows={4}
-              placeholder="Paste lab report text, batch ID, or strain name…"
+              placeholder="Paste labeled lab report text (THC %, strain, batch…)…"
             />
           </label>
         )}
         <div className="scanner-actions">
           <Button type="submit" variant="primary" size="sm" disabled={scanning || qrDecoding}>
-            {scanning ? 'Scanning…' : mode === 'url' ? 'Scan URL' : 'Parse via CAA'}
+            {scanning ? 'Scanning…' : mode === 'url' ? 'Scan URL' : 'Parse text'}
           </Button>
           <Button
             type="button"
@@ -609,7 +599,7 @@ export default function ScannerPanel() {
       {error && (
         <div className="scanner-error-block" role="alert">
           <p className="scanner-error">{error}</p>
-          {retryableScanId && (
+          {retryableScanId ? (
             <Button
               type="button"
               variant="secondary"
@@ -619,7 +609,8 @@ export default function ScannerPanel() {
             >
               {scanning ? 'Retrying…' : 'Retry scan'}
             </Button>
-          )}
+          ) : null}
+          {retryHint && <p className="scanner-retry-hint">{retryHint}</p>}
         </div>
       )}
 
@@ -632,6 +623,7 @@ export default function ScannerPanel() {
           provider={review.provider}
           duplicateInStash={review.duplicateInStash}
           existingProductId={review.existingProductId}
+          errorCode={review.errorCode}
           onConfirmed={() => {
             router.push('/budbook-app/stash?added=1');
           }}
@@ -639,6 +631,7 @@ export default function ScannerPanel() {
             setReview(null);
             setError(null);
             setRetryableScanId(null);
+            setRetryHint(null);
           }}
         />
       )}
@@ -647,7 +640,7 @@ export default function ScannerPanel() {
         <div className="scanner-result glass-panel">
           <div className="scanner-result-header">
             <h3>CAA extraction</h3>
-            <span className="scanner-confidence scanner-confidence-high">Lab verified</span>
+            <span className="scanner-confidence scanner-confidence-medium">Needs review</span>
           </div>
           <p className="scanner-result-strain">{parse.strain_name}</p>
           <p className="scanner-result-brand">{parse.brand}</p>

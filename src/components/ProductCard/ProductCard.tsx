@@ -1,11 +1,12 @@
 import React from 'react';
 import Image from 'next/image';
-import { FlaskConical, Pencil, Trash2 } from 'lucide-react';
+import { ExternalLink, FlaskConical, Pencil, Trash2 } from 'lucide-react';
 import type { InventoryItem, Product } from '@/types/budbook';
 import Chip from '@/components/Chip/Chip';
 import TerpeneProfile from '@/components/TerpeneProfile/TerpeneProfile';
 import Button from '@/components/Button/Button';
 import { formatQuantity, getStrainCoverUrl } from '@/lib/media';
+import { isHttpSourceUrl } from '@lib/coa/userMessages';
 import './ProductCard.css';
 
 interface ProductCardProps {
@@ -28,6 +29,10 @@ export default function ProductCard({
   const qty = inventory
     ? formatQuantity(inventory.quantity, inventory.unit)
     : null;
+  const coaUrl =
+    product.coa_source_url && isHttpSourceUrl(product.coa_source_url)
+      ? product.coa_source_url
+      : null;
 
   function handleEditQuantity() {
     if (!onUpdateQuantity || !inventory) return;
@@ -69,6 +74,17 @@ export default function ProductCard({
             {product.lab_report_id}
           </span>
         </div>
+        {coaUrl && (
+          <a
+            className="product-card-coa-link"
+            href={coaUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <ExternalLink size={12} strokeWidth={1.75} aria-hidden="true" />
+            View COA
+          </a>
+        )}
         {editable && (
           <div className="product-card-actions">
             <Button
