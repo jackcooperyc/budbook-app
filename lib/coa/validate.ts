@@ -69,6 +69,14 @@ export function validateUrl(url: string): ScanValidationResult {
     };
   }
 
+  if (parsed.username || parsed.password) {
+    return {
+      ok: false,
+      errorCode: 'BLOCKED_URL',
+      message: 'URLs with embedded credentials are not allowed.',
+    };
+  }
+
   if (!parsed.hostname) {
     return { ok: false, errorCode: 'INVALID_URL', message: 'URL must include a hostname.' };
   }

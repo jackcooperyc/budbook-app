@@ -7,6 +7,12 @@ import { QrCode, ScanLine, Upload, X } from 'lucide-react';
 import Button from '@/components/Button/Button';
 import TerpeneProfile from '@/components/TerpeneProfile/TerpeneProfile';
 import type { CaaParseResponse } from '@/types/caa';
+import type {
+  CoaScanErrorCode,
+  NormalizedCoaResult,
+  ScanJobStatus,
+} from '@lib/coa/types';
+import { COA_SCAN_MAX_ATTEMPTS } from '@lib/coa/types';
 import {
   boostCameraResolution,
   CameraAccessError,
@@ -16,9 +22,67 @@ import {
   openCameraStream,
 } from '@/lib/scanner/camera';
 import { detectQrInVideo } from '@/lib/scanner/detect';
+import CoaReviewConfirm from './CoaReviewConfirm';
 import './ScannerPanel.css';
 
 type InputMode = 'url' | 'text';
+
+type ScanApiPayload = {
+  scanId?: string;
+  status?: ScanJobStatus;
+  provider?: string | null;
+  attemptCount?: number;
+  sourceUrl?: string;
+  sourceType?: string;
+  normalized?: NormalizedCoaResult | null;
+  error?: { code: CoaScanErrorCode; message: string } | null;
+  coaReportId?: string | null;
+  parse?: CaaParseResponse['parse'] | null;
+  duplicate_in_stash?: boolean;
+  existing_product_id?: string | null;
+  coa_report_id?: string | null;
+  code?: CoaScanErrorCode;
+  message?: string;
+};
+
+type ReviewState = {
+  scanId: string;
+  status: ScanJobStatus;
+  normalized: NormalizedCoaResult;
+  sourceUrl: string;
+  provider: string | null;
+  duplicateInStash: boolean;
+  existingProductId: string | null;
+};
+
+type LegacyResult = CaaParseResponse;
+
+function looksLikeHttpUrl(value: string): boolean {
+  try {
+    const parsed = new URL(value.trim());
+    return parsed.protocol === 'http:' || parsed.protocol === 'https:';
+  } catch {
+    return false;
+  }
+}
+
+function errorMessageFromPayload(data: ScanApiPayload, fallback: string): string {
+  if (data.error?.message) {
+    return data.code || data.error.code
+      ? `${data.error.code ?? data.code}: ${data.error.message}`
+      : data.error.message;
+  }
+  if (data.message) {
+    return data.code ? `${data.code}: ${data.message}` : data.message;
+  }
+  return fallback;
+}
+
+function canRetryStatus(status: ScanJobStatus | undefined, attemptCount: number | undefined): boolean {
+  if (!status) return false;
+  if (status !== 'failed' && status !== 'needs_review') return false;
+  return (attemptCount ?? 0) < COA_SCAN_MAX_ATTEMPTS;
+}
 
 export default function ScannerPanel() {
   const router = useRouter();
@@ -26,8 +90,10 @@ export default function ScannerPanel() {
   const [url, setUrl] = useState('');
   const [text, setText] = useState('');
   const [scanning, setScanning] = useState(false);
-  const [result, setResult] = useState<CaaParseResponse | null>(null);
+  const [legacyResult, setLegacyResult] = useState<LegacyResult | null>(null);
+  const [review, setReview] = useState<ReviewState | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [retryableScanId, setRetryableScanId] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [qrOpen, setQrOpen] = useState(false);
   const [qrLoading, setQrLoading] = useState(false);
@@ -55,27 +121,205 @@ export default function ScannerPanel() {
     setQrError(null);
   }, []);
 
-  const runParse = useCallback(async (body: Record<string, string>) => {
+  const applyScanPayload = useCallback((data: ScanApiPayload, preferReview: boolean) => {
+    const scanId = data.scanId;
+    const status = data.status;
+    const normalized = data.normalized ?? null;
+
+    if (
+      preferReview &&
+      scanId &&
+      normalized &&
+      status &&
+      (status === 'resolved' || status === 'partial' || status === 'needs_review')
+    ) {
+      setReview({
+        scanId,
+        status,
+        normalized,
+        sourceUrl: data.sourceUrl || normalized.source.sourceUrl,
+        provider: data.provider ?? normalized.source.provider,
+        duplicateInStash: Boolean(data.duplicate_in_stash),
+        existingProductId: data.existing_product_id ?? null,
+      });
+      setLegacyResult(null);
+      setRetryableScanId(
+        canRetryStatus(status, data.attemptCount) && status === 'needs_review' ? scanId : null,
+      );
+      return;
+    }
+
+    if (data.parse) {
+      setLegacyResult({
+        parse: data.parse,
+        duplicate_in_stash: Boolean(data.duplicate_in_stash),
+        existing_product_id: data.existing_product_id ?? null,
+        coa_report_id: data.coa_report_id ?? data.coaReportId ?? null,
+        scan_job_id: scanId ?? null,
+      });
+      setReview(null);
+      setRetryableScanId(null);
+      return;
+    }
+
+    if (preferReview && scanId && normalized) {
+      setReview({
+        scanId,
+        status: status ?? 'needs_review',
+        normalized,
+        sourceUrl: data.sourceUrl || normalized.source.sourceUrl,
+        provider: data.provider ?? normalized.source.provider,
+        duplicateInStash: Boolean(data.duplicate_in_stash),
+        existingProductId: data.existing_product_id ?? null,
+      });
+      setLegacyResult(null);
+      return;
+    }
+
+    throw new Error(
+      errorMessageFromPayload(data, 'Could not extract lab data from that input.'),
+    );
+  }, []);
+
+  const runPhase2UrlScan = useCallback(
+    async (sourceType: 'manual_url' | 'qr_url', sourceUrl: string) => {
+      setScanning(true);
+      setLegacyResult(null);
+      setReview(null);
+      setError(null);
+      setRetryableScanId(null);
+      try {
+        const res = await fetch('/api/internal/scans', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ sourceType, sourceUrl }),
+        });
+        const data = (await res.json()) as ScanApiPayload;
+
+        if (!res.ok) {
+          if (data.scanId && canRetryStatus(data.status, data.attemptCount)) {
+            setRetryableScanId(data.scanId);
+          } else if (data.scanId && (data.status === 'failed' || data.status === 'needs_review')) {
+            setRetryableScanId(
+              canRetryStatus(data.status, data.attemptCount) ? data.scanId : null,
+            );
+          }
+          // Partial/needs_review with normalized still opens review UI.
+          if (
+            data.normalized &&
+            data.scanId &&
+            (data.status === 'partial' || data.status === 'needs_review' || data.status === 'resolved')
+          ) {
+            applyScanPayload(data, true);
+            if (data.status === 'needs_review') {
+              setError(
+                errorMessageFromPayload(
+                  data,
+                  'Extraction needs review — correct fields below or retry.',
+                ),
+              );
+            }
+            return;
+          }
+          throw new Error(errorMessageFromPayload(data, 'Scan failed'));
+        }
+
+        applyScanPayload(data, true);
+        if (data.scanId && canRetryStatus(data.status, data.attemptCount)) {
+          setRetryableScanId(data.scanId);
+        }
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'COA scan failed — check your input and try again.');
+      } finally {
+        setScanning(false);
+      }
+    },
+    [applyScanPayload],
+  );
+
+  const runLegacyParse = useCallback(
+    async (body: Record<string, string>) => {
+      setScanning(true);
+      setLegacyResult(null);
+      setReview(null);
+      setError(null);
+      setRetryableScanId(null);
+      try {
+        const res = await fetch('/api/internal/scans', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+        });
+        const data = (await res.json()) as ScanApiPayload;
+        if (!res.ok) {
+          if (data.scanId && canRetryStatus(data.status, data.attemptCount)) {
+            setRetryableScanId(data.scanId);
+          }
+          throw new Error(errorMessageFromPayload(data, 'Parse failed'));
+        }
+        // Prefer review when Phase 2 normalized payload is present.
+        if (data.normalized && data.scanId) {
+          applyScanPayload(data, true);
+        } else {
+          applyScanPayload(data, false);
+        }
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'CAA parse failed — check your input and try again.');
+      } finally {
+        setScanning(false);
+      }
+    },
+    [applyScanPayload],
+  );
+
+  const handleQrPayload = useCallback(
+    async (payload: string) => {
+      const trimmed = payload.trim();
+      if (looksLikeHttpUrl(trimmed)) {
+        await runPhase2UrlScan('qr_url', trimmed);
+        setUrl(trimmed);
+        setMode('url');
+        return;
+      }
+      await runLegacyParse({ qr_payload: trimmed });
+    },
+    [runLegacyParse, runPhase2UrlScan],
+  );
+
+  async function handleRetry() {
+    if (!retryableScanId) return;
     setScanning(true);
-    setResult(null);
     setError(null);
     try {
-      const res = await fetch('/api/internal/scans', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
-      });
-      const data = (await res.json()) as CaaParseResponse & { message?: string };
+      const res = await fetch(
+        `/api/internal/scans/${encodeURIComponent(retryableScanId)}/retry`,
+        { method: 'POST' },
+      );
+      const data = (await res.json()) as ScanApiPayload;
       if (!res.ok) {
-        throw new Error(data.message ?? 'Parse failed');
+        if (canRetryStatus(data.status, data.attemptCount)) {
+          setRetryableScanId(retryableScanId);
+        } else {
+          setRetryableScanId(null);
+        }
+        if (
+          data.normalized &&
+          (data.status === 'partial' || data.status === 'needs_review' || data.status === 'resolved')
+        ) {
+          applyScanPayload({ ...data, scanId: data.scanId ?? retryableScanId }, true);
+        }
+        throw new Error(errorMessageFromPayload(data, 'Retry failed'));
       }
-      setResult(data);
+      applyScanPayload({ ...data, scanId: data.scanId ?? retryableScanId }, true);
+      setRetryableScanId(
+        canRetryStatus(data.status, data.attemptCount) ? (data.scanId ?? retryableScanId) : null,
+      );
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'CAA parse failed — check your input and try again.');
+      setError(err instanceof Error ? err.message : 'Retry failed.');
     } finally {
       setScanning(false);
     }
-  }, []);
+  }
 
   useEffect(() => () => stopQr(), [stopQr]);
 
@@ -107,7 +351,7 @@ export default function ScannerPanel() {
         const payload = await detectQrInVideo(detector, video, canvas);
         if (payload) {
           stopQr();
-          void runParse({ qr_payload: payload });
+          void handleQrPayload(payload);
           return;
         }
       } catch {
@@ -127,7 +371,7 @@ export default function ScannerPanel() {
       }
       scanBusyRef.current = false;
     };
-  }, [qrOpen, qrError, qrLoading, runParse, stopQr]);
+  }, [qrOpen, qrError, qrLoading, handleQrPayload, stopQr]);
 
   async function startQr() {
     setQrError(null);
@@ -140,11 +384,9 @@ export default function ScannerPanel() {
       return;
     }
 
-    // Request the camera immediately while the click still has user activation.
     const streamPromise = openCameraStream();
 
     try {
-      // BarcodeDetector is not available on iOS Safari; we still support scanning via jsQR.
       const [detector, stream] = await Promise.all([createQrDetector(), streamPromise]);
       detectorRef.current = detector;
       streamRef.current = stream;
@@ -181,7 +423,7 @@ export default function ScannerPanel() {
         return;
       }
       stopQr();
-      await runParse({ qr_payload: payload });
+      await handleQrPayload(payload);
     } catch (err) {
       setError(
         err instanceof Error
@@ -200,25 +442,29 @@ export default function ScannerPanel() {
         setError('Paste a lab report URL to parse.');
         return;
       }
-      void runParse({ url: url.trim() });
+      void runPhase2UrlScan('manual_url', url.trim());
     } else {
       if (!text.trim()) {
         setError('Paste COA text to parse.');
         return;
       }
-      void runParse({ text: text.trim() });
+      void runLegacyParse({ text: text.trim() });
     }
   }
 
-  async function handleAddToStash() {
-    if (!result) return;
+  async function handleLegacyAddToStash() {
+    if (!legacyResult) return;
     setSaving(true);
     setError(null);
     try {
       const res = await fetch('/api/internal/budbook-stash', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ kind: 'coa', coa: result.parse, coa_report_id: result.coa_report_id }),
+        body: JSON.stringify({
+          kind: 'coa',
+          coa: legacyResult.parse,
+          coa_report_id: legacyResult.coa_report_id,
+        }),
       });
       if (!res.ok) throw new Error('Save failed');
       router.push('/budbook-app/stash?added=1');
@@ -228,7 +474,7 @@ export default function ScannerPanel() {
     }
   }
 
-  const parse = result?.parse;
+  const parse = legacyResult?.parse;
 
   return (
     <div className="scanner-panel">
@@ -236,8 +482,8 @@ export default function ScannerPanel() {
         <ScanLine size={36} strokeWidth={1.5} className="scanner-icon" aria-hidden="true" />
         <h2>COA Scanner</h2>
         <p>
-          Ingest lab reports through the Compliance Abstraction Adapter (CAA). Paste a URL,
-          COA text, or scan a QR code. On desktop without a webcam, use Upload QR image.
+          Scan a package QR or paste a lab report URL for an evidence-backed preview. Correct
+          uncertain fields, confirm, and save to My Stash. Paste text still uses the CAA path.
         </p>
       </div>
 
@@ -293,7 +539,7 @@ export default function ScannerPanel() {
         )}
         <div className="scanner-actions">
           <Button type="submit" variant="primary" size="sm" disabled={scanning || qrDecoding}>
-            {scanning ? 'Parsing…' : 'Parse via CAA'}
+            {scanning ? 'Scanning…' : mode === 'url' ? 'Scan URL' : 'Parse via CAA'}
           </Button>
           <Button
             type="button"
@@ -361,12 +607,43 @@ export default function ScannerPanel() {
       )}
 
       {error && (
-        <p className="scanner-error" role="alert">
-          {error}
-        </p>
+        <div className="scanner-error-block" role="alert">
+          <p className="scanner-error">{error}</p>
+          {retryableScanId && (
+            <Button
+              type="button"
+              variant="secondary"
+              size="sm"
+              disabled={scanning}
+              onClick={() => void handleRetry()}
+            >
+              {scanning ? 'Retrying…' : 'Retry scan'}
+            </Button>
+          )}
+        </div>
       )}
 
-      {parse && (
+      {review && (
+        <CoaReviewConfirm
+          scanId={review.scanId}
+          status={review.status}
+          normalized={review.normalized}
+          sourceUrl={review.sourceUrl}
+          provider={review.provider}
+          duplicateInStash={review.duplicateInStash}
+          existingProductId={review.existingProductId}
+          onConfirmed={() => {
+            router.push('/budbook-app/stash?added=1');
+          }}
+          onCancel={() => {
+            setReview(null);
+            setError(null);
+            setRetryableScanId(null);
+          }}
+        />
+      )}
+
+      {parse && !review && (
         <div className="scanner-result glass-panel">
           <div className="scanner-result-header">
             <h3>CAA extraction</h3>
@@ -386,20 +663,20 @@ export default function ScannerPanel() {
             </Link>
           </p>
 
-          {result.duplicate_in_stash && (
+          {legacyResult.duplicate_in_stash && (
             <p className="scanner-duplicate" role="status">
               This lab report is already in your stash
-              {result.existing_product_id ? ` (${result.existing_product_id})` : ''}.
+              {legacyResult.existing_product_id ? ` (${legacyResult.existing_product_id})` : ''}.
             </p>
           )}
 
           <Button
             variant="primary"
             size="sm"
-            disabled={saving || result.duplicate_in_stash}
-            onClick={handleAddToStash}
+            disabled={saving || legacyResult.duplicate_in_stash}
+            onClick={() => void handleLegacyAddToStash()}
           >
-            {saving ? 'Saving…' : result.duplicate_in_stash ? 'Already in stash' : 'Add to stash'}
+            {saving ? 'Saving…' : legacyResult.duplicate_in_stash ? 'Already in stash' : 'Add to stash'}
           </Button>
         </div>
       )}

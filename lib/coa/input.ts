@@ -38,10 +38,13 @@ export function detectProvider(url: string): string {
     if (host === 'share.confidentlims.com' || host === 'app.confidentlims.com') {
       return 'confident_lims';
     }
+    if (host.includes('fidelity')) {
+      return 'fidelity';
+    }
   } catch {
     /* fall through */
   }
-  return 'http_extract';
+  return 'generic_html';
 }
 
 export function scanInputFromJob(job: ScanJob): ScanInput {
@@ -69,12 +72,24 @@ export function scanInputFromJob(job: ScanJob): ScanInput {
 }
 
 export type ScanRequestBody = {
+  /** Phase 2 primary shape */
+  sourceType?: 'qr_url' | 'manual_url';
+  sourceUrl?: string;
+  /** Legacy ScannerPanel / CAA-compat shape */
   url?: string;
   text?: string;
   qr_payload?: string;
 };
 
 export function scanInputFromRequestBody(body: ScanRequestBody): ScanInput | null {
+  const sourceType = body.sourceType;
+  const sourceUrl = body.sourceUrl?.trim();
+  if (sourceType && sourceUrl) {
+    if (sourceType === 'qr_url' || sourceType === 'manual_url') {
+      return { kind: sourceType, url: sourceUrl };
+    }
+  }
+
   const qr = body.qr_payload?.trim();
   const text = body.text?.trim();
   const url = body.url?.trim();

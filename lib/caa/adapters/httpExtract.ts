@@ -117,7 +117,8 @@ export async function fetchCoaDocumentText(url: string): Promise<string | null> 
   const { fetchCoaUrl } = await import('@lib/coa/fetch');
   try {
     const result = await fetchCoaUrl(url);
-    return result?.body ?? null;
+    if (result.isPdf) return null;
+    return result.body || null;
   } catch {
     return null;
   }

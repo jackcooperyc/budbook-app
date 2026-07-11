@@ -1,54 +1,102 @@
 import { NextResponse } from 'next/server';
-import { createAndRunScanJob } from '@lib/coa/orchestrate';
+import { apiError, statusForCode } from '@lib/coa/apiError';
+import {
+  createAndRunScanJob,
+  getScanJobView,
+  toScanApiResponse,
+} from '@lib/coa/orchestrate';
 import { CoaResolveError } from '@lib/coa/resolve';
 import { scanInputFromRequestBody } from '@lib/coa/input';
 import { internalApiGuard } from '@lib/auth/guard';
-import type { CaaParseResponse } from '@/types/caa';
 
+/**
+ * POST /api/internal/scans
+ * Phase 2: { sourceType: "qr_url" | "manual_url", sourceUrl: string }
+ * Legacy (ScannerPanel): { url } | { text } | { qr_payload }
+ */
 export async function POST(request: Request) {
   const blocked = await internalApiGuard();
-  if (blocked) return blocked;
-
-  const body = (await request.json()) as {
-    url?: string;
-    text?: string;
-    qr_payload?: string;
-  };
-
-  const scanInput = scanInputFromRequestBody(body);
-  if (!scanInput) {
+  if (blocked) {
     return NextResponse.json(
-      { message: 'url, text, or qr_payload is required' },
-      { status: 400 },
+      { code: 'UNAUTHORIZED', message: 'Sign in required' },
+      { status: 401 },
+    );
+  }
+
+  let body: Record<string, unknown>;
+  try {
+    body = (await request.json()) as Record<string, unknown>;
+  } catch {
+    return apiError('INVALID_INPUT', 'Request body must be JSON.', 400);
+  }
+
+  const isPhase2Shape =
+    typeof body.sourceType === 'string' && typeof body.sourceUrl === 'string';
+
+  const scanInput = scanInputFromRequestBody({
+    sourceType: body.sourceType as 'qr_url' | 'manual_url' | undefined,
+    sourceUrl: typeof body.sourceUrl === 'string' ? body.sourceUrl : undefined,
+    url: typeof body.url === 'string' ? body.url : undefined,
+    text: typeof body.text === 'string' ? body.text : undefined,
+    qr_payload: typeof body.qr_payload === 'string' ? body.qr_payload : undefined,
+  });
+
+  if (!scanInput) {
+    return apiError(
+      'INVALID_INPUT',
+      'sourceType+sourceUrl (or legacy url/text/qr_payload) is required.',
+      400,
     );
   }
 
   try {
     const result = await createAndRunScanJob({ input: scanInput });
+    const payload = toScanApiResponse(result);
 
-    const response: CaaParseResponse & {
-      job: typeof result.job;
-      report: typeof result.report;
-    } = {
-      job: result.job,
-      report: result.report,
-      parse: result.parse,
-      duplicate_in_stash: result.duplicate_in_stash,
-      existing_product_id: result.existing_product_id,
-      coa_report_id: result.coa_report_id,
-      scan_job_id: result.job.id,
-    };
+    // Legacy ScannerPanel expects a CAA parse payload on success.
+    if (!isPhase2Shape && !payload.parse) {
+      return NextResponse.json(
+        {
+          code: payload.error?.code ?? 'PARSE_INSUFFICIENT_DATA',
+          message:
+            payload.error?.message ??
+            'Could not extract lab data from that input.',
+          scanId: payload.scanId,
+          scan_job_id: payload.scan_job_id,
+          status: payload.status,
+          normalized: payload.normalized,
+          attemptCount: payload.attemptCount,
+        },
+        { status: 422 },
+      );
+    }
 
-    return NextResponse.json(response);
+    return NextResponse.json(payload);
   } catch (err) {
     if (err instanceof CoaResolveError) {
-      const status =
-        err.code === 'INVALID_INPUT' || err.code === 'INVALID_URL' ? 400 : 422;
-      return NextResponse.json({ message: err.message, code: err.code }, { status });
+      const status = statusForCode(err.code);
+      if (err.scanId) {
+        const view = await getScanJobView(err.scanId);
+        return NextResponse.json(
+          {
+            code: err.code,
+            message: err.message,
+            scanId: err.scanId,
+            status: view?.status ?? 'failed',
+            attemptCount: view?.attemptCount ?? 1,
+            normalized: view?.normalized ?? null,
+            provider: view?.provider ?? null,
+            sourceUrl: view?.sourceUrl,
+            error: { code: err.code, message: err.message },
+          },
+          { status },
+        );
+      }
+      return apiError(err.code, err.message, status);
     }
 
     const message =
       err instanceof Error ? err.message : 'COA scan failed — check your input and try again.';
-    return NextResponse.json({ message }, { status: 422 });
+    return apiError('INTERNAL_ERROR', message, 500);
   }
 }

@@ -19,13 +19,27 @@ export async function POST(request: Request) {
   const scanInput = scanInputFromRequestBody(body);
   if (!scanInput) {
     return NextResponse.json(
-      { message: 'url, text, or qr_payload is required' },
+      { code: 'INVALID_INPUT', message: 'url, text, or qr_payload is required' },
       { status: 400 },
     );
   }
 
   try {
     const result = await createAndRunScanJob({ input: scanInput });
+
+    if (!result.parse) {
+      return NextResponse.json(
+        {
+          code: result.job.error_code ?? 'PARSE_INSUFFICIENT_DATA',
+          message:
+            result.job.error_message ??
+            'Could not extract lab data from that input.',
+          scan_job_id: result.job.id,
+          coa_report_id: result.coa_report_id,
+        },
+        { status: 422 },
+      );
+    }
 
     const response: CaaParseResponse = {
       parse: result.parse,
@@ -37,12 +51,19 @@ export async function POST(request: Request) {
 
     return NextResponse.json(response);
   } catch (err) {
+    if (err instanceof CoaResolveError) {
+      return NextResponse.json(
+        { code: err.code, message: err.message },
+        { status: 422 },
+      );
+    }
     const message =
-      err instanceof CoaResolveError
+      err instanceof Error
         ? err.message
-        : err instanceof Error
-          ? err.message
-          : 'CAA parse failed — check your input and try again.';
-    return NextResponse.json({ message }, { status: 422 });
+        : 'CAA parse failed — check your input and try again.';
+    return NextResponse.json(
+      { code: 'INTERNAL_ERROR', message },
+      { status: 422 },
+    );
   }
 }

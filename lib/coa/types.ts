@@ -1,5 +1,5 @@
 /**
- * COA scan domain types — Stashd Phase 1 foundation.
+ * COA scan domain types — Stashd Phase 1 foundation + Phase 2 resolver codes.
  * Extends CAA provenance patterns (see types/caa.ts, lib/caa/parse.ts).
  */
 
@@ -26,14 +26,22 @@ export type ScanJobStatus =
   | 'needs_review'
   | 'failed';
 
+/** Predictable Phase 2 error codes (+ a few API/auth helpers). */
 export type CoaScanErrorCode =
-  | 'INVALID_INPUT'
   | 'INVALID_URL'
-  | 'UNSUPPORTED_PROVIDER'
-  | 'RESOLVE_NOT_IMPLEMENTED'
-  | 'RESOLVE_FAILED'
+  | 'INVALID_INPUT'
+  | 'BLOCKED_URL'
+  | 'UNSUPPORTED_CONTENT'
+  | 'FETCH_TIMEOUT'
+  | 'FETCH_FAILED'
+  | 'PDF_NOT_SUPPORTED_YET'
+  | 'PARSE_INSUFFICIENT_DATA'
+  | 'INTERNAL_ERROR'
   | 'NOT_FOUND'
-  | 'UNAUTHORIZED';
+  | 'UNAUTHORIZED'
+  | 'RETRY_NOT_ALLOWED'
+  | 'RETRY_LIMIT_EXCEEDED'
+  | 'CONFIRM_NOT_ALLOWED';
 
 export type CannabinoidUnit = 'mg' | 'mg_g' | 'percent';
 export type TerpeneUnit = 'percent' | 'mg_g';
@@ -129,3 +137,6 @@ export type CoaReportStashLink = {
   user_id: string;
   created_at: string;
 };
+
+/** Max resolve attempts (initial + retries). */
+export const COA_SCAN_MAX_ATTEMPTS = 3;

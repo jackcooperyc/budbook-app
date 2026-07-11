@@ -383,17 +383,67 @@ export async function getCoaReportForScanJob(
 
   if (!dbEnabled()) {
     const data = await readFileReports();
-    const report = Object.values(data.reports).find(
-      (r) => r.scan_job_id === scanJobId && r.user_id === ownerId,
-    );
-    return report ?? null;
+    const matches = Object.values(data.reports)
+      .filter((r) => r.scan_job_id === scanJobId && r.user_id === ownerId)
+      .sort((a, b) => b.created_at.localeCompare(a.created_at));
+    return matches[0] ?? null;
   }
 
   const db = getDb()!;
-  const [row] = await db
+  const rows = await db
     .select()
     .from(coaReports)
     .where(and(eq(coaReports.scanJobId, scanJobId), eq(coaReports.userId, ownerId)));
 
-  return row ? toCoaReport(row) : null;
+  if (rows.length === 0) return null;
+  const sorted = [...rows].sort(
+    (a, b) => b.createdAt.getTime() - a.createdAt.getTime(),
+  );
+  return toCoaReport(sorted[0]);
+}
+
+export type UpdateCoaReportNormalizedInput = {
+  normalizedPayload: NormalizedCoaResult;
+  confidencePayload?: Record<string, unknown>;
+  rawMetadata?: Record<string, unknown>;
+};
+
+/** Persist user-confirmed corrections onto an owned COA report. */
+export async function updateCoaReportNormalized(
+  reportId: string,
+  update: UpdateCoaReportNormalizedInput,
+  userId?: string,
+): Promise<CoaReport | null> {
+  const existing = await getCoaReportForUser(reportId, userId);
+  if (!existing) return null;
+
+  const next: CoaReport = {
+    ...existing,
+    normalized_payload: update.normalizedPayload,
+    confidence_payload:
+      update.confidencePayload !== undefined
+        ? update.confidencePayload
+        : existing.confidence_payload,
+    raw_metadata:
+      update.rawMetadata !== undefined ? update.rawMetadata : existing.raw_metadata,
+  };
+
+  if (!dbEnabled()) {
+    const data = await readFileReports();
+    data.reports[reportId] = next;
+    await writeFileReports(data);
+    return next;
+  }
+
+  const db = getDb()!;
+  await db
+    .update(coaReports)
+    .set({
+      normalizedPayload: next.normalized_payload,
+      confidencePayload: next.confidence_payload,
+      rawMetadata: next.raw_metadata,
+    })
+    .where(and(eq(coaReports.id, reportId), eq(coaReports.userId, existing.user_id)));
+
+  return next;
 }

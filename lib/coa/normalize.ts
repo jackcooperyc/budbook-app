@@ -187,7 +187,7 @@ export function normalizedToCaaParse(
       percentage: t.value ?? 0,
     })),
     compliance_status: 'confirmed',
-    confidence: normalized.extraction.confidence === 'high' ? 'high' : 'high',
+    confidence: 'high',
     parse_source: parseSource,
   };
 }
