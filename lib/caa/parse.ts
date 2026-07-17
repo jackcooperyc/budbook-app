@@ -1,5 +1,10 @@
 import type { CaaCoaParseResult, CaaParseSource } from '@/types/caa';
 import { parseConfidentLimsUrl, isConfidentLimsUrl } from '@lib/caa/adapters/confidentLims';
+import {
+  isMetrcUrl,
+  metrcCredentialsConfigured,
+  parseMetrcUrl,
+} from '@lib/caa/adapters/metrc';
 import { parseCoaFromUrl, parseCoaLabText } from '@lib/caa/adapters/httpExtract';
 import { extractUrlFromQrPayload } from '@lib/caa/qrPayload';
 
@@ -14,6 +19,10 @@ async function parseLiveCoaUrl(
   url: string,
   source: 'url' | 'qr',
 ): Promise<CaaCoaParseResult | null> {
+  if (isMetrcUrl(url) && metrcCredentialsConfigured()) {
+    const metrc = await parseMetrcUrl(url, source);
+    if (metrc) return metrc;
+  }
   if (isConfidentLimsUrl(url)) {
     return parseConfidentLimsUrl(url, source);
   }

@@ -21,6 +21,18 @@ Without `BUDBOOK_AUTH_SECRET`, dev mode uses the default user (unchanged local D
 
 `lib/caa/adapters/httpExtract.ts` fetches COA URLs and extracts THC/CBD/terpenes from document text before falling back to keyword hints.
 
+**PDF text layer:** `lib/coa/pdfExtract.ts` + `pdfNormalize.ts` extract plain text from digital PDFs (`provider: pdf_text`, field `source: label_ocr`). Scanned/image PDFs stay needs-review without OCR.
+
+**Metrc (optional):** `lib/caa/adapters/metrc.ts` when all of these are set:
+
+```bash
+METRC_BASE_URL=https://api-mt.metrc.com
+METRC_USER_KEY=...
+METRC_VENDOR_KEY=...
+```
+
+Without Metrc env, Metrc URLs fall through to HTML/PDF extractors.
+
 Paste raw lab report text in the scanner for best live-parse results.
 
 ## 3. RDA cache refresh

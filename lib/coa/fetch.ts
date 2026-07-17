@@ -35,6 +35,8 @@ export type CoaFetchResult = {
   redirectCount: number;
   /** Byte length of the fetched body — full HTML is not persisted by default. */
   byteLength: number;
+  /** Raw PDF bytes when `isPdf` is true (capped by MAX_RESPONSE_BYTES). */
+  pdfBytes?: Buffer;
 };
 
 function ipv4Octets(ip: string): number[] | null {
@@ -241,7 +243,8 @@ export async function fetchCoaUrl(url: string): Promise<CoaFetchResult> {
         redirect: 'manual',
         signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
         headers: {
-          Accept: 'text/html,application/xhtml+xml,application/json;q=0.9,*/*;q=0.8',
+          Accept:
+            'text/html,application/xhtml+xml,application/pdf;q=0.9,application/json;q=0.8,*/*;q=0.7',
           'User-Agent': 'StashdCOAResolver/1.0',
         },
       });
@@ -289,6 +292,7 @@ export async function fetchCoaUrl(url: string): Promise<CoaFetchResult> {
         isPdf: true,
         redirectCount,
         byteLength: buf.length,
+        pdfBytes: buf,
       };
     }
 

@@ -8,10 +8,13 @@ import {
   parseFixtureFidelity,
   parseFixtureGeneric,
   parseFixtureInsufficient,
+  parseFixturePdf,
   sampleInvalidInputs,
+  sampleMetrcPackage,
 } from '../lib/coa/__fixtures__/samples';
 import { isBlockedIp } from '../lib/coa/fetch';
 import { validateUrl } from '../lib/coa/validate';
+import { metrcPackageToCaaParse, isMetrcUrl } from '../lib/caa/adapters/metrc';
 
 async function main() {
   const generic = parseFixtureGeneric();
@@ -42,6 +45,20 @@ async function main() {
   assert.equal(insufficient.cannabinoids.length, 0);
   console.log('✓ insufficient HTML marked needs_review');
 
+  const pdf = await parseFixturePdf();
+  assert.equal(pdf.extracted.usable, true);
+  assert.match(pdf.extracted.text, /Blue Dream/i);
+  assert.equal(pdf.normalized.source.provider, 'pdf_text');
+  assert.equal(pdf.normalized.extraction.status, 'partial');
+  assert.ok(pdf.normalized.warnings.includes('PDF_TEXT_EXTRACTED'));
+  assert.ok(
+    pdf.normalized.cannabinoids.some(
+      (c) => (c.name === 'THC' || c.name === 'Total THC') && c.source === 'label_ocr',
+    ),
+  );
+  assert.notEqual(pdf.normalized.product.strain?.confidence, 'high');
+  console.log('✓ PDF text-layer fixture extracted with label_ocr provenance');
+
   const blockedCreds = validateUrl(sampleInvalidInputs.credentialUrl);
   assert.equal(blockedCreds.ok, false);
   if (!blockedCreds.ok) assert.equal(blockedCreds.errorCode, 'BLOCKED_URL');
@@ -57,6 +74,13 @@ async function main() {
   assert.equal(isBlockedIp('169.254.1.1'), true);
   assert.equal(isBlockedIp('8.8.8.8'), false);
   console.log('✓ SSRF IP checks');
+
+  assert.equal(isMetrcUrl('https://mt.metrc.com/industry/packages/ABC123'), true);
+  assert.equal(isMetrcUrl('https://lab.example.com/coa'), false);
+  const metrcParse = metrcPackageToCaaParse(sampleMetrcPackage, 'url');
+  assert.equal(metrcParse.strain_name, 'Wedding Cake');
+  assert.ok(metrcParse.thc_percentage > 0);
+  console.log('✓ Metrc fixture maps to CAA parse');
 
   console.log('\nAll COA fixture checks passed.');
 }

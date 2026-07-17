@@ -70,7 +70,19 @@ function extractionBanner(
 } {
   if (errorCode === 'PDF_NOT_SUPPORTED_YET' || warnings.includes('PDF_NOT_SUPPORTED_YET')) {
     return {
-      text: 'PDF auto-extract is not available. Enter labeled fields from the PDF yourself, then confirm. Confirming marks this scan user-verified (not PDF OCR).',
+      text: 'This PDF could not be text-extracted. Enter labeled fields from the report yourself, then confirm. Confirming marks values user-verified (not OCR).',
+      className: 'scanner-review-banner scanner-review-banner-warn',
+    };
+  }
+  if (warnings.includes('PDF_IMAGE_ONLY') || warnings.includes('PDF_TEXT_INSUFFICIENT')) {
+    return {
+      text: 'This PDF has little or incomplete extractable text. Fill or correct labeled fields yourself — image OCR is not available.',
+      className: 'scanner-review-banner scanner-review-banner-warn',
+    };
+  }
+  if (warnings.some((w) => w.startsWith('PDF_'))) {
+    return {
+      text: 'Values came from the PDF text layer — not lab-verified. Confirm or correct fields before saving to My Stash.',
       className: 'scanner-review-banner scanner-review-banner-warn',
     };
   }

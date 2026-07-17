@@ -1,14 +1,14 @@
 import type { CoaScanErrorCode, ScanJobStatus } from '@lib/coa/types';
 import { COA_SCAN_MAX_ATTEMPTS } from '@lib/coa/types';
 
-/** User-facing copy for scan error codes. Never promises PDF OCR. */
+/** User-facing copy for scan error codes. */
 export function userMessageForScanError(
   code: CoaScanErrorCode | string | null | undefined,
   fallback?: string,
 ): string {
   switch (code) {
     case 'PDF_NOT_SUPPORTED_YET':
-      return 'This link points to a PDF lab report. Automatic PDF extraction is not available yet — open the PDF yourself and paste the labeled fields, or use an HTML report URL instead.';
+      return 'This link points to a PDF lab report that could not be text-extracted. If it is a scanned image PDF, paste labeled fields manually or use an HTML report URL. Digital text-layer PDFs will be attempted automatically.';
     case 'PARSE_INSUFFICIENT_DATA':
       return 'Not enough clearly labeled lab data was found. Review and fill in what you can, or try a different report URL.';
     case 'BLOCKED_URL':
@@ -18,7 +18,7 @@ export function userMessageForScanError(
     case 'INVALID_INPUT':
       return 'Check your input and try again.';
     case 'UNSUPPORTED_CONTENT':
-      return 'That page is not a supported lab report format. Try an HTML COA URL or paste labeled text.';
+      return 'That page is not a supported lab report format. Try an HTML or text-layer PDF COA URL, or paste labeled text.';
     case 'FETCH_TIMEOUT':
       return 'The lab site took too long to respond. Retry in a moment, or paste the report text.';
     case 'FETCH_FAILED':
@@ -40,7 +40,7 @@ export function userMessageForScanError(
   }
 }
 
-/** Whether retrying the same scan is useful (PDF will not improve on retry). */
+/** Whether retrying the same scan is useful (image-only PDFs will not improve on retry). */
 export function isRetryUseful(code: CoaScanErrorCode | string | null | undefined): boolean {
   if (!code) return true;
   switch (code) {

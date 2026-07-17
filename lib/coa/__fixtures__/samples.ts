@@ -51,6 +51,24 @@ export const sampleInvalidInputs = {
   emptyUrl: '',
 };
 
+/** Sample Metrc package payload for offline adapter verification. */
+export const sampleMetrcPackage = {
+  PackageLabel: '1A40603000000SEED00000001',
+  Item: {
+    Name: 'Wedding Cake Flower',
+    StrainName: 'Wedding Cake',
+    ProductCategoryName: 'Flower',
+  },
+  ItemFromFacilityName: 'Gallatin Valley Growers',
+  LabFacilityName: 'Montana Analytical',
+  LabTestResults: [
+    { TestTypeName: 'Total THC', Quantity: 24.1, TestPassed: true },
+    { TestTypeName: 'Total CBD', Quantity: 0.4, TestPassed: true },
+    { TestTypeName: 'Myrcene', Quantity: 0.55, TestPassed: true },
+    { TestTypeName: 'Limonene', Quantity: 0.22, TestPassed: true },
+  ],
+};
+
 /** Expected normalized bridge output from sampleCaaParse. */
 export const sampleNormalizedFromCaa = normalizedFromCaaParse(
   sampleCaaParse,
@@ -88,6 +106,25 @@ export function parseFixtureInsufficient() {
   return parseGenericCoaHtml(html, 'https://shop.example.com/about', {
     contentHash: hashContent(html),
   });
+}
+
+/** Load text-layer sample PDF fixture bytes. */
+export function loadSampleCoaPdf(): Buffer {
+  return readFileSync(join(FIXTURE_DIR, 'sample-coa.pdf'));
+}
+
+/** Extract + normalize the sample PDF fixture (no network). */
+export async function parseFixturePdf() {
+  const { extractPdfText } = await import('@lib/coa/pdfExtract');
+  const { normalizedFromPdfText } = await import('@lib/coa/pdfNormalize');
+  const bytes = loadSampleCoaPdf();
+  const extracted = await extractPdfText(bytes);
+  const normalized = normalizedFromPdfText(
+    extracted.text,
+    'https://lab.example.com/reports/sample-coa.pdf',
+    hashContent(bytes),
+  );
+  return { extracted, normalized };
 }
 
 /**

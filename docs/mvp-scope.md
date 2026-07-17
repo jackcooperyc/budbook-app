@@ -58,6 +58,10 @@ npm run rda:import -- fixtures/rda/example-shop.json   # import operator shop da
 
 ## Next phase
 
-Learn CMS, RDA live Weedmaps/Leafly adapter, CAA Metrc integration, invite-based friend requests.
+Learn CMS, RDA live Weedmaps/Leafly adapter, invite-based friend requests.
+
+**Recently shipped (scan depth):**
+- PDF **text-layer** extraction (`unpdf`) → review UI with `label_ocr` provenance (image-only PDFs still need manual fields; no OCR)
+- Metrc CAA adapter (optional): set `METRC_BASE_URL`, `METRC_USER_KEY`, `METRC_VENDOR_KEY`
 
 See [phase-5.md](./phase-5.md) for auth, social, and adapter details.

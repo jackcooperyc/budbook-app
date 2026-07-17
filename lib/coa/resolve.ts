@@ -1,15 +1,24 @@
 import type { CaaCoaParseResult } from '@/types/caa';
 import { parseCoaInput, CaaParseError } from '@lib/caa/parse';
 import { isConfidentLimsUrl } from '@lib/caa/adapters/confidentLims';
+import {
+  isMetrcUrl,
+  metrcCredentialsConfigured,
+  parseMetrcUrl,
+} from '@lib/caa/adapters/metrc';
 import { CoaFetchError, fetchCoaUrl } from '@lib/coa/fetch';
 import { hashContent } from '@lib/coa/hash';
 import { scanInputToCaa } from '@lib/coa/input';
 import {
   COA_PARSER_VERSION,
-  emptyNormalizedCoaResult,
   normalizedFromCaaParse,
   normalizedToCaaParse,
 } from '@lib/coa/normalize';
+import { extractPdfText } from '@lib/coa/pdfExtract';
+import {
+  emptyImageOnlyPdfResult,
+  normalizedFromPdfText,
+} from '@lib/coa/pdfNormalize';
 import { selectProvider, type CoaProviderInput } from '@lib/coa/providers';
 import type { CoaScanErrorCode, FieldValue, NormalizedCoaResult, ScanInput, ScanJobStatus } from '@lib/coa/types';
 import { validateScanInput } from '@lib/coa/validate';
@@ -112,6 +121,35 @@ async function resolveUrlScan(
   const sourceUrl = input.url.trim();
   const caaSource = input.kind === 'qr_url' ? 'qr' : 'url';
 
+  // Prefer Metrc API when credentials are configured (before HTML scrape).
+  if (isMetrcUrl(sourceUrl) && metrcCredentialsConfigured()) {
+    const metrcParse = await parseMetrcUrl(sourceUrl, caaSource);
+    if (metrcParse) {
+      const contentHash = hashContent(`${sourceUrl}:${metrcParse.lab_report_id}`);
+      const normalized = normalizedFromCaaParse(
+        metrcParse,
+        sourceUrl,
+        'metrc',
+        contentHash,
+      );
+      return {
+        normalized,
+        provider: 'metrc',
+        contentHash,
+        rawMetadata: buildRawMetadata({
+          provider: 'metrc',
+          finalUrl: sourceUrl,
+          contentType: 'application/json',
+          contentHash,
+        }),
+        parse: metrcParse,
+        jobStatus: mapExtractionToJobStatus(normalized.extraction.status),
+        errorCode: null,
+        errorMessage: null,
+      };
+    }
+  }
+
   // Prefer Confident LIMS API bridge without requiring HTML scrape.
   if (isConfidentLimsUrl(sourceUrl)) {
     const providerInput: CoaProviderInput = {
@@ -154,32 +192,100 @@ async function resolveUrlScan(
   }
 
   if (fetched.isPdf) {
-    const normalized = emptyNormalizedCoaResult(sourceUrl, 'pdf', COA_PARSER_VERSION);
-    normalized.source.contentHash = fetched.contentHash;
-    normalized.extraction = {
-      status: 'needs_review',
-      confidence: 'low',
-      notes: ['PDF COA detected. PDF text extraction is not supported yet.'],
-    };
-    normalized.warnings.push('PDF_NOT_SUPPORTED_YET');
+    const pdfBytes = fetched.pdfBytes;
+    if (!pdfBytes || pdfBytes.length === 0) {
+      const normalized = emptyImageOnlyPdfResult(sourceUrl, fetched.contentHash);
+      return {
+        normalized,
+        provider: 'pdf_text',
+        contentHash: fetched.contentHash,
+        rawMetadata: buildRawMetadata({
+          provider: 'pdf_text',
+          finalUrl: fetched.finalUrl,
+          contentType: fetched.contentType,
+          contentHash: fetched.contentHash,
+          byteLength: fetched.byteLength,
+          redirectCount: fetched.redirectCount,
+          isPdf: true,
+        }),
+        parse: null,
+        jobStatus: 'needs_review',
+        errorCode: 'PARSE_INSUFFICIENT_DATA',
+        errorMessage:
+          'PDF body was empty after fetch. Try another URL or paste labeled report text.',
+      };
+    }
+
+    let extracted;
+    try {
+      extracted = await extractPdfText(pdfBytes);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'PDF text extraction failed.';
+      throw new CoaResolveError('PARSE_INSUFFICIENT_DATA', message);
+    }
+
+    if (!extracted.usable) {
+      const normalized = emptyImageOnlyPdfResult(sourceUrl, fetched.contentHash);
+      normalized.extraction.notes.push(
+        `Extracted ${extracted.text.length} characters across ${extracted.pageCount} page(s).`,
+      );
+      return {
+        normalized,
+        provider: 'pdf_text',
+        contentHash: fetched.contentHash,
+        rawMetadata: {
+          ...buildRawMetadata({
+            provider: 'pdf_text',
+            finalUrl: fetched.finalUrl,
+            contentType: fetched.contentType,
+            contentHash: fetched.contentHash,
+            byteLength: fetched.byteLength,
+            redirectCount: fetched.redirectCount,
+            isPdf: true,
+          }),
+          pdf_page_count: extracted.pageCount,
+          pdf_text_chars: extracted.text.length,
+        },
+        parse: null,
+        jobStatus: 'needs_review',
+        errorCode: 'PARSE_INSUFFICIENT_DATA',
+        errorMessage:
+          'This PDF has little or no extractable text (likely scanned). Paste labeled fields or use an HTML COA URL.',
+      };
+    }
+
+    const normalized = normalizedFromPdfText(
+      extracted.text,
+      sourceUrl,
+      fetched.contentHash,
+    );
+    const jobStatus = mapExtractionToJobStatus(normalized.extraction.status);
+    const insufficient =
+      normalized.cannabinoids.length === 0 && !normalized.product.name?.value;
 
     return {
       normalized,
-      provider: 'pdf',
+      provider: 'pdf_text',
       contentHash: fetched.contentHash,
-      rawMetadata: buildRawMetadata({
-        provider: 'pdf',
-        finalUrl: fetched.finalUrl,
-        contentType: fetched.contentType,
-        contentHash: fetched.contentHash,
-        byteLength: fetched.byteLength,
-        redirectCount: fetched.redirectCount,
-        isPdf: true,
-      }),
-      parse: null,
-      jobStatus: 'needs_review',
-      errorCode: 'PDF_NOT_SUPPORTED_YET',
-      errorMessage: 'PDF COA documents are not supported yet. Use an HTML report URL.',
+      rawMetadata: {
+        ...buildRawMetadata({
+          provider: 'pdf_text',
+          finalUrl: fetched.finalUrl,
+          contentType: fetched.contentType,
+          contentHash: fetched.contentHash,
+          byteLength: fetched.byteLength,
+          redirectCount: fetched.redirectCount,
+          isPdf: true,
+        }),
+        pdf_page_count: extracted.pageCount,
+        pdf_text_chars: extracted.text.length,
+      },
+      parse: maybeCaaParse(normalized, caaSource),
+      jobStatus: insufficient ? 'needs_review' : jobStatus,
+      errorCode: insufficient ? 'PARSE_INSUFFICIENT_DATA' : null,
+      errorMessage: insufficient
+        ? 'PDF text was found but not enough labeled COA fields could be parsed. Review and fill missing fields.'
+        : null,
     };
   }
 

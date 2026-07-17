@@ -185,6 +185,12 @@ export function fieldConfidenceLabel(
   if (field.source === 'user_confirmed') {
     return { label: 'You confirmed', level: 'high' };
   }
+  if (field.source === 'label_ocr') {
+    return {
+      label: field.confidence === 'low' ? 'PDF text — low confidence' : 'From PDF text',
+      level: field.confidence === 'low' ? 'low' : 'medium',
+    };
+  }
   if (field.confidence === 'high' && field.source === 'coa') {
     return { label: 'Lab evidence', level: 'high' };
   }

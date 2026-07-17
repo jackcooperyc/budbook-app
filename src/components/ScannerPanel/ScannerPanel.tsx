@@ -148,7 +148,9 @@ export default function ScannerPanel() {
     ) {
       setRetryHint(retryCapMessage(data.attemptCount));
     } else if (code === 'PDF_NOT_SUPPORTED_YET') {
-      setRetryHint('Retry will not help for PDF links — use an HTML URL or paste labeled text.');
+      setRetryHint(
+        'Retry will not help for this PDF. If it is a scanned/image PDF, paste labeled text or use an HTML report URL.',
+      );
     } else {
       setRetryHint(null);
     }
@@ -473,7 +475,8 @@ export default function ScannerPanel() {
         <h2>COA Scanner</h2>
         <p>
           Scan a package QR, paste a lab report URL, or paste labeled COA text. Review uncertain
-          fields, confirm, and save to My Stash. PDF links are not auto-extracted yet.
+          fields, confirm, and save to My Stash. Text-layer PDFs are extracted automatically;
+          scanned image PDFs still need manual fields.
         </p>
       </div>
 

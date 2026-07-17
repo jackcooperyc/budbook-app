@@ -80,6 +80,7 @@ function labReportIdFromText(text: string): string {
 export function parseCoaLabText(
   text: string,
   source: CaaParseSource,
+  options?: { requireTerpenes?: boolean },
 ): CaaCoaParseResult | null {
   const thc =
     parsePercent(text, ['total thc', 'thc', 'delta-9 thc', 'd9-thc']) ??
@@ -93,7 +94,7 @@ export function parseCoaLabText(
   const category = parseCategory(text);
   const type = parseType(text);
   const terpene_profile = parseTerpenes(text);
-  if (terpene_profile.length === 0) return null;
+  if ((options?.requireTerpenes ?? true) && terpene_profile.length === 0) return null;
 
   const confidence: CaaParseConfidence = 'high';
 
