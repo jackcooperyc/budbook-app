@@ -31,6 +31,7 @@ vercel env add BUDBOOK_AUTH_SECRET production
 ```
 
 Optional: `RDA_IMPORT_SECRET` for operator shop imports via `POST /api/internal/rda/import`.
+Optional: `LEARN_IMPORT_SECRET` for Learn CMS imports via `POST /api/internal/learn/import`.
 
 ## 3. Run migrations
 

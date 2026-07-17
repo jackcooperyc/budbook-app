@@ -10,6 +10,8 @@
     "reset-data": "rm -f data/local-stash.json data/local-sessions.json data/local-posts.json data/caa-registry.json data/local-social.json data/coa-scan-jobs.json data/coa-reports.json",
     "reset-rda": "tsx scripts/rda-clear.ts",
     "rda:import": "tsx scripts/rda-import.ts",
+    "reset-learn": "tsx scripts/learn-clear.ts",
+    "learn:import": "tsx scripts/learn-import.ts",
     "db:migrate": "npx tsx scripts/db-migrate.ts",
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio"

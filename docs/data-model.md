@@ -11,13 +11,14 @@ The native Next.js UI runs on **persisted data** — Neon Postgres in production
 | Journal sessions | `sessions` | `GET/POST /api/internal/budbook-sessions` |
 | Community posts | `posts` | `GET/POST /api/internal/budbook-posts` |
 | Retail shops + menus | `rda_stores` + `rda_menu_items` | `GET /api/internal/rda/stores`, `.../menu`, `POST .../import` |
+| Learn articles | `learn_articles` | `GET /api/internal/learn`, `GET .../learn/[slug]`, `POST .../learn/import` |
 | CAA COA catalog | `caa_catalog_entries` | `POST /api/internal/caa/parse`, `GET .../catalog` |
 | COA parse (legacy alias) | — | `POST /api/internal/budbook-coa/parse` → CAA |
 | Friends / circles | `friendships`, `circles`, `circle_members` | `GET/POST /api/internal/budbook-friends`, `.../circles` |
 
 Server components aggregate via `getAppData()` in `src/lib/app-data.ts`. Client pages use the matching hooks (`useServerStash`, `useServerSessions`, `useCurrentUser`).
 
-**Storage path:** When `DATABASE_URL` is set, user data, CAA catalog, and RDA shops persist in **Neon Postgres** via Drizzle (`lib/db/`, `lib/repositories/`). Otherwise `lib/data-dir.ts` writes to `./data` locally and `/tmp/budbook-data` on Vercel. File data on Vercel is ephemeral per serverless instance.
+**Storage path:** When `DATABASE_URL` is set, user data, CAA catalog, RDA shops, and Learn articles persist in **Neon Postgres** via Drizzle (`lib/db/`, `lib/repositories/`). Otherwise `lib/data-dir.ts` writes to `./data` locally and `/tmp/budbook-data` on Vercel. File data on Vercel is ephemeral per serverless instance.
 
 ```bash
 npm run db:migrate   # apply lib/db/migrations/*.sql (requires DATABASE_URL)
@@ -25,12 +26,14 @@ npm run db:migrate   # apply lib/db/migrations/*.sql (requires DATABASE_URL)
 
 ## Fresh start
 
-On first run, stash, journal, posts, friends, and circles start **empty**. Retail shops are empty until an operator imports data.
+On first run, stash, journal, posts, friends, and circles start **empty**. Retail shops are empty until an operator imports data. Learn articles **auto-seed** from the built-in education pack when the store is empty (or run `npm run learn:import`).
 
 ```bash
 npm run reset-data   # your stash, journal, posts, CAA registry
 npm run reset-rda    # clear RDA shops and menus
 npm run rda:import -- fixtures/rda/example-shop.json   # example operator import
+npm run learn:import -- fixtures/learn/articles.json   # refresh Learn CMS content
+npm run reset-learn  # clear Learn articles (next read re-seeds)
 ```
 
 ## RDA tables
@@ -42,12 +45,21 @@ npm run rda:import -- fixtures/rda/example-shop.json   # example operator import
 
 See `fixtures/rda/example-shop.json` for the import format.
 
+## Learn tables
+
+| Table | Column | Purpose |
+|-------|--------|---------|
+| `learn_articles` | `slug`, `data` (JSONB), `published_at`, `updated_at` | Full `LearnArticle` document |
+
+Article shape: `slug`, `title`, `summary`, `category`, `tags[]`, markdown `body`, `published_at`, `updated_at`. See `fixtures/learn/articles.json` and `types/learn.ts`.
+
+Operator import: `POST /api/internal/learn/import` with `Authorization: Bearer $LEARN_IMPORT_SECRET`, or `npm run learn:import`.
+
 ## Post-MVP surfaces
 
 | Route | Waiting on |
 |-------|------------|
 | `/budbook-app/friends` | Friend invites / social graph |
-| `/budbook-app/learn` | CMS content |
 
 ## Insights and stats
 

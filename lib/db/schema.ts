@@ -12,6 +12,7 @@ import {
 } from 'drizzle-orm/pg-core';
 import type { Product, Session, TerpeneProfile } from '@/types/budbook';
 import type { NormalizedCoaResult } from '@lib/coa/types';
+import type { LearnArticle } from '@/types/learn';
 import type { RetailMenuItem, RetailStore } from '@/types/rda';
 
 export const users = pgTable('users', {
@@ -160,6 +161,13 @@ export const rdaMenuItems = pgTable('rda_menu_items', {
   data: jsonb('data').$type<RetailMenuItem>().notNull(),
 });
 
+export const learnArticles = pgTable('learn_articles', {
+  slug: text('slug').primaryKey(),
+  data: jsonb('data').$type<LearnArticle>().notNull(),
+  publishedAt: timestamp('published_at', { withTimezone: true }).notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+});
+
 export const scanJobs = pgTable('scan_jobs', {
   id: text('id').primaryKey(),
   userId: text('user_id')
@@ -216,6 +224,7 @@ export const coaReportStashLinks = pgTable(
 
 export type DbRdaStore = typeof rdaStores.$inferSelect;
 export type DbRdaMenuItem = typeof rdaMenuItems.$inferSelect;
+export type DbLearnArticle = typeof learnArticles.$inferSelect;
 
 export type DbProduct = typeof products.$inferSelect;
 export type DbInventoryItem = typeof inventoryItems.$inferSelect;

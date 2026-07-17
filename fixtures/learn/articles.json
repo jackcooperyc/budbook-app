@@ -1,0 +1,74 @@
+{
+  "articles": [
+    {
+      "slug": "start-low-go-slow",
+      "title": "Start Low, Go Slow",
+      "summary": "A practical dosing primer for flower, edibles, and concentrates — how to find your floor before you chase a ceiling.",
+      "category": "Harm reduction",
+      "tags": [
+        "dosing",
+        "beginners",
+        "safety"
+      ],
+      "published_at": "2026-01-15T12:00:00.000Z",
+      "updated_at": "2026-01-15T12:00:00.000Z",
+      "body": "## Why pacing matters\n\nCannabis effects vary widely by product, method, and you. THC potency on a label is only one signal — tolerance, empty stomach, and set/setting all change the ride.\n\n**Start low, go slow** means: take a small first dose, wait long enough to feel it, then decide whether more makes sense.\n\n## Flower and vapor\n\n- One or two light inhalations is enough for most new or returning consumers.\n- Wait **10–15 minutes** before another hit; peak effects often arrive after you think they will.\n- Keep a glass of water nearby and a quiet place to sit if you feel overstimulated.\n\n## Edibles\n\nEdibles are easy to overdo because onset is delayed.\n\n- Begin with **2.5–5 mg THC** if you are new or sensitive.\n- Wait **at least 2 hours** before redosing. Many people wait longer.\n- Fat in a meal can change absorption; do not “stack” doses because the first one “isn’t working yet.”\n\n## Concentrates\n\nDabs and high-potency carts hit fast and hard. If you are new to concentrates, treat them as advanced — use a tiny amount, or stick with flower until you know your response.\n\n## If you overdid it\n\nEffects fade. Sit or lie down, hydrate, breathe slowly, and avoid more cannabis. CBD-dominant products sometimes soften the edge for some people, but they are not a guaranteed antidote. Seek medical help if you have severe symptoms or cannot keep yourself safe.\n\n## Bottom line\n\nYour journal in BudBook is a good place to note dose, method, and how you felt afterward. Patterns beat guesswork.\n"
+    },
+    {
+      "slug": "reading-a-coa",
+      "title": "How to Read a Lab Report (COA)",
+      "summary": "What a Certificate of Analysis actually tells you — cannabinoids, contaminants, and which fields matter for stash decisions.",
+      "category": "Lab literacy",
+      "tags": [
+        "coa",
+        "lab",
+        "compliance"
+      ],
+      "published_at": "2026-02-01T12:00:00.000Z",
+      "updated_at": "2026-02-01T12:00:00.000Z",
+      "body": "## What a COA is\n\nA **Certificate of Analysis** is a lab document for a specific batch or sample. Retail menus and package labels often summarize results; the COA is the fuller record.\n\nBudBook’s scanner path uses COA data (when available) to populate authoritative terpenes and cannabinoid percentages in your stash.\n\n## Core sections to scan\n\n### Cannabinoids\n\nLook for **THC**, **THCA**, **CBD**, **CBDA**, and sometimes minors (CBG, CBN). Units are usually **% by weight** or **mg/g**.\n\n- For flower, total THC is often estimated from THCA + THC (labs use a conversion factor).\n- Compare the batch ID or sample ID on the COA to what’s on the package when you can.\n\n### Terpenes\n\nTerpene panels list dominant aromatics (myrcene, limonene, beta-caryophyllene, etc.). Profiles help explain aroma and, for some people, subjective effects — they are not medical claims.\n\n### Contaminants\n\nA useful COA also reports **pass/fail** (or quantified results) for:\n\n- Pesticides\n- Heavy metals\n- Microbial impurities\n- Residual solvents (especially for extracts)\n\nIf a contaminant panel is missing, treat potency-only sheets as incomplete for safety decisions.\n\n## Red flags\n\n- No lab name, date, or sample identifier\n- Results that look copy-pasted across unrelated products\n- Potency claims far outside typical ranges without explanation\n\n## Using COAs in BudBook\n\nScan or paste a COA URL when possible so Cannadex and stash entries share a consistent `product_key` and lab report ID. That keeps your journal tied to the same chemistry over time.\n"
+    },
+    {
+      "slug": "terpenes-and-effects",
+      "title": "Terpenes and Subjective Effects",
+      "summary": "A grounded look at common terpenes, what aroma notes suggest, and why “strain type” alone is a weak predictor.",
+      "category": "Education",
+      "tags": [
+        "terpenes",
+        "effects",
+        "strains"
+      ],
+      "published_at": "2026-02-20T12:00:00.000Z",
+      "updated_at": "2026-02-20T12:00:00.000Z",
+      "body": "## Beyond indica / sativa labels\n\nIndica and sativa are useful shorthand for plant morphology and marketing, but **chemistry** (cannabinoids + terpenes) is a better lens for what you might feel. Two “indica” jars can smell and hit very differently.\n\n## Common terpenes you will see\n\n| Terpene | Often smells like | Notes people report |\n| --- | --- | --- |\n| Myrcene | Earthy, musky, herbal | Relaxed body feel for some |\n| Limonene | Citrus peel | Bright, uplifted mood for some |\n| Beta-caryophyllene | Pepper, spice | Warm, grounding; interacts with CB2 in research contexts |\n| Linalool | Floral, lavender | Calming associations for some |\n| Pinene | Pine, forest | Alert / clear-headed for some |\n| Humulene | Woody, hops | Earthy backbone in many profiles |\n\nThese are **patterns and associations**, not guarantees. Dose, method, and your state matter more than any single terpene.\n\n## How to use this in practice\n\n1. Note the top 2–3 terpenes on a COA when you try something new.\n2. Log mood, pain, and anxiety before/after in your journal.\n3. Over a few sessions, look for repeats — not one-off miracles.\n\n## Entourage is not magic\n\n“Entourage effect” describes the idea that compounds work together. It is a research hypothesis and a useful mental model, not a license for absolute claims. Stay curious, stay measured.\n"
+    },
+    {
+      "slug": "set-and-setting",
+      "title": "Set and Setting for Cannabis",
+      "summary": "Mindset and environment shape the experience as much as milligrams. Practical habits for safer, more intentional sessions.",
+      "category": "Harm reduction",
+      "tags": [
+        "mindset",
+        "environment",
+        "safety"
+      ],
+      "published_at": "2026-03-05T12:00:00.000Z",
+      "updated_at": "2026-03-05T12:00:00.000Z",
+      "body": "## What “set and setting” means\n\nBorrowed from psychedelic harm-reduction language:\n\n- **Set** — your mindset, expectations, stress level, and intentions\n- **Setting** — who you are with, where you are, and what you might need\n\nCannabis is not a classic psychedelic for most people at typical doses, but the same idea still helps: an anxious night in a loud crowd hits differently than a calm evening on the couch.\n\n## Before you consume\n\n- Eat something light if you tend to get lightheaded.\n- Decide your **ceiling dose** ahead of time (especially for edibles).\n- Tell a trusted friend if you are trying a new high-potency product.\n- Clear a path to water, a bathroom, and a place to sit or lie down.\n\n## During\n\n- Avoid stacking alcohol and high-THC products until you know your response.\n- If anxiety rises, change the setting: quieter room, slower breathing, lower lights, familiar music.\n- Do not drive or operate machinery while impaired. Plan a ride or stay put.\n\n## After\n\nLog the session while details are fresh. BudBook’s before/after scores make it easier to notice which products and contexts work for you — and which to skip next time.\n"
+    },
+    {
+      "slug": "tolerance-and-breaks",
+      "title": "Tolerance, Breaks, and Resetting",
+      "summary": "Why the same dose stops hitting the same way, and how short breaks or lower-potency swaps can help without drama.",
+      "category": "Education",
+      "tags": [
+        "tolerance",
+        "breaks",
+        "habits"
+      ],
+      "published_at": "2026-03-18T12:00:00.000Z",
+      "updated_at": "2026-03-18T12:00:00.000Z",
+      "body": "## Tolerance is normal\n\nWith frequent use, your response to THC often dampens. People chase the old effect by raising dose — which can raise side effects and cost without restoring the original experience.\n\n## Signs it may be time to adjust\n\n- You need noticeably more to feel anything\n- Desired effects feel flat, but next-day fog or irritability is worse\n- Cannabis is crowding out sleep, appetite, or plans you care about\n\n## Practical resets\n\nThere is no single correct schedule. Common approaches:\n\n- **Short break** (a few days to a couple of weeks) — many people notice sensitivity return\n- **Lower-potency swap** — flower or balanced CBD:THC instead of concentrates\n- **Method change** — vapor or edible timing that forces slower pacing\n- **Intentional days off** — build non-use nights into the week\n\nIf you use cannabis for medical reasons, talk with a clinician before changing a regimen that works for you.\n\n## Use your journal\n\nTrack dose and ratings across a break. The point is not perfection — it is noticing whether less (or different) gives you more of what you actually want.\n"
+    }
+  ]
+}

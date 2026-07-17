@@ -26,6 +26,8 @@ Optional: set `NEXT_PUBLIC_GOOGLE_MAPS_EMBED_KEY` in `.env.local` for the dispen
 
 **Shops:** Operator-imported retail data via `npm run rda:import -- fixtures/rda/example-shop.json` (see [docs/rda-spec.md](docs/rda-spec.md)).
 
+**Learn:** Education & harm-reduction articles at `/budbook-app/learn`. Auto-seeds on first visit; refresh with `npm run learn:import -- fixtures/learn/articles.json`.
+
 **Theme:** Use the sun/moon toggle in the header, or **Settings → Appearance** for Light / Dark / System. Preference is saved in `localStorage` and applied before first paint to avoid flash.
 
 ## Production
@@ -43,6 +45,7 @@ Optional:
 |----------|---------|
 | `BUDBOOK_OPENAI_API_KEY` | Buddy LLM layer |
 | `RDA_IMPORT_SECRET` | Protects `POST /api/internal/rda/import` for operator shop imports |
+| `LEARN_IMPORT_SECRET` | Protects `POST /api/internal/learn/import` for Learn CMS content imports |
 
 ## Structure
 
@@ -59,6 +62,7 @@ Optional:
 | `types/rda.ts` | RDA TypeScript contract |
 | `docs/mvp-scope.md` | MVP scope tracker |
 | `fixtures/rda/` | Example operator shop import JSON |
+| `fixtures/learn/` | Learn CMS article seed / import JSON |
 
 ### Native routes
 
@@ -72,7 +76,7 @@ Optional:
 | `/budbook-app/post/new` | Create a community post |
 | `/budbook-app/shops` | Dispensaries (operator-imported RDA data) |
 | `/budbook-app/buddy` | Buddy AI chat |
-| `/budbook-app/friends`, `/circles`, `/cannadex`, `/learn`, `/profile`, `/settings` | Social & profile surfaces |
+| `/budbook-app/friends`, `/circles`, `/cannadex`, `/learn`, `/profile`, `/settings` | Social, Learn CMS, & profile surfaces |
 
 ## Related
 
