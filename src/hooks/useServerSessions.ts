@@ -1,14 +1,14 @@
 "use client";
 
 import { useCallback, useEffect, useState } from 'react';
-import type { Session } from '@/types/budbook';
+import type { Session } from '@/types/pacs';
 
 export function useServerSessions() {
   const [sessions, setSessions] = useState<Session[] | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const reload = useCallback(() => {
-    fetch('/api/internal/budbook-sessions')
+    fetch('/api/internal/journal')
       .then((r) => {
         if (!r.ok) throw new Error('Failed to load sessions');
         return r.json();
@@ -23,7 +23,7 @@ export function useServerSessions() {
 
   const saveSession = useCallback(
     async (session: Session) => {
-      const res = await fetch('/api/internal/budbook-sessions', {
+      const res = await fetch('/api/internal/journal', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(session),

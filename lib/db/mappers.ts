@@ -1,6 +1,6 @@
-import type { InventoryItem, Product, Session } from '@/types/budbook';
+import type { InventoryItem, Product, Session } from '@/types/pacs';
 import type { CaaCatalogEntry, CaaEnrichment } from '@/types/caa';
-import type { SocialPost } from '@/types/budbook';
+import type { SocialPost } from '@/types/pacs';
 import type { CoaReport, CoaReportStashLink, ScanJob } from '@lib/coa/types';
 import type {
   DbCaaCatalogEntry,

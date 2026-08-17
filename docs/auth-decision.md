@@ -2,9 +2,9 @@
 
 ## Decision
 
-**Session auth is implemented for production.** Email sign-in with JWT httpOnly cookie when `BUDBOOK_AUTH_SECRET` is set.
+**Session auth is implemented for production.** Email sign-in with JWT httpOnly cookie when `PACSMT_AUTH_SECRET` is set.
 
-Without `BUDBOOK_AUTH_SECRET`, local dev uses the single default user (`getDefaultUser` / `getCurrentUserId`).
+Without `PACSMT_AUTH_SECRET`, local dev uses the single default user (`getDefaultUser` / `getCurrentUserId`).
 
 ## Implementation
 
@@ -20,10 +20,10 @@ Without `BUDBOOK_AUTH_SECRET`, local dev uses the single default user (`getDefau
 ## Vercel setup
 
 ```bash
-openssl rand -hex 32   # → BUDBOOK_AUTH_SECRET in Production
+openssl rand -hex 32   # → PACSMT_AUTH_SECRET in Production
 ```
 
-Middleware protects `/budbook-app/*` and `/api/internal/*` when auth is enabled.
+Middleware protects `/pacs/*` and `/api/internal/*` when auth is enabled.
 
 ## Future work
 

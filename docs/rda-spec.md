@@ -1,6 +1,6 @@
 # Retail Data Adapter (RDA) — Internal Spec
 
-The RDA is BudBook's single internal gateway for **retail/marketing data**: store listings, menus, prices, hours, brands, and photos. It mirrors the Compliance Abstraction Adapter (CAA) discipline used for Metrc/BioTrackTHC — **feature code never calls a retail source directly**. All surfaces read normalized RDA shapes through one gateway.
+The RDA is Pacs.MT's single internal gateway for **retail/marketing data**: store listings, menus, prices, hours, brands, and photos. It mirrors the Compliance Abstraction Adapter (CAA) discipline used for Metrc/BioTrackTHC — **feature code never calls a retail source directly**. All surfaces read normalized RDA shapes through one gateway.
 
 TypeScript contract: [`types/rda.ts`](../types/rda.ts)
 
@@ -30,7 +30,7 @@ Adapters normalize inbound data into `RetailStore` and `RetailMenuItem`. Swappin
 | **RDA** | Stores, menus, prices, brands, photos, hours, reviews | COA, terpenes, `compliance_status` |
 | **CAA** | COA, terpene profiles, lab report IDs, compliance state | Retail pricing, store marketing copy |
 
-**Retail potency is display-only** until the CAA confirms it via `product_key`. Cannadex terpene claims remain authoritative. When CAA enrichment is unavailable, the UI shows a **pending** state — it does not hide the product or invent terpene data.
+**Retail potency is display-only** until the CAA confirms it via `product_key`. Registry terpene claims remain authoritative. When CAA enrichment is unavailable, the UI shows a **pending** state — it does not hide the product or invent terpene data.
 
 ### Sync, don't proxy
 
@@ -58,11 +58,11 @@ Attached to every store and menu item. Tracks:
 
 ### `RetailStore`
 
-Normalized dispensary/shop listing. Resolves up to the existing BudBook [`Dispensary`](../types/budbook.ts) type for the **My Shops** surface via `toDispensary` (implemented in `lib/rda`).
+Normalized dispensary/shop listing. Resolves up to the existing Pacs.MT [`Dispensary`](../types/pacs.ts) type for the **My Shops** surface via `toDispensary` (implemented in `lib/rda`).
 
 ### `RetailMenuItem`
 
-Normalized product from a store menu. Resolves to BudBook [`Product`](../types/budbook.ts) after CAA enrichment on `product_key` via `toProduct`.
+Normalized product from a store menu. Resolves to Pacs.MT [`Product`](../types/pacs.ts) after CAA enrichment on `product_key` via `toProduct`.
 
 ---
 
@@ -74,7 +74,7 @@ Internal keys prevent raw Weedmaps/Leafly/CannMenus IDs from leaking into featur
 |-----|-------|---------|
 | `store_key` | `RetailStore` | Stable internal store id; same physical store from two providers collapses to one My Shops entry |
 | `menu_item_key` | `RetailMenuItem` | Stable internal menu line id |
-| `product_key` | `RetailMenuItem` | Join key to CAA / Cannadex for terpene and COA enrichment |
+| `product_key` | `RetailMenuItem` | Join key to CAA / Registry for terpene and COA enrichment |
 
 Key derivation rules (implementation detail for `lib/rda/keying`) should be deterministic from normalized address + license, or from aggregator cross-reference IDs (e.g. CannMenus `cann_sku_id` on `sku`).
 
@@ -138,18 +138,18 @@ Maps to `app/api/internal/rda/*` handlers (not yet implemented). Follows the sam
 
 ### Auth
 
-RDA read routes use `internalApiGuard()` (session auth when `BUDBOOK_AUTH_SECRET` is set). The import route uses `RDA_IMPORT_SECRET` instead of user session.
+RDA read routes use `internalApiGuard()` (session auth when `PACSMT_AUTH_SECRET` is set). The import route uses `RDA_IMPORT_SECRET` instead of user session.
 
 ---
 
-## BudBook surfaces that consume RDA
+## Pacs.MT surfaces that consume RDA
 
 | Surface | RDA data used |
 |---------|---------------|
-| `/budbook-app/shops` | `RetailStore` → `Dispensary`, map pins, search |
-| `/budbook-app/stash` | Menu browse → add to stash (display potency only) |
-| `/budbook-app/cannadex` | `product_key` join for authoritative terpenes (CAA) |
-| `/budbook-app/scanner` | COA flow stays on CAA; RDA may suggest matching menu items |
+| `/pacs/shops` | `RetailStore` → `Dispensary`, map pins, search |
+| `/pacs/stash` | Menu browse → add to stash (display potency only) |
+| `/pacs/registry` | `product_key` join for authoritative terpenes (CAA) |
+| `/pacs/scanner` | COA flow stays on CAA; RDA may suggest matching menu items |
 
 ---
 
@@ -162,7 +162,7 @@ RDA read routes use `internalApiGuard()` (session auth when `BUDBOOK_AUTH_SECRET
 - [x] `app/api/internal/rda/stores/route.ts`
 - [x] `app/api/internal/rda/stores/[store_key]/route.ts`
 - [x] `app/api/internal/rda/stores/[store_key]/menu/route.ts`
-- [x] Wire `/budbook-app/shops` to RDA stores endpoint
+- [x] Wire `/pacs/shops` to RDA stores endpoint
 - [x] Store menu → stash (`.../menu/[menu_item_key]/add-to-stash`)
 - [x] CAA stub (`types/caa.ts`, `lib/caa/enrich.ts`)
 
@@ -170,6 +170,6 @@ RDA read routes use `internalApiGuard()` (session auth when `BUDBOOK_AUTH_SECRET
 
 ## Related
 
-- Domain types: [`types/budbook.ts`](../types/budbook.ts)
-- Existing internal API pattern: [`app/api/internal/budbook-stash/route.ts`](../app/api/internal/budbook-stash/route.ts)
+- Domain types: [`types/pacs.ts`](../types/pacs.ts)
+- Existing internal API pattern: [`app/api/internal/stash/route.ts`](../app/api/internal/stash/route.ts)
 - CAA spec: *(future — same gateway pattern for compliance data)*

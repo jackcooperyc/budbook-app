@@ -15,20 +15,21 @@ import { useCurrentUser } from '@/hooks/useCurrentUser';
 import './Header.css';
 
 const pageTitles: Record<string, string> = {
-  '/budbook-app': 'Dashboard',
-  '/budbook-app/stash': 'My Stash',
-  '/budbook-app/journal': 'Journal',
-  '/budbook-app/scanner': 'COA Scanner',
-  '/budbook-app/friends': 'Friends',
-  '/budbook-app/circles': 'Circles',
-  '/budbook-app/media': 'Media',
-  '/budbook-app/post/new': 'New Post',
-  '/budbook-app/cannadex': 'Cannadex',
-  '/budbook-app/learn': 'Learn',
-  '/budbook-app/shops': 'Dispensaries',
-  '/budbook-app/buddy': 'Buddy AI',
-  '/budbook-app/profile': 'Profile',
-  '/budbook-app/settings': 'Settings',
+  '/pacs': 'COA Scanner',
+  '/pacs/scanner': 'COA Scanner',
+  '/pacs/dashboard': 'Dashboard',
+  '/pacs/stash': 'My Stash',
+  '/pacs/journal': 'Journal',
+  '/pacs/friends': 'Friends',
+  '/pacs/circles': 'Circles',
+  '/pacs/media': 'Media',
+  '/pacs/post/new': 'New Post',
+  '/pacs/registry': 'Registry',
+  '/pacs/learn': 'Learn',
+  '/pacs/shops': 'Dispensaries',
+  '/pacs/assistant': 'PACS Assistant',
+  '/pacs/profile': 'Profile',
+  '/pacs/settings': 'Settings',
 };
 
 export default function Header() {
@@ -37,9 +38,9 @@ export default function Header() {
   const { user, avatarSeed } = useCurrentUser();
   const title =
     pageTitles[pathname] ??
-    (pathname.startsWith('/budbook-app/shops/') ? 'Shop menu' :
-    pathname.startsWith('/budbook-app/cannadex/') ? 'Cannadex' :
-    'BudBook');
+    (pathname.startsWith('/pacs/shops/') ? 'Shop menu' :
+    pathname.startsWith('/pacs/registry/') ? 'Registry' :
+    'Pacs.MT');
 
   return (
     <header className="header">
@@ -58,12 +59,12 @@ export default function Header() {
       <div className="header-right">
         <div className="header-search">
           <Search size={16} strokeWidth={1.75} aria-hidden="true" />
-          <input type="search" placeholder="Search strains, sessions…" aria-label="Search" />
+          <input type="search" placeholder="Search products, sessions…" aria-label="Search" />
         </div>
         <ThemeToggle />
-        <Link href="/budbook-app/profile" className="header-avatar-btn" onClick={close} aria-label="Profile">
+        <Link href="/pacs/profile" className="header-avatar-btn" onClick={close} aria-label="Profile">
           <Avatar
-            name={user?.full_name ?? 'BudBook user'}
+            name={user?.full_name ?? 'Pacs.MT user'}
             seed={avatarSeed}
             size="sm"
           />

@@ -1,6 +1,6 @@
 import React from 'react';
 import { MapPin, Navigation } from 'lucide-react';
-import type { Dispensary } from '@/types/budbook';
+import type { Dispensary } from '@/types/pacs';
 import './DispensaryCard.css';
 
 interface DispensaryCardProps {

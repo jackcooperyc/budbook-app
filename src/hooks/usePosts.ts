@@ -1,13 +1,13 @@
 "use client";
 
 import { useCallback, useEffect, useState } from 'react';
-import type { SocialPost } from '@/types/budbook';
+import type { SocialPost } from '@/types/pacs';
 
 export function usePosts() {
   const [posts, setPosts] = useState<SocialPost[] | null>(null);
 
   const reload = useCallback(() => {
-    fetch('/api/internal/budbook-posts')
+    fetch('/api/internal/posts')
       .then((r) => r.json())
       .then(setPosts)
       .catch(() => setPosts([]));
@@ -19,7 +19,7 @@ export function usePosts() {
 
   const createPost = useCallback(
     async (input: { body: string; strain?: string; circle?: string }) => {
-      const res = await fetch('/api/internal/budbook-posts', {
+      const res = await fetch('/api/internal/posts', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(input),
@@ -32,7 +32,7 @@ export function usePosts() {
   );
 
   const likePost = useCallback(async (postId: string) => {
-    const res = await fetch('/api/internal/budbook-posts', {
+    const res = await fetch('/api/internal/posts', {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ postId, action: 'like' }),

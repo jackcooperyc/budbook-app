@@ -1,6 +1,6 @@
 import { resolveCurrentUser } from '@lib/auth/resolveUser';
-import { readServerStash } from '@/lib/budbook-stash/fileStore';
-import { readServerSessions } from '@/lib/budbook-sessions/fileStore';
+import { readServerStash } from '@/lib/stash-store/fileStore';
+import { readServerSessions } from '@/lib/sessions-store/fileStore';
 
 /** Server-side aggregate of persisted MVP data. */
 export async function getAppData() {

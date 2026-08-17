@@ -19,7 +19,7 @@ import {
 } from '@lib/coa/types';
 import { isHttpSourceUrl } from '@lib/coa/userMessages';
 import type { CaaCoaParseResult, CaaParseResponse } from '@/types/caa';
-import type { Product } from '@/types/budbook';
+import type { Product } from '@/types/pacs';
 import { addCoaProductToServerStash } from '@lib/repositories/stash';
 import {
   attachCoaReportToStashItem,

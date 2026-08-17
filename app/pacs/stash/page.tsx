@@ -10,7 +10,7 @@ import EmptyState from '@/components/EmptyState/EmptyState';
 import Skeleton from '@/components/Skeleton/Skeleton';
 import Button from '@/components/Button/Button';
 import { useServerStash } from '@/hooks/useServerStash';
-import { inventoryByProductId, isLowStock } from '@/lib/budbook-data';
+import { inventoryByProductId, isLowStock } from '@/lib/pacs-data';
 import { computeLowStockAlerts } from '@/lib/app-stats';
 import './stash.css';
 
@@ -81,7 +81,7 @@ function StashContent() {
           >
             Manual add
           </Button>
-          <Link href="/budbook-app/scanner">
+          <Link href="/pacs/scanner">
             <Button variant="primary" size="sm" icon={<Plus size={14} strokeWidth={1.75} />}>
               Scan COA
             </Button>
@@ -119,7 +119,7 @@ function StashContent() {
               <Button variant="secondary" size="sm" onClick={() => setManualOpen(true)}>
                 Add manually
               </Button>
-              <Link href="/budbook-app/scanner">
+              <Link href="/pacs/scanner">
                 <Button variant="primary" size="sm">
                   Open scanner
                 </Button>

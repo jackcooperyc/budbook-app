@@ -3,7 +3,7 @@
 import React, { Suspense, useCallback, useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { BookOpen, PenLine } from 'lucide-react';
-import type { Session } from '@/types/budbook';
+import type { Session } from '@/types/pacs';
 import SessionCard from '@/components/SessionCard/SessionCard';
 import SessionLogForm from '@/components/SessionLogForm/SessionLogForm';
 import EmptyState from '@/components/EmptyState/EmptyState';
@@ -11,7 +11,7 @@ import Skeleton from '@/components/Skeleton/Skeleton';
 import Button from '@/components/Button/Button';
 import { useServerSessions } from '@/hooks/useServerSessions';
 import { useServerStash } from '@/hooks/useServerStash';
-import { productNameById } from '@/lib/budbook-data';
+import { productNameById } from '@/lib/pacs-data';
 import { getLocalSessions } from '@/lib/journalStorage';
 import './journal.css';
 
@@ -33,6 +33,7 @@ function JournalContent() {
       return;
     }
     Promise.all(local.map((s) => saveSession(s))).then(() => {
+      localStorage.removeItem('pacsmt-local-sessions');
       localStorage.removeItem('budbook-local-sessions');
       setMigrated(true);
     });

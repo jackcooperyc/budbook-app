@@ -1,8 +1,8 @@
 import { SignJWT, jwtVerify } from 'jose';
 import { cookies } from 'next/headers';
-import type { BudbookUser } from '@/types/budbook';
+import type { PacsUser } from '@/types/pacs';
 
-export const SESSION_COOKIE = 'budbook_session';
+export const SESSION_COOKIE = 'pacsmt_session';
 
 export type SessionPayload = {
   sub: string;
@@ -13,7 +13,7 @@ export type SessionPayload = {
 };
 
 function authSecret(): Uint8Array | null {
-  const secret = process.env.BUDBOOK_AUTH_SECRET?.trim();
+  const secret = process.env.PACSMT_AUTH_SECRET?.trim();
   if (!secret) return null;
   return new TextEncoder().encode(secret);
 }
@@ -22,7 +22,7 @@ export function authEnabled(): boolean {
   return Boolean(authSecret());
 }
 
-export function sessionToUser(payload: SessionPayload): BudbookUser {
+export function sessionToUser(payload: SessionPayload): PacsUser {
   return {
     id: payload.sub,
     email: payload.email,
@@ -32,9 +32,9 @@ export function sessionToUser(payload: SessionPayload): BudbookUser {
   };
 }
 
-export async function createSessionToken(user: BudbookUser): Promise<string> {
+export async function createSessionToken(user: PacsUser): Promise<string> {
   const secret = authSecret();
-  if (!secret) throw new Error('BUDBOOK_AUTH_SECRET is not configured');
+  if (!secret) throw new Error('PACSMT_AUTH_SECRET is not configured');
 
   return new SignJWT({
     email: user.email,
@@ -60,7 +60,7 @@ export async function verifySessionToken(token: string): Promise<SessionPayload 
     return {
       sub: payload.sub,
       email: payload.email,
-      full_name: String(payload.full_name ?? 'BudBook User'),
+      full_name: String(payload.full_name ?? 'Pacs.MT User'),
       username: String(payload.username ?? payload.email.split('@')[0]),
       role: String(payload.role ?? 'user'),
     };
@@ -69,7 +69,7 @@ export async function verifySessionToken(token: string): Promise<SessionPayload 
   }
 }
 
-export async function getSessionUser(): Promise<BudbookUser | null> {
+export async function getSessionUser(): Promise<PacsUser | null> {
   if (!authEnabled()) return null;
 
   const jar = await cookies();

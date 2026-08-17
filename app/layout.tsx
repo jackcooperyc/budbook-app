@@ -33,8 +33,9 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: 'BudBook — Cannabis Wellness OS',
-  description: 'Personal cannabis journal, stash tracking, and wellness insights.',
+  title: 'Pacs.MT — Product Analysis Certification Scanner',
+  description:
+    'Product Analysis Certification Scanner for Montana Cannabis Packaging — scan COAs, verify lab data, and track certified products.',
   manifest: '/manifest.json',
 };
 

@@ -1,7 +1,7 @@
 import { and, count, eq } from 'drizzle-orm';
 import { readFile, writeFile, mkdir } from 'fs/promises';
-import type { CircleGroup, FriendProfile } from '@/types/budbook';
-import { getCurrentUserId } from '@lib/budbook-user/currentUser';
+import type { CircleGroup, FriendProfile } from '@/types/pacs';
+import { getCurrentUserId } from '@lib/pacs-user/currentUser';
 import { dbEnabled, getDb } from '@lib/db/client';
 import { circleMembers, circles, friendships, users } from '@lib/db/schema';
 import { dataFile, getDataDir } from '@lib/data-dir';

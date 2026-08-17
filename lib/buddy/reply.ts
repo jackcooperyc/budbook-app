@@ -1,4 +1,4 @@
-import { inventoryByProductId, productNameById } from '@/lib/budbook-data';
+import { inventoryByProductId, productNameById } from '@/lib/pacs-data';
 import { formatQuantity } from '@/lib/media';
 import {
   computeLiveInsights,

@@ -1,4 +1,4 @@
-import type { Product } from '@/types/budbook';
+import type { Product } from '@/types/pacs';
 import type { CaaCoaParseResult, CaaParseConfidence, CaaParseSource } from '@/types/caa';
 import { deriveProductKey } from '@lib/rda/keying';
 

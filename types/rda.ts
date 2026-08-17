@@ -13,7 +13,7 @@
  * See docs/rda-spec.md for the full contract.
  */
 
-import type { Dispensary, Product } from './budbook';
+import type { Dispensary, Product } from './pacs';
 
 // ---------------------------------------------------------------------------
 // Provenance
@@ -61,7 +61,7 @@ export type RetailServiceFlags = {
 };
 
 /**
- * A normalized dispensary/shop listing. Resolves up to the BudBook `Dispensary`
+ * A normalized dispensary/shop listing. Resolves up to the Pacs.MT `Dispensary`
  * type for the My Shops surface via `toDispensary`.
  */
 export type RetailStore = {
@@ -84,13 +84,13 @@ export type RetailStore = {
 };
 
 /**
- * A normalized product listing from a store menu. Resolves to a BudBook
+ * A normalized product listing from a store menu. Resolves to a Pacs.MT
  * `Product` once the CAA enriches it with authoritative terpene/COA data.
  */
 export type RetailMenuItem = {
   menu_item_key: string; // stable internal id
   store_key: string; // FK -> RetailStore
-  product_key: string; // join key to CAA / Cannadex
+  product_key: string; // join key to CAA / Registry
   sku: string | null; // cross-platform sku (CannMenus cann_sku_id)
   raw_name: string;
   product_name: string;
@@ -143,13 +143,13 @@ export interface RetailAdapter {
 }
 
 // ---------------------------------------------------------------------------
-// Resolvers to existing BudBook entity types (implemented in lib/rda)
+// Resolvers to existing Pacs.MT entity types (implemented in lib/rda)
 // ---------------------------------------------------------------------------
 
 export type ToDispensary = (store: RetailStore) => Dispensary;
 
 /**
- * Resolves a retail menu item to a BudBook Product. `enrich` supplies the
+ * Resolves a retail menu item to a Pacs.MT Product. `enrich` supplies the
  * CAA-confirmed terpene profile and lab report id, joined on product_key.
  * When enrichment is unavailable, terpene_profile is [] and the UI renders a
  * "pending" state rather than hiding the product.

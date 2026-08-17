@@ -29,27 +29,27 @@ interface NavItem {
 }
 
 const journeyItems: NavItem[] = [
-  { label: 'Dashboard', href: '/budbook-app', icon: LayoutDashboard },
-  { label: 'My Stash', href: '/budbook-app/stash', icon: Package },
-  { label: 'Journal', href: '/budbook-app/journal', icon: BookOpen },
-  { label: 'Scanner', href: '/budbook-app/scanner', icon: ScanLine },
+  { label: 'Scanner', href: '/pacs/scanner', icon: ScanLine },
+  { label: 'Dashboard', href: '/pacs/dashboard', icon: LayoutDashboard },
+  { label: 'My Stash', href: '/pacs/stash', icon: Package },
+  { label: 'Journal', href: '/pacs/journal', icon: BookOpen },
 ];
 
 const communityItems: NavItem[] = [
-  { label: 'Friends', href: '/budbook-app/friends', icon: Users },
-  { label: 'Circles', href: '/budbook-app/circles', icon: UsersRound },
-  { label: 'Media', href: '/budbook-app/media', icon: Newspaper },
+  { label: 'Friends', href: '/pacs/friends', icon: Users },
+  { label: 'Circles', href: '/pacs/circles', icon: UsersRound },
+  { label: 'Media', href: '/pacs/media', icon: Newspaper },
 ];
 
 const exploreItems: NavItem[] = [
-  { label: 'Cannadex', href: '/budbook-app/cannadex', icon: Leaf },
-  { label: 'Learn', href: '/budbook-app/learn', icon: GraduationCap },
-  { label: 'Dispensaries', href: '/budbook-app/shops', icon: Store },
-  { label: 'Buddy AI', href: '/budbook-app/buddy', icon: Bot },
+  { label: 'Registry', href: '/pacs/registry', icon: Leaf },
+  { label: 'Learn', href: '/pacs/learn', icon: GraduationCap },
+  { label: 'Dispensaries', href: '/pacs/shops', icon: Store },
+  { label: 'PACS Assistant', href: '/pacs/assistant', icon: Bot },
 ];
 
 const bottomItems: NavItem[] = [
-  { label: 'Settings', href: '/budbook-app/settings', icon: Settings },
+  { label: 'Settings', href: '/pacs/settings', icon: Settings },
 ];
 
 export default function Sidebar() {
@@ -57,7 +57,10 @@ export default function Sidebar() {
   const { isOpen, close } = useMobileNav();
 
   const isActive = (href: string) => {
-    if (href === '/budbook-app') return pathname === '/budbook-app';
+    if (href === '/pacs/scanner') {
+      return pathname === '/pacs' || pathname === '/pacs/scanner';
+    }
+    if (href === '/pacs/dashboard') return pathname === '/pacs/dashboard';
     return pathname.startsWith(href);
   };
 
@@ -78,12 +81,12 @@ export default function Sidebar() {
 
   return (
     <aside className={`sidebar ${isOpen ? 'sidebar-open' : ''}`}>
-      <Link href="/budbook-app" className="sidebar-logo" onClick={close}>
+      <Link href="/pacs/scanner" className="sidebar-logo" onClick={close}>
         <Logo size={36} showWordmark />
       </Link>
 
       <nav className="sidebar-nav">
-        <span className="sidebar-section-label">My Journey</span>
+        <span className="sidebar-section-label">Scan & Track</span>
         {journeyItems.map(renderItem)}
         <span className="sidebar-section-label">Community</span>
         {communityItems.map(renderItem)}
@@ -93,7 +96,7 @@ export default function Sidebar() {
 
       <div className="sidebar-footer">
         {bottomItems.map(renderItem)}
-        <p className="sidebar-tagline">Track responsibly</p>
+        <p className="sidebar-tagline">Montana cannabis packaging, verified</p>
       </div>
     </aside>
   );

@@ -2,19 +2,19 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { SESSION_COOKIE, verifySessionToken } from '@lib/auth/session';
 
-const PUBLIC_PATHS = ['/budbook-app/sign-in', '/api/auth'];
+const PUBLIC_PATHS = ['/pacs/sign-in', '/api/auth'];
 
 function isPublic(pathname: string): boolean {
   return PUBLIC_PATHS.some((p) => pathname === p || pathname.startsWith(`${p}/`));
 }
 
 export async function middleware(request: NextRequest) {
-  const secret = process.env.BUDBOOK_AUTH_SECRET?.trim();
+  const secret = process.env.PACSMT_AUTH_SECRET?.trim();
   if (!secret) return NextResponse.next();
 
   const { pathname } = request.nextUrl;
   const needsAuth =
-    pathname.startsWith('/budbook-app') || pathname.startsWith('/api/internal');
+    pathname.startsWith('/pacs') || pathname.startsWith('/api/internal');
 
   if (!needsAuth || isPublic(pathname)) return NextResponse.next();
 
@@ -23,7 +23,7 @@ export async function middleware(request: NextRequest) {
     if (pathname.startsWith('/api/')) {
       return NextResponse.json({ message: 'Sign in required' }, { status: 401 });
     }
-    const signIn = new URL('/budbook-app/sign-in', request.url);
+    const signIn = new URL('/pacs/sign-in', request.url);
     signIn.searchParams.set('next', pathname);
     return NextResponse.redirect(signIn);
   }
@@ -33,7 +33,7 @@ export async function middleware(request: NextRequest) {
     if (pathname.startsWith('/api/')) {
       return NextResponse.json({ message: 'Session expired' }, { status: 401 });
     }
-    const signIn = new URL('/budbook-app/sign-in', request.url);
+    const signIn = new URL('/pacs/sign-in', request.url);
     return NextResponse.redirect(signIn);
   }
 
@@ -41,5 +41,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/budbook-app/:path*', '/api/internal/:path*'],
+  matcher: ['/pacs/:path*', '/api/internal/:path*'],
 };

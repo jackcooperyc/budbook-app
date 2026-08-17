@@ -1,4 +1,4 @@
-import { readServerStash } from '@/lib/budbook-stash/fileStore';
+import { readServerStash } from '@/lib/stash-store/fileStore';
 
 export async function findStashByLabReportId(labReportId: string): Promise<{
   product_id: string;

@@ -1,5 +1,5 @@
 import React from 'react';
-import type { TerpeneProfile as Terpene } from '@/types/budbook';
+import type { TerpeneProfile as Terpene } from '@/types/pacs';
 import { getTerpeneBarWidths } from '@/lib/media';
 import './TerpeneProfile.css';
 

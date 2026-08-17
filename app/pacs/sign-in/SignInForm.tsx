@@ -7,7 +7,7 @@ import Button from '@/components/Button/Button';
 export default function SignInForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const next = searchParams.get('next') ?? '/budbook-app';
+  const next = searchParams.get('next') ?? '/pacs/scanner';
   const [email, setEmail] = useState('');
   const [fullName, setFullName] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -38,8 +38,11 @@ export default function SignInForm() {
   return (
     <div className="sign-in-page">
       <div className="sign-in-card glass-panel">
-        <h1 className="sign-in-title">Welcome to BudBook</h1>
-        <p className="sign-in-subtitle">Sign in with your email to sync stash, journal, and insights.</p>
+        <h1 className="sign-in-title">Welcome to Pacs.MT</h1>
+        <p className="sign-in-subtitle">
+          Product Analysis Certification Scanner for Montana Cannabis Packaging.
+          Sign in to sync scans, stash, and journal.
+        </p>
 
         <form className="sign-in-form" onSubmit={(e) => void handleSubmit(e)}>
           <label>

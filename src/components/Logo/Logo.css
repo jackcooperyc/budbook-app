@@ -9,11 +9,13 @@
 }
 
 .logo-mark-book {
-  fill: var(--accent-light);
+  fill: none;
+  stroke: var(--accent-light);
 }
 
 .logo-mark-leaf {
-  fill: var(--accent);
+  fill: none;
+  stroke: var(--accent);
 }
 
 .logo-mark-spine {

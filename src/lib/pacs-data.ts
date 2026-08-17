@@ -1,4 +1,4 @@
-import type { InventoryItem, Product } from '@/types/budbook';
+import type { InventoryItem, Product } from '@/types/pacs';
 
 export function inventoryByProductId(
   inventory: InventoryItem[],

@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { authEnabled, getSessionUser } from '@lib/auth/session';
-import { getDefaultUser } from '@lib/budbook-user/defaultUser';
+import { getDefaultUser } from '@lib/pacs-user/defaultUser';
 
 export async function GET() {
   if (!authEnabled()) {

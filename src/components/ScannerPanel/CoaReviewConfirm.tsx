@@ -390,7 +390,7 @@ export default function CoaReviewConfirm({
             Discard
           </Button>
         )}
-        <Link className="scanner-review-stash-link" href="/budbook-app/stash">
+        <Link className="scanner-review-stash-link" href="/pacs/stash">
           My Stash
         </Link>
       </div>

@@ -2,20 +2,20 @@
 
 ## 1. Session auth
 
-Email sign-in with JWT httpOnly cookie when `BUDBOOK_AUTH_SECRET` is set.
+Email sign-in with JWT httpOnly cookie when `PACSMT_AUTH_SECRET` is set.
 
 | Route | Purpose |
 |-------|---------|
 | `POST /api/auth/sign-in` | Email + display name → session cookie |
 | `POST /api/auth/sign-out` | Clear session |
 | `GET /api/auth/session` | Current session status |
-| `/budbook-app/sign-in` | Sign-in UI |
+| `/pacs/sign-in` | Sign-in UI |
 
-Middleware protects `/budbook-app/*` and `/api/internal/*` when auth is enabled.
+Middleware protects `/pacs/*` and `/api/internal/*` when auth is enabled.
 
-**Vercel:** `openssl rand -hex 32` → `BUDBOOK_AUTH_SECRET` in Production.
+**Vercel:** `openssl rand -hex 32` → `PACSMT_AUTH_SECRET` in Production.
 
-Without `BUDBOOK_AUTH_SECRET`, dev mode uses the default user (unchanged local DX).
+Without `PACSMT_AUTH_SECRET`, dev mode uses the default user (unchanged local DX).
 
 ## 2. CAA live adapter
 
@@ -49,13 +49,13 @@ Hook point for future CannMenus / Weedmaps live adapters.
 | `circles` | Wellness groups |
 | `circle_members` | Membership |
 
-APIs: `GET /api/internal/budbook-friends`, `GET/POST /api/internal/budbook-circles`.
+APIs: `GET /api/internal/friends`, `GET/POST /api/internal/circles`.
 
 Friends and circles start empty — users create circles via the UI. Friend invites ship post-MVP.
 
 ## 5. Buddy LLM (optional)
 
-Set `BUDBOOK_OPENAI_API_KEY` for GPT-powered replies. Without it, rule-based coach uses live stash/journal context.
+Set `PACSMT_OPENAI_API_KEY` for GPT-powered replies. Without it, rule-based coach uses live stash/journal context.
 
 ```bash
 npm run db:migrate   # applies 001 + 002 + 003

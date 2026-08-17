@@ -1,7 +1,7 @@
 "use client";
 
 import React from 'react';
-import type { CircleGroup } from '@/types/budbook';
+import type { CircleGroup } from '@/types/pacs';
 import './CircleCard.css';
 
 export default function CircleCard({ circle }: { circle: CircleGroup }) {

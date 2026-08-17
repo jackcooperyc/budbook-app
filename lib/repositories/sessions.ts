@@ -1,7 +1,7 @@
 import { desc, eq } from 'drizzle-orm';
 import { readFile, writeFile, mkdir } from 'fs/promises';
-import type { Session } from '@/types/budbook';
-import { getCurrentUserId } from '@lib/budbook-user/currentUser';
+import type { Session } from '@/types/pacs';
+import { getCurrentUserId } from '@lib/pacs-user/currentUser';
 import { dbEnabled, getDb } from '@lib/db/client';
 import { toSession } from '@lib/db/mappers';
 import { sessions } from '@lib/db/schema';

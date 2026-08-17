@@ -449,7 +449,7 @@ export default function ScannerPanel() {
     setSaving(true);
     setError(null);
     try {
-      const res = await fetch('/api/internal/budbook-stash', {
+      const res = await fetch('/api/internal/stash', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -459,7 +459,7 @@ export default function ScannerPanel() {
         }),
       });
       if (!res.ok) throw new Error('Save failed');
-      router.push('/budbook-app/stash?added=1');
+      router.push('/pacs/stash?added=1');
     } catch {
       setError('Could not save to stash.');
       setSaving(false);
@@ -628,7 +628,7 @@ export default function ScannerPanel() {
           existingProductId={review.existingProductId}
           errorCode={review.errorCode}
           onConfirmed={() => {
-            router.push('/budbook-app/stash?added=1');
+            router.push('/pacs/stash?added=1');
           }}
           onCancel={() => {
             setReview(null);
@@ -654,8 +654,8 @@ export default function ScannerPanel() {
           <p className="scanner-result-caa">
             CAA status: <strong>{parse.compliance_status}</strong>
             {' · '}
-            <Link href={`/budbook-app/cannadex/${encodeURIComponent(parse.product_key)}`}>
-              View in Cannadex
+            <Link href={`/pacs/registry/${encodeURIComponent(parse.product_key)}`}>
+              View in Registry
             </Link>
           </p>
 

@@ -5,10 +5,10 @@ import {
   createSessionToken,
   setSessionCookie,
 } from '@lib/auth/session';
-import { ensureUserExists } from '@lib/budbook-user/currentUser';
+import { ensureUserExists } from '@lib/pacs-user/currentUser';
 import { dbEnabled, getDb } from '@lib/db/client';
 import { users } from '@lib/db/schema';
-import type { BudbookUser } from '@/types/budbook';
+import type { PacsUser } from '@/types/pacs';
 
 function slugify(value: string): string {
   return value
@@ -18,12 +18,12 @@ function slugify(value: string): string {
     .slice(0, 40);
 }
 
-async function upsertUserByEmail(email: string, fullName: string): Promise<BudbookUser> {
+async function upsertUserByEmail(email: string, fullName: string): Promise<PacsUser> {
   const normalizedEmail = email.trim().toLowerCase();
   const username = slugify(normalizedEmail.split('@')[0] || 'user') || 'user';
   const id = `user-${slugify(normalizedEmail)}`;
 
-  const user: BudbookUser = {
+  const user: PacsUser = {
     id,
     email: normalizedEmail,
     full_name: fullName.trim() || username,
@@ -60,7 +60,7 @@ async function upsertUserByEmail(email: string, fullName: string): Promise<Budbo
 export async function POST(request: Request) {
   if (!authEnabled()) {
     return NextResponse.json(
-      { message: 'Auth is disabled. Set BUDBOOK_AUTH_SECRET to enable sign-in.' },
+      { message: 'Auth is disabled. Set PACSMT_AUTH_SECRET to enable sign-in.' },
       { status: 503 },
     );
   }

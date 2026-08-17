@@ -12,7 +12,7 @@ interface CannadexCardProps {
 export default function CannadexCard({ entry }: CannadexCardProps) {
   return (
     <Link
-      href={`/budbook-app/cannadex/${encodeURIComponent(entry.product_key)}`}
+      href={`/pacs/registry/${encodeURIComponent(entry.product_key)}`}
       className="cannadex-card-link"
     >
       <article className="cannadex-card glass-panel">

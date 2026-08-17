@@ -35,7 +35,7 @@ export function cameraErrorMessage(
 
   switch (code) {
     case 'insecure':
-      return 'Camera requires a secure connection (HTTPS). Open BudBook over https://budbook.cupr.app.';
+      return 'Camera requires a secure connection (HTTPS). Open Pacs.MT over https://budbook.cupr.app.';
     case 'unsupported':
       return 'This browser does not support camera access. Try Chrome or Edge, or paste the COA URL manually.';
     case 'denied':

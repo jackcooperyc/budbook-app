@@ -23,7 +23,7 @@ function MediaContent() {
           <h2 className="page-title">Media</h2>
           <p className="page-subtitle">Community posts from your circles</p>
         </div>
-        <Link href="/budbook-app/post/new">
+        <Link href="/pacs/post/new">
           <Button variant="primary" size="sm" icon={<PenLine size={14} strokeWidth={1.75} />}>
             New post
           </Button>
@@ -45,7 +45,7 @@ function MediaContent() {
             title="No posts yet"
             description="Share session insights, pairings, or wins with your community."
             action={
-              <Link href="/budbook-app/post/new">
+              <Link href="/pacs/post/new">
                 <Button variant="primary" size="sm">
                   Write your first post
                 </Button>

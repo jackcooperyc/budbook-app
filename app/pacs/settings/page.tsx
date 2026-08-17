@@ -12,7 +12,7 @@ export default function SettingsPage() {
   const router = useRouter();
 
   async function exportJournal() {
-    const res = await fetch('/api/internal/budbook-sessions');
+    const res = await fetch('/api/internal/journal');
     if (!res.ok) {
       alert('Could not export journal data.');
       return;
@@ -22,14 +22,14 @@ export default function SettingsPage() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'budbook-journal.json';
+    a.download = 'pacsmt-journal.json';
     a.click();
     URL.revokeObjectURL(url);
   }
 
   async function signOut() {
     await fetch('/api/auth/sign-out', { method: 'POST' });
-    router.push('/budbook-app/sign-in');
+    router.push('/pacs/sign-in');
     router.refresh();
   }
 

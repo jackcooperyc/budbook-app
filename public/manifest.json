@@ -1,7 +1,8 @@
 {
-  "name": "BudBook",
-  "short_name": "BudBook",
-  "start_url": "/budbook-app/",
+  "name": "Pacs.MT",
+  "short_name": "Pacs.MT",
+  "description": "Product Analysis Certification Scanner for Montana Cannabis Packaging",
+  "start_url": "/pacs/scanner",
   "display": "standalone",
   "background_color": "#0a0f0a",
   "theme_color": "#6abf5e",

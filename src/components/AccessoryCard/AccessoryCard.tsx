@@ -1,6 +1,6 @@
 import React from 'react';
 import { Wrench } from 'lucide-react';
-import type { Accessory } from '@/types/budbook';
+import type { Accessory } from '@/types/pacs';
 import Chip from '@/components/Chip/Chip';
 import './AccessoryCard.css';
 

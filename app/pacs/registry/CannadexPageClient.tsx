@@ -37,12 +37,12 @@ export default function CannadexPageClient() {
     <div className="cannadex-page">
       <header className="page-header">
         <div>
-          <h2 className="page-title">Cannadex</h2>
+          <h2 className="page-title">Registry</h2>
           <p className="page-subtitle">
-            CAA-confirmed strain profiles · {entries?.length ?? 0} entries
+            CAA-confirmed certified products · {entries?.length ?? 0} entries
           </p>
         </div>
-        <Link href="/budbook-app/scanner">
+        <Link href="/pacs/scanner">
           <Button variant="secondary" size="sm">
             Scan COA
           </Button>
@@ -56,7 +56,7 @@ export default function CannadexPageClient() {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search strains…"
-          aria-label="Search Cannadex"
+          aria-label="Search Registry"
           disabled={!entries?.length}
         />
       </div>
@@ -68,10 +68,10 @@ export default function CannadexPageClient() {
       ) : entries.length === 0 ? (
         <EmptyState
           icon={Sprout}
-          title="Cannadex catalog empty"
+          title="Registry empty"
           description="Scan a COA to register authoritative terpene profiles with the Compliance Abstraction Adapter."
           action={
-            <Link href="/budbook-app/scanner">
+            <Link href="/pacs/scanner">
               <Button variant="primary" size="sm">
                 Open COA scanner
               </Button>

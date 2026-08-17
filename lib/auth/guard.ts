@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { authEnabled, getSessionUser } from '@lib/auth/session';
 
-/** Guard internal BudBook APIs: optional session auth when BUDBOOK_AUTH_SECRET is set. */
+/** Guard internal Pacs.MT APIs: optional session auth when PACSMT_AUTH_SECRET is set. */
 export async function internalApiGuard(): Promise<NextResponse | null> {
   if (!authEnabled()) return null;
 

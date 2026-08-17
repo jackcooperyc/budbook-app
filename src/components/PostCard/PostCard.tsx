@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { Heart } from 'lucide-react';
 import Avatar from '@/components/Avatar/Avatar';
-import type { SocialPost } from '@/types/budbook';
+import type { SocialPost } from '@/types/pacs';
 import './PostCard.css';
 
 interface PostCardProps {

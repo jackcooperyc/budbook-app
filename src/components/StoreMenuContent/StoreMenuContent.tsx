@@ -65,7 +65,7 @@ export default function StoreMenuContent({ storeKey }: StoreMenuContentProps) {
         title="Store not found"
         description="This shop may have been removed from the RDA cache."
         action={
-          <Link href="/budbook-app/shops" className="store-back-link">
+          <Link href="/pacs/shops" className="store-back-link">
             Back to shops
           </Link>
         }
@@ -75,7 +75,7 @@ export default function StoreMenuContent({ storeKey }: StoreMenuContentProps) {
 
   return (
     <div className="store-menu-page">
-      <Link href="/budbook-app/shops" className="store-back-link">
+      <Link href="/pacs/shops" className="store-back-link">
         <ArrowLeft size={14} strokeWidth={1.75} />
         All shops
       </Link>
@@ -118,7 +118,7 @@ export default function StoreMenuContent({ storeKey }: StoreMenuContentProps) {
       {toast && (
         <div className="store-toast" role="status">
           {toast}{' '}
-          <button type="button" onClick={() => router.push('/budbook-app/stash')}>
+          <button type="button" onClick={() => router.push('/pacs/stash')}>
             View stash
           </button>
         </div>

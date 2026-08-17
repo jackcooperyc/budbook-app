@@ -26,7 +26,7 @@ export default function NewPostForm() {
         strain: strain || undefined,
         circle: circle || undefined,
       });
-      router.push('/budbook-app/media?posted=1');
+      router.push('/pacs/media?posted=1');
     } catch {
       setError('Could not publish post.');
       setSaving(false);

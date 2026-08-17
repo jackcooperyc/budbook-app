@@ -12,4 +12,4 @@ export function getDb() {
   return drizzle(neon(url), { schema });
 }
 
-export type BudbookDb = NonNullable<ReturnType<typeof getDb>>;
+export type PacsDb = NonNullable<ReturnType<typeof getDb>>;

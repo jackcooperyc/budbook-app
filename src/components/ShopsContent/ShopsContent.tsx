@@ -2,7 +2,7 @@
 
 import React, { useMemo, useState } from 'react';
 import Link from 'next/link';
-import type { Dispensary } from '@/types/budbook';
+import type { Dispensary } from '@/types/pacs';
 import type { RetailStore } from '@/types/rda';
 import DispensaryMap from '@/components/DispensaryMap/DispensaryMap';
 import DispensaryCard from '@/components/DispensaryCard/DispensaryCard';
@@ -91,7 +91,7 @@ export default function ShopsContent({ dispensaries, stores }: ShopsContentProps
               return (
                 <Link
                   key={d.id}
-                  href={`/budbook-app/shops/${encodeURIComponent(d.id)}`}
+                  href={`/pacs/shops/${encodeURIComponent(d.id)}`}
                   className={`shops-card-wrap ${selectedId === d.id ? 'shops-card-wrap-active' : ''}`}
                   onMouseEnter={() => setSelectedId(d.id)}
                 >

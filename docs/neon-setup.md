@@ -1,16 +1,16 @@
 # Neon Postgres Setup
 
-BudBook uses Neon when `DATABASE_URL` is set. Without it, the app falls back to file-backed JSON stores (`./data` locally).
+Pacs.MT uses Neon when `DATABASE_URL` is set. Without it, the app falls back to file-backed JSON stores (`./data` locally).
 
 ## 1. Create a Neon project
 
-**Recommended (Vercel):** provision from the BudBook Vercel project:
+**Recommended (Vercel):** provision from the Pacs.MT Vercel project:
 
 ```bash
-npx vercel integration add neon -n budbook-db -e production -m auth=false --plan free_v3
+npx vercel integration add neon -n pacsmt-db -e production -m auth=false --plan free_v3
 ```
 
-This creates `budbook-db`, connects it to the project, and injects `DATABASE_URL` into Production.
+This creates `pacsmt-db`, connects it to the project, and injects `DATABASE_URL` into Production.
 
 Alternatively use the [Neon console](https://console.neon.tech) or the Cursor **neon-postgres** plugin, then add `DATABASE_URL` manually.
 
@@ -20,14 +20,14 @@ Alternatively use the [Neon console](https://console.neon.tech) or the Cursor **
 
 ```bash
 DATABASE_URL=postgresql://user:pass@ep-xxx.us-east-2.aws.neon.tech/neondb?sslmode=require
-BUDBOOK_AUTH_SECRET=<openssl rand -hex 32>
+PACSMT_AUTH_SECRET=<openssl rand -hex 32>
 ```
 
 **Vercel** (Production):
 
 ```bash
 vercel env add DATABASE_URL production
-vercel env add BUDBOOK_AUTH_SECRET production
+vercel env add PACSMT_AUTH_SECRET production
 ```
 
 Optional: `RDA_IMPORT_SECRET` for operator shop imports via `POST /api/internal/rda/import`.
@@ -69,4 +69,4 @@ With `DATABASE_URL` set, stash/journal/posts/CAA/RDA writes go to Postgres. Unse
 API routes → lib/repositories/* → Neon (if DATABASE_URL) | JSON files (fallback)
 ```
 
-User scoping uses `getCurrentUserId()` from `lib/budbook-user/currentUser.ts`, backed by JWT session when `BUDBOOK_AUTH_SECRET` is set.
+User scoping uses `getCurrentUserId()` from `lib/pacs-user/currentUser.ts`, backed by JWT session when `PACSMT_AUTH_SECRET` is set.

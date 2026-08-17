@@ -13,7 +13,7 @@ import { normalizeUrl } from '@lib/coa/normalize';
 import { isHttpSourceUrl } from '@lib/coa/userMessages';
 import { jobMetadataForScanInput } from '@lib/coa/input';
 import { validateScanInput } from '@lib/coa/validate';
-import { getCurrentUserId } from '@lib/budbook-user/currentUser';
+import { getCurrentUserId } from '@lib/pacs-user/currentUser';
 import { dbEnabled, getDb } from '@lib/db/client';
 import { toCoaReport, toCoaReportStashLink, toScanJob } from '@lib/db/mappers';
 import { coaReportStashLinks, coaReports, products, scanJobs } from '@lib/db/schema';

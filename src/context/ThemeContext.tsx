@@ -9,7 +9,7 @@ import React, {
   useState,
 } from 'react';
 import {
-  isThemePreference,
+  readThemePreference,
   resolveTheme,
   THEME_COLORS,
   THEME_STORAGE_KEY,
@@ -28,8 +28,7 @@ const ThemeContext = createContext<ThemeContextValue | null>(null);
 
 function readStoredPreference(): ThemePreference {
   if (typeof window === 'undefined') return 'system';
-  const stored = localStorage.getItem(THEME_STORAGE_KEY);
-  return isThemePreference(stored) ? stored : 'system';
+  return readThemePreference() ?? 'system';
 }
 
 function applyTheme(preference: ThemePreference) {

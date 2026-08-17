@@ -11,7 +11,7 @@ import {
   computeLiveInsights,
   computeActivitySubtitle,
 } from '@/lib/app-stats';
-import { productNameById } from '@/lib/budbook-data';
+import { productNameById } from '@/lib/pacs-data';
 import './home.css';
 
 export default async function DashboardPage() {
@@ -28,7 +28,7 @@ export default async function DashboardPage() {
       <section className="dashboard-hero glass-panel">
         <p className="dashboard-eyebrow">Welcome back, {user.full_name.split(' ')[0]}</p>
         <h2 className="dashboard-title">
-          Your <span className="gradient-text">wellness OS</span>
+          Your <span className="gradient-text">Montana scanner</span>
         </h2>
         <p className="dashboard-subtitle">{subtitle}</p>
         <div className="dashboard-stats meta-numeric">
@@ -46,12 +46,12 @@ export default async function DashboardPage() {
           </div>
         </div>
         <div className="dashboard-cta">
-          <Link href="/budbook-app/journal?log=1">
+          <Link href="/pacs/journal?log=1">
             <Button variant="primary" icon={<PenLine size={16} strokeWidth={1.75} />}>
               Log session
             </Button>
           </Link>
-          <Link href="/budbook-app/stash">
+          <Link href="/pacs/stash">
             <Button variant="secondary" icon={<Package size={16} strokeWidth={1.75} />}>
               View stash
             </Button>
@@ -72,7 +72,7 @@ export default async function DashboardPage() {
       <section className="dashboard-section">
         <div className="dashboard-section-header">
           <h3>Data insights</h3>
-          <Link href="/budbook-app/journal" className="dashboard-link">
+          <Link href="/pacs/journal" className="dashboard-link">
             Journal <ArrowRight size={14} />
           </Link>
         </div>
@@ -109,7 +109,7 @@ export default async function DashboardPage() {
             title="No sessions yet"
             description="Your recent sessions will appear here once you start logging."
             action={
-              <Link href="/budbook-app/journal?log=1">
+              <Link href="/pacs/journal?log=1">
                 <Button variant="primary" size="sm">
                   Log a session
                 </Button>

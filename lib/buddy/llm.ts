@@ -24,10 +24,10 @@ export async function getBuddyLlmReply(
   message: string,
   ctx: BuddyContext,
 ): Promise<string | null> {
-  const apiKey = process.env.BUDBOOK_OPENAI_API_KEY?.trim() || process.env.OPENAI_API_KEY?.trim();
+  const apiKey = process.env.PACSMT_OPENAI_API_KEY?.trim() || process.env.OPENAI_API_KEY?.trim();
   if (!apiKey) return null;
 
-  const model = process.env.BUDBOOK_OPENAI_MODEL?.trim() || 'gpt-4o-mini';
+  const model = process.env.PACSMT_OPENAI_MODEL?.trim() || 'gpt-4o-mini';
 
   const res = await fetch('https://api.openai.com/v1/chat/completions', {
     method: 'POST',
@@ -43,7 +43,7 @@ export async function getBuddyLlmReply(
         {
           role: 'system',
           content:
-            'You are Buddy, a concise cannabis wellness coach for BudBook. Use ONLY the user stash and journal context provided. Give practical, non-medical guidance in 2-4 sentences. Do not invent products or sessions not in context.',
+            'You are the PACS Assistant for Pacs.MT (Product Analysis Certification Scanner for Montana Cannabis Packaging). Use ONLY the user stash and journal context provided. Give practical, non-medical guidance about scanned products and sessions in 2-4 sentences. Do not invent products or sessions not in context.',
         },
         {
           role: 'user',

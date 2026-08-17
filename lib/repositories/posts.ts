@@ -1,7 +1,7 @@
 import { desc, eq, sql } from 'drizzle-orm';
 import { readFile, writeFile, mkdir } from 'fs/promises';
-import type { SocialPost } from '@/types/budbook';
-import { getCurrentUserId } from '@lib/budbook-user/currentUser';
+import type { SocialPost } from '@/types/pacs';
+import { getCurrentUserId } from '@lib/pacs-user/currentUser';
 import { dbEnabled, getDb } from '@lib/db/client';
 import { toSocialPost } from '@lib/db/mappers';
 import { posts } from '@lib/db/schema';

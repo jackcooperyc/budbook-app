@@ -84,7 +84,7 @@ export default function BuddyChat() {
     <div className="buddy-chat glass-panel">
       <div className="buddy-chat-header">
         <Sparkles size={18} strokeWidth={1.75} aria-hidden="true" />
-        <span>Buddy AI · wellness coach</span>
+        <span>PACS Assistant · scan &amp; stash coach</span>
       </div>
 
       <div className="buddy-chat-messages" ref={listRef}>
@@ -115,7 +115,7 @@ export default function BuddyChat() {
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder="Ask about your sessions…"
-          aria-label="Message Buddy AI"
+          aria-label="Message PACS Assistant"
           disabled={sending}
         />
         <Button type="submit" variant="primary" size="sm" icon={<Send size={14} strokeWidth={1.75} />} disabled={sending}>

@@ -24,9 +24,9 @@ function AppLayoutInner({ children }: { children: React.ReactNode }) {
   );
 }
 
-export default function BudbookAppLayout({ children }: { children: React.ReactNode }) {
+export default function PacsAppLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const isSignIn = pathname === '/budbook-app/sign-in';
+  const isSignIn = pathname === '/pacs/sign-in';
 
   if (isSignIn) {
     return <>{children}</>;

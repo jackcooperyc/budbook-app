@@ -1,5 +1,5 @@
 import React from 'react';
-import type { Session } from '@/types/budbook';
+import type { Session } from '@/types/pacs';
 import EfficacyDelta from '@/components/EfficacyDelta/EfficacyDelta';
 import Chip from '@/components/Chip/Chip';
 import './SessionCard.css';

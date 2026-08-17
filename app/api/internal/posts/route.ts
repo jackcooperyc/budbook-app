@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { readPosts, addPost, likePost } from '@/lib/budbook-posts/fileStore';
+import { readPosts, addPost, likePost } from '@/lib/posts-store/fileStore';
 import { resolveCurrentUser } from '@lib/auth/resolveUser';
 import { internalApiGuard } from '@lib/auth/guard';
 import { getAvatarSeed } from '@/lib/media';

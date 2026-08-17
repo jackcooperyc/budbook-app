@@ -1,4 +1,4 @@
-import type { Dispensary, Product } from '@/types/budbook';
+import type { Dispensary, Product } from '@/types/pacs';
 import type { RetailMenuItem, RetailStore } from '@/types/rda';
 import type { CaaEnrichment } from '@/types/caa';
 

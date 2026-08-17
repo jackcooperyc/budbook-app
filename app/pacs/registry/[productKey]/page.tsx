@@ -10,7 +10,7 @@ import './detail.css';
 
 type Params = { params: Promise<{ productKey: string }> };
 
-export default async function CannadexDetailPage({ params }: Params) {
+export default async function RegistryDetailPage({ params }: Params) {
   const { productKey } = await params;
   const entry = await getCatalogEntry(decodeURIComponent(productKey));
 
@@ -21,9 +21,9 @@ export default async function CannadexDetailPage({ params }: Params) {
         title="Strain not found"
         description="This product_key is not in the CAA catalog. Scan a COA to register it."
         action={
-          <Link href="/budbook-app/cannadex">
+          <Link href="/pacs/registry">
             <Button variant="primary" size="sm">
-              Back to Cannadex
+              Back to Registry
             </Button>
           </Link>
         }
@@ -37,9 +37,9 @@ export default async function CannadexDetailPage({ params }: Params) {
 
   return (
     <div className="cannadex-detail">
-      <Link href="/budbook-app/cannadex" className="cannadex-detail-back">
+      <Link href="/pacs/registry" className="cannadex-detail-back">
         <ArrowLeft size={14} strokeWidth={1.75} />
-        Cannadex
+        Registry
       </Link>
 
       <header className="cannadex-detail-hero glass-panel">
@@ -70,7 +70,7 @@ export default async function CannadexDetailPage({ params }: Params) {
           <p>
             In your stash as <strong>{inStash.strain_name}</strong>
           </p>
-          <Link href="/budbook-app/stash">
+          <Link href="/pacs/stash">
             <Button variant="secondary" size="sm">
               View stash
             </Button>

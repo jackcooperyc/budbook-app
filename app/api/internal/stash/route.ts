@@ -6,7 +6,7 @@ import {
   addCoaProductToServerStash,
   updateProductQuantity,
   deleteProductFromServerStash,
-} from '@/lib/budbook-stash/fileStore';
+} from '@/lib/stash-store/fileStore';
 import { registerCoaParse } from '@lib/caa/registry';
 import { isHttpSourceUrl } from '@lib/coa/userMessages';
 import {

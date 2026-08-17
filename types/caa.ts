@@ -1,4 +1,4 @@
-import type { Product, TerpeneProfile } from './budbook';
+import type { Product, TerpeneProfile } from './pacs';
 
 export type ComplianceStatus = 'pending' | 'confirmed';
 
@@ -48,7 +48,7 @@ export type CaaEnrichment = {
   brand?: string;
 };
 
-/** Cannadex catalog entry — confirmed CAA registry record. */
+/** Registry catalog entry — confirmed CAA registry record. */
 export type CaaCatalogEntry = CaaEnrichment & {
   strain_name: string;
   brand: string;

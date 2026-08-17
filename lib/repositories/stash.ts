@@ -1,9 +1,9 @@
 import { and, eq } from 'drizzle-orm';
-import type { Product, InventoryItem } from '@/types/budbook';
+import type { Product, InventoryItem } from '@/types/pacs';
 import type { CaaCoaParseResult } from '@/types/caa';
 import type { ScanProductInput } from '@/lib/stashStorage';
 import { isHttpSourceUrl } from '@lib/coa/userMessages';
-import { getCurrentUserId } from '@lib/budbook-user/currentUser';
+import { getCurrentUserId } from '@lib/pacs-user/currentUser';
 import { dbEnabled, getDb } from '@lib/db/client';
 import { toInventoryItem, toProduct } from '@lib/db/mappers';
 import { inventoryItems, products } from '@lib/db/schema';

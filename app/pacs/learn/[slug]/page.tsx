@@ -22,7 +22,7 @@ export default async function LearnArticlePage({ params }: Params) {
         title="Article not found"
         description="This Learn article is not in the CMS. Browse the library for available guides."
         action={
-          <Link href="/budbook-app/learn">
+          <Link href="/pacs/learn">
             <Button variant="primary" size="sm">
               Back to Learn
             </Button>
@@ -34,7 +34,7 @@ export default async function LearnArticlePage({ params }: Params) {
 
   return (
     <article className="learn-detail">
-      <Link href="/budbook-app/learn" className="learn-detail-back">
+      <Link href="/pacs/learn" className="learn-detail-back">
         <ArrowLeft size={14} strokeWidth={1.75} />
         Learn
       </Link>

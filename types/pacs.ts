@@ -1,5 +1,5 @@
 /**
- * BudBook domain types.
+ * Pacs.MT domain types.
  */
 
 export type TerpeneProfile = {
@@ -19,7 +19,7 @@ export type Product = {
   terpene_profile: TerpeneProfile[];
   lab_report_id: string;
   dispensary_id: string;
-  /** Join key for CAA / RDA / Cannadex. Set when known. */
+  /** Join key for CAA / RDA / Registry. Set when known. */
   product_key?: string;
   /**
    * Original COA / QR evidence URL when known (http(s) only).
@@ -90,7 +90,7 @@ export type Accessory = {
   ecosystem_tag: string;
 };
 
-export type BudbookUser = {
+export type PacsUser = {
   id: string;
   email: string;
   full_name: string;

@@ -1,4 +1,4 @@
-# BudBook Data Model
+# Pacs.MT Data Model
 
 The native Next.js UI runs on **persisted data** — Neon Postgres in production, file-backed JSON stores for local dev without `DATABASE_URL`.
 
@@ -6,19 +6,19 @@ The native Next.js UI runs on **persisted data** — Neon Postgres in production
 
 | Domain | Store | API |
 |--------|-------|-----|
-| User identity | Neon `users` + JWT session (or dev default user) | `GET /api/auth/session`, `GET /api/internal/budbook-user` |
-| Stash (products + inventory) | `products` + `inventory_items` | `GET/POST/PATCH/DELETE /api/internal/budbook-stash` |
-| Journal sessions | `sessions` | `GET/POST /api/internal/budbook-sessions` |
-| Community posts | `posts` | `GET/POST /api/internal/budbook-posts` |
+| User identity | Neon `users` + JWT session (or dev default user) | `GET /api/auth/session`, `GET /api/internal/user` |
+| Stash (products + inventory) | `products` + `inventory_items` | `GET/POST/PATCH/DELETE /api/internal/stash` |
+| Journal sessions | `sessions` | `GET/POST /api/internal/journal` |
+| Community posts | `posts` | `GET/POST /api/internal/posts` |
 | Retail shops + menus | `rda_stores` + `rda_menu_items` | `GET /api/internal/rda/stores`, `.../menu`, `POST .../import` |
 | Learn articles | `learn_articles` | `GET /api/internal/learn`, `GET .../learn/[slug]`, `POST .../learn/import` |
 | CAA COA catalog | `caa_catalog_entries` | `POST /api/internal/caa/parse`, `GET .../catalog` |
-| COA parse (legacy alias) | — | `POST /api/internal/budbook-coa/parse` → CAA |
-| Friends / circles | `friendships`, `circles`, `circle_members` | `GET/POST /api/internal/budbook-friends`, `.../circles` |
+| COA parse (legacy alias) | — | `POST /api/internal/caa/parse` → CAA |
+| Friends / circles | `friendships`, `circles`, `circle_members` | `GET/POST /api/internal/friends`, `.../circles` |
 
 Server components aggregate via `getAppData()` in `src/lib/app-data.ts`. Client pages use the matching hooks (`useServerStash`, `useServerSessions`, `useCurrentUser`).
 
-**Storage path:** When `DATABASE_URL` is set, user data, CAA catalog, RDA shops, and Learn articles persist in **Neon Postgres** via Drizzle (`lib/db/`, `lib/repositories/`). Otherwise `lib/data-dir.ts` writes to `./data` locally and `/tmp/budbook-data` on Vercel. File data on Vercel is ephemeral per serverless instance.
+**Storage path:** When `DATABASE_URL` is set, user data, CAA catalog, RDA shops, and Learn articles persist in **Neon Postgres** via Drizzle (`lib/db/`, `lib/repositories/`). Otherwise `lib/data-dir.ts` writes to `./data` locally and `/tmp/pacsmt-data` on Vercel. File data on Vercel is ephemeral per serverless instance.
 
 ```bash
 npm run db:migrate   # apply lib/db/migrations/*.sql (requires DATABASE_URL)
@@ -59,7 +59,7 @@ Operator import: `POST /api/internal/learn/import` with `Authorization: Bearer $
 
 | Route | Waiting on |
 |-------|------------|
-| `/budbook-app/friends` | Friend invites / social graph |
+| `/pacs/friends` | Friend invites / social graph |
 
 ## Insights and stats
 

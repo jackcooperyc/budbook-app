@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { getRetailMenuItem } from '@lib/rda/gateway';
 import { getCaaEnrichment } from '@lib/caa/enrich';
 import { toProduct } from '@lib/rda/resolvers';
-import { addProductFromMenu } from '@/lib/budbook-stash/fileStore';
+import { addProductFromMenu } from '@/lib/stash-store/fileStore';
 import { internalApiGuard } from '@lib/auth/guard';
 
 type Params = { params: Promise<{ store_key: string; menu_item_key: string }> };

@@ -1,8 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useState } from 'react';
-import type { InventoryItem, Product } from '@/types/budbook';
-import type { LocalStashData } from '@/lib/budbook-stash/fileStore';
+import type { InventoryItem, Product } from '@/types/pacs';
+import type { LocalStashData } from '@/lib/stash-store/fileStore';
 import type { ScanProductInput } from '@/lib/stashStorage';
 
 export function useServerStash() {
@@ -10,7 +10,7 @@ export function useServerStash() {
   const [error, setError] = useState<string | null>(null);
 
   const reload = useCallback(() => {
-    fetch('/api/internal/budbook-stash')
+    fetch('/api/internal/stash')
       .then((r) => {
         if (!r.ok) throw new Error('Failed to load stash');
         return r.json();
@@ -25,7 +25,7 @@ export function useServerStash() {
 
   const addProduct = useCallback(
     async (input: ScanProductInput) => {
-      const res = await fetch('/api/internal/budbook-stash', {
+      const res = await fetch('/api/internal/stash', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(input),
@@ -47,7 +47,7 @@ export function useServerStash() {
       type?: Product['type'];
       unit?: string;
     }) => {
-      const res = await fetch('/api/internal/budbook-stash', {
+      const res = await fetch('/api/internal/stash', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ kind: 'manual', ...input }),
@@ -61,7 +61,7 @@ export function useServerStash() {
 
   const updateQuantity = useCallback(
     async (productId: string, quantity: number, unit?: string) => {
-      const res = await fetch('/api/internal/budbook-stash', {
+      const res = await fetch('/api/internal/stash', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ productId, quantity, unit }),
@@ -74,7 +74,7 @@ export function useServerStash() {
 
   const deleteProduct = useCallback(
     async (productId: string) => {
-      const res = await fetch('/api/internal/budbook-stash', {
+      const res = await fetch('/api/internal/stash', {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ productId }),

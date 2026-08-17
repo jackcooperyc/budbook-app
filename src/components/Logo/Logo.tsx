@@ -7,6 +7,7 @@ interface LogoProps {
   className?: string;
 }
 
+/** Pacs.MT mark — scanner frame with Montana-green accent. */
 export default function Logo({
   size = 36,
   showWordmark = false,
@@ -24,17 +25,28 @@ export default function Logo({
         aria-hidden="true"
       >
         <rect className="logo-mark-bg" width="36" height="36" rx="10" />
-        <path
-          className="logo-mark-book"
-          d="M10 10h8v16H10c-1.1 0-2-.9-2-2V12c0-1.1.9-2 2-2zm10 0h6c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2h-6V10z"
-        />
+        {/* Scanner corners */}
         <path
           className="logo-mark-leaf"
-          d="M24 8c2 3 2.5 6.5 1 9.5-1.2 2.3-3.8 3.8-6.5 3.5 2.8-.8 4.8-3.2 5.2-6 0 0 1.2-3.2-.7-7z"
+          d="M9 12V10h4M27 12V10h-4M9 24v2h4M27 24v2h-4"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
         />
-        <path className="logo-mark-spine" d="M18 10v16" strokeWidth="1.2" />
+        {/* Scan line */}
+        <path className="logo-mark-spine" d="M11 18h14" strokeWidth="1.5" strokeLinecap="round" />
+        {/* Package / cert mark */}
+        <rect
+          className="logo-mark-book"
+          x="13"
+          y="13"
+          width="10"
+          height="10"
+          rx="1.5"
+          strokeWidth="1.4"
+        />
       </svg>
-      {showWordmark && <span className="logo-wordmark">BudBook</span>}
+      {showWordmark && <span className="logo-wordmark">Pacs.MT</span>}
     </span>
   );
 }

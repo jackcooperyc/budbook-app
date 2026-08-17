@@ -10,7 +10,7 @@ import {
   text,
   timestamp,
 } from 'drizzle-orm/pg-core';
-import type { Product, Session, TerpeneProfile } from '@/types/budbook';
+import type { Product, Session, TerpeneProfile } from '@/types/pacs';
 import type { NormalizedCoaResult } from '@lib/coa/types';
 import type { LearnArticle } from '@/types/learn';
 import type { RetailMenuItem, RetailStore } from '@/types/rda';

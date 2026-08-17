@@ -41,7 +41,7 @@ Effects fade. Sit or lie down, hydrate, breathe slowly, and avoid more cannabis.
 
 ## Bottom line
 
-Your journal in BudBook is a good place to note dose, method, and how you felt afterward. Patterns beat guesswork.
+Your journal in Pacs.MT is a good place to note dose, method, and how you felt afterward. Patterns beat guesswork.
 `,
   },
   {
@@ -57,7 +57,7 @@ Your journal in BudBook is a good place to note dose, method, and how you felt a
 
 A **Certificate of Analysis** is a lab document for a specific batch or sample. Retail menus and package labels often summarize results; the COA is the fuller record.
 
-BudBook’s scanner path uses COA data (when available) to populate authoritative terpenes and cannabinoid percentages in your stash.
+Pacs.MT’s scanner path uses COA data (when available) to populate authoritative terpenes and cannabinoid percentages in your stash.
 
 ## Core sections to scan
 
@@ -89,9 +89,9 @@ If a contaminant panel is missing, treat potency-only sheets as incomplete for s
 - Results that look copy-pasted across unrelated products
 - Potency claims far outside typical ranges without explanation
 
-## Using COAs in BudBook
+## Using COAs in Pacs.MT
 
-Scan or paste a COA URL when possible so Cannadex and stash entries share a consistent \`product_key\` and lab report ID. That keeps your journal tied to the same chemistry over time.
+Scan or paste a COA URL when possible so Registry and stash entries share a consistent \`product_key\` and lab report ID. That keeps your journal tied to the same chemistry over time.
 `,
   },
   {
@@ -164,7 +164,7 @@ Cannabis is not a classic psychedelic for most people at typical doses, but the 
 
 ## After
 
-Log the session while details are fresh. BudBook’s before/after scores make it easier to notice which products and contexts work for you — and which to skip next time.
+Log the session while details are fresh. Pacs.MT’s before/after scores make it easier to notice which products and contexts work for you — and which to skip next time.
 `,
   },
   {

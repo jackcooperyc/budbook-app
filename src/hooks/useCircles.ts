@@ -1,13 +1,13 @@
 "use client";
 
 import { useCallback, useEffect, useState } from 'react';
-import type { CircleGroup } from '@/types/budbook';
+import type { CircleGroup } from '@/types/pacs';
 
 export function useCircles() {
   const [circles, setCircles] = useState<CircleGroup[] | null>(null);
 
   const reload = useCallback(() => {
-    fetch('/api/internal/budbook-circles')
+    fetch('/api/internal/circles')
       .then((r) => r.json())
       .then(setCircles)
       .catch(() => setCircles([]));
@@ -19,7 +19,7 @@ export function useCircles() {
 
   const createCircle = useCallback(
     async (input: { name: string; description?: string; isPrivate?: boolean }) => {
-      const res = await fetch('/api/internal/budbook-circles', {
+      const res = await fetch('/api/internal/circles', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(input),

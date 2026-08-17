@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import type { Product, Session } from '@/types/budbook';
+import type { Product, Session } from '@/types/pacs';
 import Button from '@/components/Button/Button';
 import EfficacySlider from '@/components/EfficacySlider/EfficacySlider';
 import { createSessionId } from '@/lib/journalStorage';

@@ -1,4 +1,4 @@
-# BudBook MVP Scope
+# Pacs.MT MVP Scope
 
 Functional MVP — persisted user data + operator-imported RDA shops + CAA compliance path.
 
@@ -6,7 +6,7 @@ Functional MVP — persisted user data + operator-imported RDA shops + CAA compl
 
 1. Start with an **empty** stash and journal
 2. Browse shops (RDA, operator-imported) → menu → add to stash (terpenes pending until CAA match)
-3. Scan COA (CAA) → authoritative terpenes → add to stash → appears in Cannadex
+3. Scan COA (CAA) → authoritative terpenes → add to stash → appears in Registry
 4. Log sessions → dashboard insights update
 5. Create community posts (attributed to signed-in user when auth is enabled)
 
@@ -17,13 +17,13 @@ Functional MVP — persisted user data + operator-imported RDA shops + CAA compl
 | File-backed stash, sessions, posts | Done (Neon when `DATABASE_URL` set) |
 | RDA shops + menu → stash | Done (operator import) |
 | CAA COA parse (url / text / QR) | Done |
-| CAA registry + Cannadex catalog | Done |
+| CAA registry + product Registry catalog | Done |
 | Duplicate COA detection in stash | Done |
 | `product_key` join (RDA menu ↔ CAA) | Done |
-| Session auth (`BUDBOOK_AUTH_SECRET`) | Done |
+| Session auth (`PACSMT_AUTH_SECRET`) | Done |
 | Stash CRUD | Done |
 | Neon Postgres persistence | Done |
-| Buddy AI (live stash + journal context) | Done |
+| PACS Assistant (live stash + journal context) | Done |
 | Post likes | Done |
 | Learn CMS (articles + seed pack) | Done |
 
@@ -59,8 +59,9 @@ npm run reset-learn  # clear Learn articles (auto-seed returns on next read)
 | `/api/internal/learn` | GET |
 | `/api/internal/learn/[slug]` | GET |
 | `/api/internal/learn/import` | POST (Bearer `LEARN_IMPORT_SECRET`) |
-| `/api/internal/budbook-stash` | GET, POST (`kind: coa`), PATCH, DELETE |
-| `/api/internal/budbook-posts` | GET, POST, PATCH (`action: like`) |
+| `/api/internal/stash` | GET, POST (`kind: coa`), PATCH, DELETE |
+| `/api/internal/journal` | GET, POST |
+| `/api/internal/posts` | GET, POST, PATCH (`action: like`) |
 | `/api/internal/buddy/chat` | GET (prompts), POST (message) |
 
 ## Next phase
@@ -68,7 +69,7 @@ npm run reset-learn  # clear Learn articles (auto-seed returns on next read)
 RDA live Weedmaps/Leafly adapter, invite-based friend requests, Learn CMS admin UI / rich media.
 
 **Recently shipped:**
-- **Learn CMS** — curated education & harm-reduction articles (`/budbook-app/learn`, seed pack + optional operator import)
+- **Learn CMS** — curated education & harm-reduction articles (`/pacs/learn`, seed pack + optional operator import)
 - PDF **text-layer** extraction (`unpdf`) → review UI with `label_ocr` provenance (image-only PDFs still need manual fields; no OCR)
 - Metrc CAA adapter (optional): set `METRC_BASE_URL`, `METRC_USER_KEY`, `METRC_VENDOR_KEY`
 

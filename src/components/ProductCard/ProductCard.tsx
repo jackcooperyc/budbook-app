@@ -1,7 +1,7 @@
 import React from 'react';
 import Image from 'next/image';
 import { ExternalLink, FlaskConical, Pencil, Trash2 } from 'lucide-react';
-import type { InventoryItem, Product } from '@/types/budbook';
+import type { InventoryItem, Product } from '@/types/pacs';
 import Chip from '@/components/Chip/Chip';
 import TerpeneProfile from '@/components/TerpeneProfile/TerpeneProfile';
 import Button from '@/components/Button/Button';

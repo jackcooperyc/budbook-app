@@ -1,15 +1,15 @@
-import type { BudbookUser } from '@/types/budbook';
+import type { PacsUser } from '@/types/pacs';
 
 /**
  * Dev-mode single user. Replace with auth session when login ships.
- * Override via env: BUDBOOK_USER_NAME, BUDBOOK_USER_USERNAME, BUDBOOK_USER_EMAIL
+ * Override via env: PACSMT_USER_NAME, PACSMT_USER_USERNAME, PACSMT_USER_EMAIL
  */
-export function getDefaultUser(): BudbookUser {
+export function getDefaultUser(): PacsUser {
   return {
     id: 'user-local-dev',
-    email: process.env.BUDBOOK_USER_EMAIL ?? 'dev@budbook.local',
-    full_name: process.env.BUDBOOK_USER_NAME ?? 'BudBook User',
-    username: process.env.BUDBOOK_USER_USERNAME ?? 'budbookuser',
+    email: process.env.PACSMT_USER_EMAIL ?? 'dev@pacsmt.local',
+    full_name: process.env.PACSMT_USER_NAME ?? 'Pacs.MT User',
+    username: process.env.PACSMT_USER_USERNAME ?? 'pacsmt',
     role: 'user',
   };
 }

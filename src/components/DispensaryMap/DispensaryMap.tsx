@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useMemo } from 'react';
-import type { Dispensary } from '@/types/budbook';
+import type { Dispensary } from '@/types/pacs';
 import './DispensaryMap.css';
 
 interface DispensaryMapProps {

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import type { Product } from '@/types/budbook';
+import type { Product } from '@/types/pacs';
 import Button from '@/components/Button/Button';
 import './ManualAddProductForm.css';
 

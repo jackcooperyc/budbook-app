@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import type { Product } from '@/types/budbook';
+import type { Product } from '@/types/pacs';
 import type { RetailMenuItem } from '@/types/rda';
 import Button from '@/components/Button/Button';
 import RetailSourceBadge from '@/components/RetailSourceBadge/RetailSourceBadge';

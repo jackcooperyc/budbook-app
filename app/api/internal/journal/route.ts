@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
-import { addServerSession, readServerSessions } from '@/lib/budbook-sessions/fileStore';
+import { addServerSession, readServerSessions } from '@/lib/sessions-store/fileStore';
 import { internalApiGuard } from '@lib/auth/guard';
-import type { Session } from '@/types/budbook';
+import type { Session } from '@/types/pacs';
 
 export async function GET() {
   const blocked = await internalApiGuard();

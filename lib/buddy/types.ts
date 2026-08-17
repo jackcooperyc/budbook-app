@@ -1,4 +1,4 @@
-import type { InventoryItem, Product, Session } from '@/types/budbook';
+import type { InventoryItem, Product, Session } from '@/types/pacs';
 
 export type BuddyContext = {
   products: Product[];

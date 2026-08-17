@@ -42,7 +42,7 @@ export default async function LearnPage() {
           {articles.map((article) => (
             <li key={article.slug}>
               <Link
-                href={`/budbook-app/learn/${encodeURIComponent(article.slug)}`}
+                href={`/pacs/learn/${encodeURIComponent(article.slug)}`}
                 className="learn-card glass-panel"
               >
                 <div className="learn-card-top">

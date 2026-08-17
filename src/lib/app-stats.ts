@@ -1,5 +1,5 @@
-import type { InventoryItem, Product, Session } from '@/types/budbook';
-import { inventoryByProductId, isLowStock, productNameById } from '@/lib/budbook-data';
+import type { InventoryItem, Product, Session } from '@/types/pacs';
+import { inventoryByProductId, isLowStock, productNameById } from '@/lib/pacs-data';
 import { formatQuantity } from '@/lib/media';
 
 export function computeActivitySubtitle(sessions: Session[]): string {

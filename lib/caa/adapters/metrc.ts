@@ -8,7 +8,7 @@
  *
  * Without env, URL detection still works but live parse returns null (fallback to HTML/PDF).
  */
-import type { Product } from '@/types/budbook';
+import type { Product } from '@/types/pacs';
 import type { CaaCoaParseResult, CaaParseSource } from '@/types/caa';
 import { deriveProductKey } from '@lib/rda/keying';
 

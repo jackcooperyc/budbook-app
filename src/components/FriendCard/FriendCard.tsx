@@ -3,7 +3,7 @@
 import React from 'react';
 import Avatar from '@/components/Avatar/Avatar';
 import { getAvatarSeed } from '@/lib/media';
-import type { FriendProfile } from '@/types/budbook';
+import type { FriendProfile } from '@/types/pacs';
 import './FriendCard.css';
 
 export default function FriendCard({ friend }: { friend: FriendProfile }) {

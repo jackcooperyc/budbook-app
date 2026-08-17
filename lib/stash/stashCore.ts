@@ -1,5 +1,5 @@
 import { readFile, writeFile, mkdir } from 'fs/promises';
-import type { InventoryItem, Product } from '@/types/budbook';
+import type { InventoryItem, Product } from '@/types/pacs';
 import type { CaaCoaParseResult } from '@/types/caa';
 import type { ScanProductInput } from '@/lib/stashStorage';
 import { dataFile, getDataDir } from '@lib/data-dir';
